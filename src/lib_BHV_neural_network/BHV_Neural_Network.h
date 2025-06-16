@@ -11,6 +11,15 @@
 #include <string>
 #include "IvPBehavior.h"
 
+// This needs to read in a file containing parameters/structure
+//     Parameters is a comma-seperated list of precise doubles
+//     Structure is the number of inputs (sensor readings), number of units in each intermediate layer, number of outputs (action-space, generally size 2)
+// This needs to create the network
+// Load in weights that were read
+// This needs to do a forward pass and output the actions (absolute velocity and relative heading)
+//     velocity action is irrespective of current velocity. Velocity of 1.0 means change the velocity to 1.0, not add 1.0 to current velocity.
+//     heading is relative to current heading. Relative heading of +0.5 means add 0.5 to current heading.
+
 class BHV_Neural_Network : public IvPBehavior {
 public:
   BHV_Neural_Network(IvPDomain);
@@ -32,6 +41,8 @@ protected: // Configuration parameters
 
 protected: // State variables
 };
+
+
 
 #define IVP_EXPORT_FUNCTION
 
