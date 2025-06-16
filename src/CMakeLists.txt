@@ -19,6 +19,10 @@ ADD_SUBDIRECTORY(lib_behaviors-test)
 ADD_SUBDIRECTORY(pExampleApp)
 ADD_SUBDIRECTORY(pXRelayTest)
 
+ADD_SUBDIRECTORY(lib_BHV_neural_network)
+ADD_SUBDIRECTORY(pSectorSense)
+ADD_SUBDIRECTORY(uFldRecordKeeper)
+
 ##############################################################################
 #                           END of CMakeLists.txt
 ##############################################################################
