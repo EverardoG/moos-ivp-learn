@@ -10,6 +10,7 @@
 
 #include <string>
 #include "IvPBehavior.h"
+#include "network.hpp"
 
 // This needs to read in a file containing parameters/structure
 //     Parameters is a comma-seperated list of precise doubles
@@ -24,7 +25,7 @@ class BHV_Neural_Network : public IvPBehavior {
 public:
   BHV_Neural_Network(IvPDomain);
   ~BHV_Neural_Network() {};
-  
+
   bool         setParam(std::string, std::string);
   void         onSetParamComplete();
   void         onCompleteState();
@@ -47,7 +48,7 @@ protected: // State variables
 #define IVP_EXPORT_FUNCTION
 
 extern "C" {
-  IVP_EXPORT_FUNCTION IvPBehavior * createBehavior(std::string name, IvPDomain domain) 
+  IVP_EXPORT_FUNCTION IvPBehavior * createBehavior(std::string name, IvPDomain domain)
   {return new BHV_Neural_Network(domain);}
 }
 #endif
