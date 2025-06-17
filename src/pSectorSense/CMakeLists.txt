@@ -12,9 +12,10 @@ SET(SRC
 ADD_EXECUTABLE(pSectorSense ${SRC})
 
 TARGET_LINK_LIBRARIES(pSectorSense
-   ${MOOS_LIBRARIES}
-   apputil
-   mbutil
-   m
-   pthread)
+  ${MOOS_LIBRARIES}
+  geometry
+  apputil
+  mbutil
+  m
+  pthread)
 
