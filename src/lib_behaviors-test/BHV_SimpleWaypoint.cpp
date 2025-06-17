@@ -36,15 +36,15 @@ using namespace std;
 //-----------------------------------------------------------
 // Procedure: Constructor
 
-BHV_SimpleWaypoint::BHV_SimpleWaypoint(IvPDomain gdomain) : 
+BHV_SimpleWaypoint::BHV_SimpleWaypoint(IvPDomain gdomain) :
   IvPBehavior(gdomain)
 {
   IvPBehavior::setParam("name", "simple_waypoint");
   m_domain = subDomain(m_domain, "course,speed");
 
   // All distances are in meters, all speed in meters per second
-  // Default values for configuration parameters 
-  m_desired_speed  = 0; 
+  // Default values for configuration parameters
+  m_desired_speed  = 0;
   m_arrival_radius = 10;
   m_ipf_type       = "zaic";
 
@@ -58,7 +58,7 @@ BHV_SimpleWaypoint::BHV_SimpleWaypoint(IvPDomain gdomain) :
 //---------------------------------------------------------------
 // Procedure: setParam - handle behavior configuration parameters
 
-bool BHV_SimpleWaypoint::setParam(string param, string val) 
+bool BHV_SimpleWaypoint::setParam(string param, string val)
 {
   // Convert the parameter to lower case for more general matching
   param = tolower(param);
@@ -81,7 +81,7 @@ bool BHV_SimpleWaypoint::setParam(string param, string val)
     return(true);
   }
   else if(param == "ipf_type") {
-    val = tolower(val);    
+    val = tolower(val);
     if((val == "zaic") || (val == "reflector")) {
       m_ipf_type = val;
       return(true);
@@ -93,7 +93,7 @@ bool BHV_SimpleWaypoint::setParam(string param, string val)
 //-----------------------------------------------------------
 // Procedure: onIdleState
 
-void BHV_SimpleWaypoint::onIdleState() 
+void BHV_SimpleWaypoint::onIdleState()
 {
   postViewPoint(false);
 }
@@ -101,10 +101,10 @@ void BHV_SimpleWaypoint::onIdleState()
 //-----------------------------------------------------------
 // Procedure: postViewPoint
 
-void BHV_SimpleWaypoint::postViewPoint(bool viewable) 
+void BHV_SimpleWaypoint::postViewPoint(bool viewable)
 {
   m_nextpt.set_label(m_us_name + "'s next waypoint");
-  
+
   string point_spec;
   if(viewable)
     point_spec = m_nextpt.get_spec("active=true");
@@ -116,9 +116,9 @@ void BHV_SimpleWaypoint::postViewPoint(bool viewable)
 //-----------------------------------------------------------
 // Procedure: onRunState
 
-IvPFunction *BHV_SimpleWaypoint::onRunState() 
+IvPFunction *BHV_SimpleWaypoint::onRunState()
 {
-  // Part 1: Get vehicle position from InfoBuffer and post a 
+  // Part 1: Get vehicle position from InfoBuffer and post a
   // warning if problem is encountered
   bool ok1, ok2;
   m_osx = getBufferDoubleVal("NAV_X", ok1);
@@ -127,8 +127,8 @@ IvPFunction *BHV_SimpleWaypoint::onRunState()
     postWMessage("No ownship X/Y info in info_buffer.");
     return(0);
   }
-  
-  // Part 2: Determine if the vehicle has reached the destination 
+
+  // Part 2: Determine if the vehicle has reached the destination
   // point and if so, declare completion.
 #ifdef WIN32
   double dist = _hypot((m_nextpt.x()-m_osx), (m_nextpt.y()-m_osy));
@@ -141,48 +141,48 @@ IvPFunction *BHV_SimpleWaypoint::onRunState()
     return(0);
   }
 
-  // Part 3: Post the waypoint as a string for consumption by 
+  // Part 3: Post the waypoint as a string for consumption by
   // a viewer application.
   postViewPoint(true);
 
-  // Part 4: Build the IvP function with either the ZAIC tool 
+  // Part 4: Build the IvP function with either the ZAIC tool
   // or the Reflector tool.
   IvPFunction *ipf = 0;
   if(m_ipf_type == "zaic")
     ipf = buildFunctionWithZAIC();
   else
     ipf = buildFunctionWithReflector();
-  if(ipf == 0) 
+  if(ipf == 0)
     postWMessage("Problem Creating the IvP Function");
 
   if(ipf)
     ipf->setPWT(m_priority_wt);
-  
+
   return(ipf);
 }
 
 //-----------------------------------------------------------
 // Procedure: buildFunctionWithZAIC
 
-IvPFunction *BHV_SimpleWaypoint::buildFunctionWithZAIC() 
+IvPFunction *BHV_SimpleWaypoint::buildFunctionWithZAIC()
 {
   ZAIC_PEAK spd_zaic(m_domain, "speed");
   spd_zaic.setSummit(m_desired_speed);
   spd_zaic.setPeakWidth(0.5);
   spd_zaic.setBaseWidth(1.0);
-  spd_zaic.setSummitDelta(0.8);  
+  spd_zaic.setSummitDelta(0.8);
   if(spd_zaic.stateOK() == false) {
     string warnings = "Speed ZAIC problems " + spd_zaic.getWarnings();
     postWMessage(warnings);
     return(0);
   }
-  
+
   double rel_ang_to_wpt = relAng(m_osx, m_osy, m_nextpt.x(), m_nextpt.y());
   ZAIC_PEAK crs_zaic(m_domain, "course");
   crs_zaic.setSummit(rel_ang_to_wpt);
   crs_zaic.setPeakWidth(0);
   crs_zaic.setBaseWidth(180.0);
-  crs_zaic.setSummitDelta(0);  
+  crs_zaic.setSummitDelta(0);
   crs_zaic.setValueWrap(true);
   if(crs_zaic.stateOK() == false) {
     string warnings = "Course ZAIC problems " + crs_zaic.getWarnings();
@@ -202,7 +202,7 @@ IvPFunction *BHV_SimpleWaypoint::buildFunctionWithZAIC()
 //-----------------------------------------------------------
 // Procedure: buildFunctionWithReflector
 
-IvPFunction *BHV_SimpleWaypoint::buildFunctionWithReflector() 
+IvPFunction *BHV_SimpleWaypoint::buildFunctionWithReflector()
 {
   IvPFunction *ivp_function;
 

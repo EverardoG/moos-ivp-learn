@@ -39,7 +39,7 @@ bool BHV_Neural_Network::setParam(string param, string val)
 
   // Get the numerical value of the param argument for convenience once
   double double_val = atof(val.c_str());
-  
+
   if((param == "foo") && isNumber(val)) {
     // Set local member variables here
     return(true);
@@ -116,6 +116,16 @@ void BHV_Neural_Network::onRunToIdleState()
 
 IvPFunction* BHV_Neural_Network::onRunState()
 {
+  // Get the latest sensor reading from SectorSense
+  bool ok = false;
+  std::string sensor_input_str = getBufferStringVal("sensor_read_vehicle_0", ok);
+  if(!ok) {
+    postWMessage("No ownship sensor info in info_buffer.");
+    return(0);
+  }
+
+  // Parse the sensor reading into input for the neural network
+
   // Part 1: Build the IvP function
   IvPFunction *ipf = 0;
 

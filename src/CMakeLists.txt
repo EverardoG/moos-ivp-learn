@@ -23,6 +23,8 @@ ADD_SUBDIRECTORY(lib_BHV_neural_network)
 ADD_SUBDIRECTORY(pSectorSense)
 ADD_SUBDIRECTORY(uFldRecordKeeper)
 ADD_SUBDIRECTORY(neural_network)
+ADD_SUBDIRECTORY(sector_sensor)
+# ADD_SUBDIRECTORY(general_utils)
 
 ##############################################################################
 #                           END of CMakeLists.txt
