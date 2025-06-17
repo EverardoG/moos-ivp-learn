@@ -10,7 +10,7 @@
 
 #include <string>
 #include "IvPBehavior.h"
-#include "network.hpp"
+#include "network.h"
 
 // This needs to read in a file containing parameters/structure
 //     Parameters is a comma-seperated list of precise doubles
