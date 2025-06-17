@@ -24,7 +24,7 @@ ADD_SUBDIRECTORY(pSectorSense)
 ADD_SUBDIRECTORY(uFldRecordKeeper)
 ADD_SUBDIRECTORY(neural_network)
 ADD_SUBDIRECTORY(sector_sensor)
-# ADD_SUBDIRECTORY(general_utils)
+ADD_SUBDIRECTORY(general_utils)
 
 ##############################################################################
 #                           END of CMakeLists.txt

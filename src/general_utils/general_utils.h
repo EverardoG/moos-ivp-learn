@@ -1,3 +1,9 @@
+#include <iterator>
+#include "MBUtils.h"
+#include "ACTable.h"
+#include "MOOS/libMOOS/Thirdparty/AppCasting/AppCastingMOOSApp.h"
+#include "XYFormatUtilsPoint.h"
+#include "XYPoint.h"
 #include "AngleUtils.h"      // for relAngle
 #include <cmath>
 
