@@ -140,6 +140,12 @@ public:
 
         for (Layer& layer : layers) {
             current_inputs = layer.forward(current_inputs); // Outputs of the current layer become inputs for the next layer
+            // Debug: Print current_inputs before applying bounds
+            std::cout << "Current inputs: ";
+            for (const double& input : current_inputs) {
+                std::cout << input << " ";
+            }
+            std::cout << std::endl;
         }
 
         // Apply bounds to the final outputs
@@ -149,9 +155,9 @@ public:
             if (output_node.get_activation_type() == Node::ActivationType::Tanh) {
                 // Apply asymmetric bounds for Tanh activation
                 if (current_inputs[i] > 0) {
-                    current_inputs[i] *= bounds[i][1]; // Multiply by positive bound
+                    current_inputs[i] *= bounds[i][1]; // Scale by the positive bound
                 } else {
-                    current_inputs[i] *= bounds[i][0]; // Multiply by negative bound
+                    current_inputs[i] *= -bounds[i][0]; // Scale by negative bound (add negative sign so we don't accidentally flip the sign of our output)
                 }
             } else {
                 // Apply cutoff bounds for other activation types

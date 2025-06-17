@@ -13,9 +13,9 @@ int main() {
         1.0, 1.0, 1.0            // Node 2
     };
 
-    for (int i = 0; i < weights.size(); i++) {
-        weights[i] = -weights[i];
-    }
+    // for (int i = 0; i < weights.size(); i++) {
+    //     weights[i] = -weights[i];
+    // }
 
     // Define the structure of the network: 3 inputs, 2 hidden nodes, 2 outputs
     std::vector<int> structure = {3, 2, 2};
