@@ -48,6 +48,10 @@ public:
             throw std::invalid_argument("Unsupported activation type.");
         }
     }
+
+    ActivationType get_activation_type() const {
+        return activation_type;
+    }
 };
 
 class Layer {
@@ -66,15 +70,21 @@ public:
         }
         return outputs; // Return outputs from all nodes
     }
+
+    const std::vector<Node>& get_nodes() const {
+        return nodes;
+    }
 };
 
 class NeuralNetwork {
 private:
     std::vector<Layer> layers; // Each layer contains multiple nodes
+    std::vector<std::vector<double>> bounds; // Bounds for final outputs
 
 public:
     // Constructor to initialize the network
-    NeuralNetwork(const std::vector<double>& weights, const std::vector<int>& structure) {
+    NeuralNetwork(const std::vector<double>& weights, const std::vector<int>& structure, const std::vector<std::vector<double>>& bounds)
+        : bounds(bounds) {
         if (structure.size() < 3) {
             throw std::invalid_argument("Network structure must have at least an input, hidden, and output layer.");
         }
@@ -83,7 +93,7 @@ public:
         // For each layer
         for (size_t i = 0; i < structure.size() - 1; ++i) {
             int input_size = structure[i] + 1; // Include bias term
-            int output_size = structure[i]; // Number of nodes in the current layer
+            int output_size = structure[i+1]; // Number of nodes in the current layer
             std::vector<Node> layer;
 
             std::cout << "Initializing layer " << i + 1 << " with " << output_size << " nodes." << std::endl;
@@ -117,6 +127,10 @@ public:
             throw std::invalid_argument("Extra weights provided beyond the network structure.");
         }
 
+        if (bounds.size() != structure.back()) {
+            throw std::invalid_argument("Bounds size must match the number of outputs in the final layer.");
+        }
+
         std::cout << "Neural network initialized successfully." << std::endl;
     }
 
@@ -126,6 +140,27 @@ public:
 
         for (Layer& layer : layers) {
             current_inputs = layer.forward(current_inputs); // Outputs of the current layer become inputs for the next layer
+        }
+
+        // Apply bounds to the final outputs
+        const Layer& output_layer = layers.back(); // Get the output layer
+        for (size_t i = 0; i < current_inputs.size(); ++i) {
+            const Node& output_node = output_layer.get_nodes()[i]; // Access the node in the output layer
+            if (output_node.get_activation_type() == Node::ActivationType::Tanh) {
+                // Apply asymmetric bounds for Tanh activation
+                if (current_inputs[i] > 0) {
+                    current_inputs[i] *= bounds[i][1]; // Multiply by positive bound
+                } else {
+                    current_inputs[i] *= bounds[i][0]; // Multiply by negative bound
+                }
+            } else {
+                // Apply cutoff bounds for other activation types
+                if (current_inputs[i] < bounds[i][0]) {
+                    current_inputs[i] = bounds[i][0];
+                } else if (current_inputs[i] > bounds[i][1]) {
+                    current_inputs[i] = bounds[i][1];
+                }
+            }
         }
 
         return current_inputs; // Final outputs
