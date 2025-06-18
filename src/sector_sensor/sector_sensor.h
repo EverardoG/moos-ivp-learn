@@ -10,8 +10,8 @@ using Entities = std::vector<XYPoint>;
 
 class SectorSensor {
   public:
-    SectorSensor(const double& sensor_rad, const int& number_sectors)
-      : m_sensor_rad(sensor_rad), m_number_sectors(number_sectors) {
+    SectorSensor(const double& sensor_rad, const double& saturation_rad, const int& number_sectors)
+      : m_sensor_rad(sensor_rad), m_saturation_rad(saturation_rad), m_number_sectors(number_sectors) {
         m_sector_width = 360.0 / m_number_sectors;
       }
     ~SectorSensor();
@@ -29,6 +29,7 @@ class SectorSensor {
 
   private: // Configuration variables
     double m_sensor_rad;
+    double m_saturation_rad;
     int    m_number_sectors;
     double m_sector_width;
 
