@@ -28,6 +28,15 @@ This app tracks the positions of all swimmers and vehicles. This also tracks whe
 
 This app reads in neural network structure and parameters from a file, and loads those parameters into a neural network. This network takes as input the sensor readings for sectors, and outputs cost functions for heading and velocity to be resolved in IvP.
 
+# QuickStart
+
+To run the mission you can use the following commands, assuming `moos-ivp-learn` is installed in your home directory.
+
+```
+cd ~/moos-ivp-learn/missions/alpha_learn
+mykill; ./clean; ./launch.sh 10
+```
+
 # Directory Structure
 
 The directory structure for the moos-ivp-extend is described below:
