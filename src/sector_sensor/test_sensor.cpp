@@ -270,6 +270,49 @@ bool testQuery(int test_verbose = 0, int sense_verbose = 0) {
     return true;
 }
 
+bool testOnTopQuery(int test_verbose = 0, int sense_verbose = 0) {
+    if (test_verbose > 0) std::cout << "Start --- testOnTopQuery()" << std::endl;
+    // Create a sector sensor for testing
+    double sensor_rad = 10.0;
+    double saturation_rad = 1.0;
+    int num_sectors = 4;
+    SectorSensor sensor = SectorSensor(
+        sensor_rad,
+        saturation_rad,
+        num_sectors
+    );
+    sensor.setVerbose(sense_verbose);
+
+    // Create some entities to sense
+    Entities entities = {
+        XYPoint(0,1),
+        XYPoint(0,1),
+        XYPoint(1,0),
+        XYPoint(0,-1),
+        XYPoint(0,0)
+    };
+    if (test_verbose > 0) std::cout << "Created XY points" << std::endl;
+
+    // Query the sensor for the readings
+    double vehicle_x = 0;
+    double vehicle_y = 0;
+    double vehicle_heading = 0;
+    std::vector<double> readings = sensor.query(entities, vehicle_x, vehicle_y, vehicle_heading);
+    if (test_verbose > 0) std::cout << "Queried sensor" << std::endl;
+    if (test_verbose > 0) std::cout << "Sensor readings: " << vectorToStream(readings) << std::endl;
+
+    // Check size. Check values.
+    if (readings.size() != 4) return false;
+    if (readings[0] != 3) return false;
+    if (readings[1] != 1) return false;
+    if (readings[2] != 1) return false;
+    if (readings[3] != 0) return false;
+
+    if (test_verbose > 0) std::cout << "Finish --- testOnTopQuery()" << std::endl;
+    return true;
+}
+
+
 bool testFixedNorm(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start --- testFixedNorm()" << std::endl;
     // Create a sector sensor for testing with fixed norm of 10
@@ -474,6 +517,10 @@ int main(int argc, char* argv[]) {
     if (!testQuery(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testQuery" << std::endl;
     else std::cout << "PASSED: testQuery" << std::endl;
 
+    // 5A) Make sure this works if we are on top of the entities
+    if (!testOnTopQuery(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testOnTopQuery" << std::endl;
+    else std::cout << "PASSED: testOnTopQuery" << std::endl;
+
     // 6) Test fixed normalization
     if (!testFixedNorm(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testFixedNorm" << std::endl;
     else std::cout << "PASSED: testFixedNorm" << std::endl;
@@ -485,6 +532,4 @@ int main(int argc, char* argv[]) {
     // 7) Test using different numbers of sectors
     if (!testNumSectors(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testNumSectors" << std::endl;
     else std::cout << "PASSED: testNumSectors" << std::endl;
-
-    // 8) What if we are on top of the entities?
 }

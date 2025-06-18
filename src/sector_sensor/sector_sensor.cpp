@@ -103,8 +103,9 @@ double SectorSensor::composeReading(Bucket bucket) {
         if (dist > m_sensor_rad) {
             if (m_verbosity_level > 0) std::cerr << "SectorSensor Warning: Entity distance is out of range, but still being processed in composeReading(). Setting reading for this entity as 0." << std::endl;
             reading += 0;
-        }
-        else{
+        } else if (dist <= m_saturation_rad) {
+            reading += 1;
+        } else{
             reading += - (dist - m_saturation_rad) / (m_sensor_rad - m_saturation_rad) + 1.0;
         }
     }
