@@ -64,8 +64,11 @@ std::vector<double> SectorSensor::bucketsToReadings(Buckets buckets) {
 
     // Normalize readings according to normalization rule
     if (m_normalization_rule == NormalizationRule::FIXED){
-        for (int i; i<readings.size(); i++) {
+        if (m_verbosity_level > 1) std::cout << "norm rule is fixed" << std::endl;
+        if (m_verbosity_level > 1) std::cout << "size of readings: " << readings.size() << std::endl;
+        for (int i = 0; i<readings.size(); i++) {
             readings[i] = readings[i] / m_fixed_normalization_factor;
+            if (m_verbosity_level > 1) std::cout << "readings["<<i<<"]"<<readings[i] << std::endl;
         }
     }
     else if (m_normalization_rule == NormalizationRule::DYNAMIC) {
