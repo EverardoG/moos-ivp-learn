@@ -74,3 +74,7 @@ double SectorSensor::composeReading(Bucket bucket) {
     }
     return reading;
 }
+
+SectorSensor::~SectorSensor() {
+    // No custom cleanup needed
+}

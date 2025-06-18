@@ -27,3 +27,6 @@ target_link_libraries(sector_sensor PUBLIC
 
 # Link the sector_sensor library to the test_sensor executable
 target_link_libraries(test_sensor PRIVATE sector_sensor)
+
+# Include directories for testing
+target_include_directories(test_sensor PRIVATE ${CMAKE_SOURCE_DIR})
