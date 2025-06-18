@@ -83,6 +83,7 @@ private:
 
 public:
     // Constructor to initialize the network
+    NeuralNetwork() {}; 
     NeuralNetwork(const std::vector<double>& weights, const std::vector<int>& structure, const std::vector<std::vector<double>>& bounds)
         : bounds(bounds) {
         if (structure.size() < 3) {

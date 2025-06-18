@@ -11,6 +11,10 @@
 #include <string>
 #include "IvPBehavior.h"
 #include "network.h"
+#include "ZAIC_PEAK.h"
+#include "OF_Coupler.h"
+#include "AngleUtils.h"
+#include "GeomUtils.h"
 
 // This needs to read in a file containing parameters/structure
 //     Parameters is a comma-seperated list of precise doubles
@@ -35,12 +39,22 @@ public:
   void         onRunToIdleState();
   void         onIdleToRunState();
   IvPFunction* onRunState();
+  bool         processSensorReadings();
+  void         forwardPropNetwork(); 
+  IvPFunction* buildFunction();
 
 protected: // Local Utility functions
 
 protected: // Configuration parameters
 
 protected: // State variables
+  NeuralNetwork m_network;
+  
+  std::vector<double>  m_sector_sensor_readings;
+
+  double m_best_heading;   // These will hold the outputs 
+  double m_best_speed;     // for now. 
+  
 };
 
 
