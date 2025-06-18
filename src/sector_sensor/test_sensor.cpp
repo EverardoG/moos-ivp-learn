@@ -123,7 +123,7 @@ bool testBucketsToReadings(int verbose) {
     return true;
 }
 
-bool testFillingBuckets(bool verbose) {
+bool testFillingBuckets(int verbose) {
     if (verbose > 0) std::cout << "Start -- testFillingBuckets() " << std::endl;
     // Create a sector sensor for testing
     double sensor_rad = 10.0;
@@ -229,6 +229,47 @@ bool testFillingBuckets(bool verbose) {
     return true;
 }
 
+bool testQuery(int verbose) {
+    if (verbose > 0) std::cout << "Start --- testQuery()" << std::endl;
+    // Create a sector sensor for testing
+    double sensor_rad = 10.0;
+    double saturation_rad = 1.0;
+    int num_sectors = 4;
+    SectorSensor sensor = SectorSensor(
+        sensor_rad,
+        saturation_rad,
+        num_sectors
+    );
+    sensor.setVerbose(0);
+
+    // Create some entities to sense
+    Entities entities = {
+        XYPoint(0,1),
+        XYPoint(0,1),
+        XYPoint(1,0),
+        XYPoint(0,-1)
+    };
+    if (verbose > 0) std::cout << "Created XY points" << std::endl;
+
+    // Query the sensor for the readings
+    double vehicle_x = 0;
+    double vehicle_y = 0;
+    double vehicle_heading = 0;
+    std::vector<double> readings = sensor.query(entities, vehicle_x, vehicle_y, vehicle_heading);
+    if (verbose > 0) std::cout << "Queried sensor" << std::endl;
+    if (verbose > 0) std::cout << "Sensor readings: " << vectorToStream(readings) << std::endl;
+
+    // Check size. Check values.
+    if (readings.size() != 4) return false;
+    if (readings[0] != 2) return false;
+    if (readings[1] != 1) return false;
+    if (readings[2] != 1) return false;
+    if (readings[3] != 0) return false;
+
+    if (verbose > 0) std::cout << "Finish --- testQuery()" << std::endl;
+    return true;
+}
+
 int main(int argc, char* argv[]) {
     int VERBOSE = 0;
     if (argc >= 2) {
@@ -253,6 +294,8 @@ int main(int argc, char* argv[]) {
     else std::cout << "PASSED: testFillingBuckets" << std::endl;
 
     // 5) Test that we can query all the way from entities to readings
+    if (!testQuery(VERBOSE)) std::cout << "FAILURE: testQuery" << std::endl;
+    else std::cout << "PASSED: testQuery" << std::endl;
 
     // 6) Test fixed normalization
 
