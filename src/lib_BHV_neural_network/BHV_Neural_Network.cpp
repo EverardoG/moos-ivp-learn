@@ -189,8 +189,8 @@ void BHV_Neural_Network::forwardPropNetwork()
   std::vector<double> outputs = m_network.forward(m_sector_sensor_readings);
 
   // Map from outputs to heading and speed
-  // m_best_speed   = outputs[0] ?
-  // m_best_heading = outputs[1] ?
+  m_best_speed   = outputs[0];
+  m_best_heading = outputs[1];
 
   return;
 }
