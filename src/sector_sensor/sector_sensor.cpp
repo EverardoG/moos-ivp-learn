@@ -77,9 +77,11 @@ std::vector<double> SectorSensor::bucketsToReadings(Buckets buckets) {
         for (const Bucket& bucket : buckets) {
             dynamic_norm_factor = dynamic_norm_factor + bucket.size();
         }
-        // Apply dynamic normalization factor
-        for (int i; i<readings.size(); i++) {
-            readings[i] = readings[i] / dynamic_norm_factor;
+        // Apply dynamic normalization factor (only if the norm factor is more than zero)
+        if (dynamic_norm_factor > 0) {
+            for (int i = 0; i<readings.size(); i++) {
+                readings[i] = readings[i] / dynamic_norm_factor;
+            }
         }
     }
     else if (m_normalization_rule != NormalizationRule::NONE) {

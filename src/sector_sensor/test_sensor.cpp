@@ -16,7 +16,7 @@ inline bool isClose(double a, double b, double rel_tol = 1e-9, double abs_tol = 
     return std::abs(a - b) <= std::max(rel_tol * std::max(std::abs(a), std::abs(b)), abs_tol);
 }
 
-bool testComposeReadingOneEntity(int test_verbose = 0) {
+bool testComposeReadingOneEntity(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start --- testComposeReadingOneEntity()" << std::endl;
     // Create a sector sensor for testing
     double sensor_rad = 10.0;
@@ -27,7 +27,7 @@ bool testComposeReadingOneEntity(int test_verbose = 0) {
         saturation_rad,
         num_sectors
     );
-    sensor.setVerbose(0);
+    sensor.setVerbose(sense_verbose);
 
     // Create a bucket with distances inside
     // Make sure the reading is correct
@@ -61,7 +61,7 @@ bool testComposeReadingOneEntity(int test_verbose = 0) {
     return true;
 }
 
-bool testComposeReadingMultiEntity(int test_verbose = 0) {
+bool testComposeReadingMultiEntity(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start --- testComposeReadingMultiEntity()" << std::endl;
     // Create a sector sensor for testing
     double sensor_rad = 10.0;
@@ -72,7 +72,7 @@ bool testComposeReadingMultiEntity(int test_verbose = 0) {
         saturation_rad,
         num_sectors
     );
-    sensor.setVerbose(0);
+    sensor.setVerbose(sense_verbose);
 
     // Create buckets with distances inside. Make sure readings are correct
     Bucket bucket_A = {1.0, 1.0, 1.0};
@@ -89,7 +89,7 @@ bool testComposeReadingMultiEntity(int test_verbose = 0) {
     return true;
 }
 
-bool testBucketsToReadings(int test_verbose) {
+bool testBucketsToReadings(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start -- testBucketsToReadings() " << std::endl;
     // Create a sector sensor for testing
     double sensor_rad = 10.0;
@@ -100,7 +100,7 @@ bool testBucketsToReadings(int test_verbose) {
         saturation_rad,
         num_sectors
     );
-    sensor.setVerbose(0);
+    sensor.setVerbose(sense_verbose);
 
     // Create buckets for turning into readings
     // Check that the reading is correct
@@ -123,7 +123,7 @@ bool testBucketsToReadings(int test_verbose) {
     return true;
 }
 
-bool testFillingBuckets(int test_verbose) {
+bool testFillingBuckets(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start -- testFillingBuckets() " << std::endl;
     // Create a sector sensor for testing
     double sensor_rad = 10.0;
@@ -134,7 +134,7 @@ bool testFillingBuckets(int test_verbose) {
         saturation_rad,
         num_sectors
     );
-    sensor.setVerbose(0);
+    sensor.setVerbose(sense_verbose);
 
     // Start with the entities we want to sense
     Entities entities = {
@@ -229,7 +229,7 @@ bool testFillingBuckets(int test_verbose) {
     return true;
 }
 
-bool testQuery(int test_verbose) {
+bool testQuery(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start --- testQuery()" << std::endl;
     // Create a sector sensor for testing
     double sensor_rad = 10.0;
@@ -240,7 +240,7 @@ bool testQuery(int test_verbose) {
         saturation_rad,
         num_sectors
     );
-    sensor.setVerbose(0);
+    sensor.setVerbose(sense_verbose);
 
     // Create some entities to sense
     Entities entities = {
@@ -270,7 +270,7 @@ bool testQuery(int test_verbose) {
     return true;
 }
 
-bool testFixedNorm(int test_verbose) {
+bool testFixedNorm(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start --- testFixedNorm()" << std::endl;
     // Create a sector sensor for testing with fixed norm of 10
     double sensor_rad = 10.0;
@@ -285,7 +285,7 @@ bool testFixedNorm(int test_verbose) {
         norm_rule,
         fixed_norm_factor
     );
-    sensor.setVerbose(0);
+    sensor.setVerbose(sense_verbose);
 
     // Create some entities to sense
     Entities entities = {
@@ -315,42 +315,105 @@ bool testFixedNorm(int test_verbose) {
     return true;
 }
 
-bool testDynamicNorm(int test_verbose) {
-    return true;
+bool testDynamicNorm(int test_verbose = 0, int sense_verbose = 0) {
+    if (test_verbose > 0) std::cout << "Start --- testDynamicNorm()" << std::endl;
+    // Create a sector sensor for testing with dynamic norm
+    double sensor_rad = 10.0;
+    double saturation_rad = 1.0;
+    int num_sectors = 4;
+    NormalizationRule norm_rule = NormalizationRule::DYNAMIC;
+    double fixed_norm_factor = 10;
+    SectorSensor sensor = SectorSensor(
+        sensor_rad,
+        saturation_rad,
+        num_sectors,
+        norm_rule,
+        fixed_norm_factor
+    );
+    sensor.setVerbose(sense_verbose);
+
+    // Create some entities to sense
+    Entities entities = {
+        XYPoint(0,1),
+        XYPoint(0,1),
+        XYPoint(1,0),
+        XYPoint(0,-1)
+    };
+    if (test_verbose > 0) std::cout << "Created XY points" << std::endl;
+
+    // Query the sensor
+    double vehicle_x = 0;
+    double vehicle_y = 0;
+    double vehicle_heading = 0;
+    std::vector<double> readings = sensor.query(entities, vehicle_x, vehicle_y, vehicle_heading);
+    if (test_verbose > 0) std::cout << "Queried sensor" << std::endl;
+    if (test_verbose > 0) std::cout << "Sensor readings: " << vectorToStream(readings) << std::endl;
+
+    // Check size. Check values.
+    if (readings.size() != 4) return false;
+    if (!isClose(readings[0], 0.5)) return false;
+    if (!isClose(readings[1], 0.25)) return false;
+    if (!isClose(readings[2], 0.25)) return false;
+    if (!isClose(readings[3], 0)) return false;
+
+    if (test_verbose > 0) std::cout << "First query was successful" << std::endl;
+
+    // Check edge case where no entities are present
+    entities = {};
+    if (test_verbose > 0) std::cout << "Created empty entities vector" << std::endl;
+
+    // Query the sensor. Don't move the vehicle.
+    readings = sensor.query(entities, vehicle_x, vehicle_y, vehicle_heading);
+    if (test_verbose > 0) std::cout << "Queried sensor" << std::endl;
+    if (test_verbose > 0) std::cout << "Sensor readings: " << vectorToStream(readings) << std::endl;
+
+    // Check size. Check values.
+    if (readings.size() != 4) return false;
+    if (!isClose(readings[0], 0)) return false;
+    if (!isClose(readings[1], 0)) return false;
+    if (!isClose(readings[2], 0)) return false;
+    if (!isClose(readings[3], 0)) return false;
+
+    if (test_verbose > 0) std::cout << "Finish --- testDynamicNorm()" << std::endl;
+    return false;
 }
 
 int main(int argc, char* argv[]) {
     int TEST_VERBOSE = 0;
+    int SENSE_VERBOSE = 0;
     if (argc >= 2) {
         // Convert the first argument to int (argv[1] is a string)
         TEST_VERBOSE = std::stoi(argv[1]);
     }
+    if (argc >= 3) {
+        SENSE_VERBOSE = std::stoi(argv[2]);
+    }
 
     // 1) Test that we can compose readings correctly
-    if (!testComposeReadingOneEntity(TEST_VERBOSE)) std::cout << "FAILURE: testComposeReadingOneEntity" << std::endl;
+    if (!testComposeReadingOneEntity(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testComposeReadingOneEntity" << std::endl;
     else std::cout << "PASSED: testComposeReadingOneEntity" << std::endl;
 
     // 2) Test that we can compose readings correctly with multiple entities in a bucket
-    if (!testComposeReadingMultiEntity(TEST_VERBOSE)) std::cout << "FAILURE: testComposeReadingMultiEntity"<< std::endl;
+    if (!testComposeReadingMultiEntity(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testComposeReadingMultiEntity"<< std::endl;
     else std::cout << "PASSED: testComposeReadingMultiEntity" << std::endl;
 
     // 3) Test that we can turn multiple buckets into sensor readings
-    if (!testBucketsToReadings(TEST_VERBOSE)) std::cout << "FAILURE: testBucketsToReadings" << std::endl;
+    if (!testBucketsToReadings(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testBucketsToReadings" << std::endl;
     else std::cout << "PASSED: testBucketsToReadings" << std::endl;
 
     // 4) Test that we can fill buckets correctly
-    if (!testFillingBuckets(TEST_VERBOSE)) std::cout << "FAILURE: testFillingBuckets" << std::endl;
+    if (!testFillingBuckets(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testFillingBuckets" << std::endl;
     else std::cout << "PASSED: testFillingBuckets" << std::endl;
 
     // 5) Test that we can query all the way from entities to readings
-    if (!testQuery(TEST_VERBOSE)) std::cout << "FAILURE: testQuery" << std::endl;
+    if (!testQuery(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testQuery" << std::endl;
     else std::cout << "PASSED: testQuery" << std::endl;
 
     // 6) Test fixed normalization
-    if (!testFixedNorm(TEST_VERBOSE)) std::cout << "FAILURE: testFixedNorm" << std::endl;
+    if (!testFixedNorm(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testFixedNorm" << std::endl;
     else std::cout << "PASSED: testFixedNorm" << std::endl;
 
     // 7) Test dynamic normalization
-    if (!testDynamicNorm(TEST_VERBOSE)) std::cout << "FAILURE: testDynamicNorm" << std::endl;
+    if (!testDynamicNorm(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testDynamicNorm" << std::endl;
     else std::cout << "PASSED: testDynamicNorm" << std::endl;
 }
