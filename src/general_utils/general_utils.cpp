@@ -32,8 +32,3 @@ double calcDeltaHeading(double heading1, double heading2)
   return(delta_theta);
 }
 
-// Function to check if two floating-point numbers are close
-// Function is not tested
-// inline bool isClose(double a, double b, double rel_tol = 1e-9, double abs_tol = 0.0) {
-//     return std::abs(a - b) <= std::max(rel_tol * std::max(std::abs(a), std::abs(b)), abs_tol);
-// }

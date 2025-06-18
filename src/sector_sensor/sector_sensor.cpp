@@ -12,7 +12,7 @@ std::vector<double> SectorSensor::query(Entities entities, double self_x, double
 
 // Create buckets for sensing
 Buckets SectorSensor::fillBuckets(Entities entities, double self_x, double self_y, double self_heading) {
-    Buckets buckets;
+    Buckets buckets(m_number_sectors);
     for (int i=0; i<entities.size(); i++){
 
     // How far away is this swimmer?
@@ -62,16 +62,41 @@ std::vector<double> SectorSensor::bucketsToReadings(Buckets buckets) {
         readings.push_back(composeReading(bucket));
     }
 
+    // Normalize readings according to normalization rule
+    if (m_normalization_rule == NormalizationRule::FIXED){
+        for (int i; i<readings.size(); i++) {
+            readings[i] = readings[i] / m_fixed_normalization_factor;
+        }
+    }
+    else if (m_normalization_rule == NormalizationRule::DYNAMIC) {
+        // Determine dynamic normalization factor
+        double dynamic_norm_factor = 0;
+        for (const Bucket& bucket : buckets) {
+            dynamic_norm_factor = dynamic_norm_factor + bucket.size();
+        }
+        // Apply dynamic normalization factor
+        for (int i; i<readings.size(); i++) {
+            readings[i] = readings[i] / dynamic_norm_factor;
+        }
+    }
+    else if (m_normalization_rule != NormalizationRule::NONE) {
+        if (m_verbosity_level > 0) std::cerr << "SectorSensor Warning: Invalid normalization rule specified. Not applying any normalization to sensor readings." << std::endl;
+    }
+
     // Return the readings
     return readings;
 };
+
+// std::vector<double> SectorSensor::normalizeReadings(std::vector<double> readings) {
+
+// }
 
 // Helper function. Turn measurements in a bucket into a reading
 double SectorSensor::composeReading(Bucket bucket) {
     double reading = 0;
     for (const double& dist : bucket) {
         if (dist > m_sensor_rad) {
-            std::cerr << "SectorSensor Warning: Entity distance is out of range, but still being processed in composeReading(). Setting reading for this entity as 0." << std::endl;
+            if (m_verbosity_level > 0) std::cerr << "SectorSensor Warning: Entity distance is out of range, but still being processed in composeReading(). Setting reading for this entity as 0." << std::endl;
             reading += 0;
         }
         else{
