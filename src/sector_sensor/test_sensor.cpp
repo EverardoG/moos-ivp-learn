@@ -375,7 +375,72 @@ bool testDynamicNorm(int test_verbose = 0, int sense_verbose = 0) {
     if (!isClose(readings[3], 0)) return false;
 
     if (test_verbose > 0) std::cout << "Finish --- testDynamicNorm()" << std::endl;
-    return false;
+    return true;
+}
+
+bool testNumSectors(int test_verbose = 0, int sense_verbose = 0) {
+    if (test_verbose > 0) std::cout << "Start --- testDynamicNorm()" << std::endl;
+    // Create a sector sensor for testing
+    double sensor_rad = 10.0;
+    double saturation_rad = 1.0;
+    int num_sectors = 8;
+    SectorSensor sensor = SectorSensor(
+        sensor_rad,
+        saturation_rad,
+        num_sectors
+    );
+    sensor.setVerbose(sense_verbose);
+
+    // Create some entities to sense
+    Entities entities = {
+        XYPoint(0,1),
+        XYPoint(0,1),
+        XYPoint(1,0),
+        XYPoint(0,-1)
+    };
+    if (test_verbose > 0) std::cout << "Created XY points" << std::endl;
+
+    // Query the sensor for the readings
+    double vehicle_x = 0;
+    double vehicle_y = 0;
+    double vehicle_heading = 0;
+    std::vector<double> readings = sensor.query(entities, vehicle_x, vehicle_y, vehicle_heading);
+    if (test_verbose > 0) std::cout << "Queried sensor" << std::endl;
+    if (test_verbose > 0) std::cout << "Sensor readings: " << vectorToStream(readings) << std::endl;
+
+    // Check size. Check values.
+    if (readings.size() != 8) return false;
+    if (readings[0] != 2) return false;
+    if (readings[1] != 0) return false;
+    if (readings[2] != 1) return false;
+    if (readings[3] != 0) return false;
+    if (readings[4] != 1) return false;
+    if (readings[5] != 0) return false;
+    if (readings[6] != 0) return false;
+    if (readings[7] != 0) return false;
+
+    // Let's do this again with 40 sectors, just to push the limits a bit
+    num_sectors = 40;
+    sensor = SectorSensor(sensor_rad, saturation_rad, num_sectors);
+    readings = sensor.query(entities, vehicle_x, vehicle_y, vehicle_heading);
+
+    // Check size. Check values.
+    // Most values will be zero.
+    if (readings.size() != 40) return false;
+    for (int i = 0; i<readings.size(); i++) {
+        if (i == 0) {
+            if (readings[i] != 2) return false;
+        } else if (i == 10) {
+            if (readings[i] != 1) return false;
+        } else if (i == 20) {
+            if (readings[i] != 1) return false;
+        } else {
+            if (readings[i] != 0) return false;
+        }
+    }
+
+    if (test_verbose > 0) std::cout << "Finish --- testDynamicNorm()" << std::endl;
+    return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -416,4 +481,10 @@ int main(int argc, char* argv[]) {
     // 7) Test dynamic normalization
     if (!testDynamicNorm(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testDynamicNorm" << std::endl;
     else std::cout << "PASSED: testDynamicNorm" << std::endl;
+
+    // 7) Test using different numbers of sectors
+    if (!testNumSectors(TEST_VERBOSE, SENSE_VERBOSE)) std::cout << "FAILURE: testNumSectors" << std::endl;
+    else std::cout << "PASSED: testNumSectors" << std::endl;
+
+    // 8) What if we are on top of the entities?
 }
