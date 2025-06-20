@@ -8,8 +8,7 @@ ADD_LIBRARY(BHV_Neural_Network SHARED
   BHV_Neural_Network.cpp)
 
 TARGET_INCLUDE_DIRECTORIES(BHV_Neural_Network PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ivp_behavior_extend)
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 TARGET_LINK_LIBRARIES(BHV_Neural_Network
    helmivp
