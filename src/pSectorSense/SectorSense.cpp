@@ -98,6 +98,11 @@ bool SectorSense::Iterate()
   // This is where we need to send outgoing mail
   // for what SectorSense is generating as readings
 
+  // For now, I'll hardcode this so that we can test the pipeline
+  std::vector<double> sensor_readings = {1, 1, 1, 1, 1, 1, 1, 1};
+  // std::string sensor_readings_str = ;
+  // Notify("SECTOR_SENSOR_READING",)
+
   AppCastingMOOSApp::PostReport();
   return(true);
 }
