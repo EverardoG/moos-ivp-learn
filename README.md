@@ -34,7 +34,7 @@ To run the mission you can use the following commands, assuming `moos-ivp-learn`
 
 ```
 cd ~/moos-ivp-learn/missions/alpha_learn
-mykill; ./clean; ./launch.sh 10
+learnKill; ./clean; ./launch.sh 10
 ```
 
 # Directory Structure
