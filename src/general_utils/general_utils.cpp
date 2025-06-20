@@ -32,3 +32,16 @@ double calcDeltaHeading(double heading1, double heading2)
   return(delta_theta);
 }
 
+std::string vectorToStream(const std::vector<double>& vec) {
+    std::ostringstream oss;
+    for (const double& value : vec) {
+        oss << value << " ";
+    }
+    return oss.str();
+}
+
+// Function to check if two floating-point numbers are close
+bool isClose(double a, double b, double rel_tol, double abs_tol) {
+    return std::abs(a - b) <= std::max(rel_tol * std::max(std::abs(a), std::abs(b)), abs_tol);
+}
+

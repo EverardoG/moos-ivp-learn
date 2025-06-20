@@ -1,20 +1,8 @@
 #include "sector_sensor.h"
+#include "general_utils.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-std::string vectorToStream(const std::vector<double>& vec) {
-    std::ostringstream oss;
-    for (const double& value : vec) {
-        oss << value << " ";
-    }
-    return oss.str();
-}
-
-// Function to check if two floating-point numbers are close
-inline bool isClose(double a, double b, double rel_tol = 1e-9, double abs_tol = 0.0) {
-    return std::abs(a - b) <= std::max(rel_tol * std::max(std::abs(a), std::abs(b)), abs_tol);
-}
 
 bool testComposeReadingOneEntity(int test_verbose = 0, int sense_verbose = 0) {
     if (test_verbose > 0) std::cout << "Start --- testComposeReadingOneEntity()" << std::endl;
