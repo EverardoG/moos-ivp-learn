@@ -10,6 +10,7 @@
 #include "MBUtils.h"
 #include "BuildUtils.h"
 #include "BHV_Neural_Network.h"
+#include "FileBuffer.h"
 
 using namespace std;
 
@@ -42,17 +43,40 @@ bool BHV_Neural_Network::setParam(string param, string val)
   param = tolower(param);
 
   // Get the numerical value of the param argument for convenience once
-  double double_val = atof(val.c_str());
+  // double double_val = atof(val.c_str());
 
-  // TODO initilize the network here
+  // Initialize network using csv file
+  if (param == "csv_directory") {
+    // use FileBuffer() to read in config file
+    // Assume the config file is in the mission directory
+    //    (not the top level missions directory, but the directory of a particular mission)
+    string warning;
+    vector<string> lines = fileBuffer(val);
+    if(lines.size() == 0) {
+      warning = "File not found, or empty: " + val;
+      return(false);
+    }
 
-  if((param == "foo") && isNumber(val)) {
-    // Set local member variables here
-    return(true);
+    // Then use Moos-ivp's helper function that turns a string into
+    // a vector of doubles
+
+    // Also a helper function that turns a string into vector of ints?
+
+    // And then maybe we have a line that just has the fitness/score for that network?
+    // Just ignore anything after the first two lines for now
+    // They won't be relevant to loading in the network
+    // (they will be relevant instead for training)
+
+    // Then load that into the neural network
   }
-  else if (param == "bar") {
-    // return(setBooleanOnString(m_my_bool, val));
-  }
+
+  // if((param == "foo") && isNumber(val)) {
+  //   // Set local member variables here
+  //   return(true);
+  // }
+  // else if (param == "bar") {
+  //   // return(setBooleanOnString(m_my_bool, val));
+  // }
 
   // If not handled above, then just return false;
   return(false);
@@ -169,7 +193,7 @@ bool BHV_Neural_Network::processSensorReadings()
     good_reading = setDoubleOnString(temp_dbl, readings_str[i]);
 
     if(!good_reading) {
-      postWMessage("Bad reading in sensor: i=" + intToString(i)
+      postWMessage("Bad reading in index: i=" + intToString(i)
 		   + ", val=" + readings_str[i]);
       return(false);
     }
