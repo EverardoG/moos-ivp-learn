@@ -18,7 +18,7 @@ using namespace std;
 // Constructor
 
 BHV_Neural_Network::BHV_Neural_Network(IvPDomain domain) :
-  IvPBehavior(domain)
+  IvPBehaviorExtend(domain)
 {
   // Provide a default behavior name
   IvPBehavior::setParam("name", "defaultname");

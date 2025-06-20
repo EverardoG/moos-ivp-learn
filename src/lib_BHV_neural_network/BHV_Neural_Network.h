@@ -15,6 +15,7 @@
 #include "OF_Coupler.h"
 #include "AngleUtils.h"
 #include "GeomUtils.h"
+#include "ivp_behavior_extend.h"
 
 // This needs to read in a file containing parameters/structure
 //     Parameters is a comma-seperated list of precise doubles
@@ -25,7 +26,7 @@
 //     velocity action is irrespective of current velocity. Velocity of 1.0 means change the velocity to 1.0, not add 1.0 to current velocity.
 //     heading is relative to current heading. Relative heading of +0.5 means add 0.5 to current heading.
 
-class BHV_Neural_Network : public IvPBehavior {
+class BHV_Neural_Network : public IvPBehaviorExtend {
 public:
   BHV_Neural_Network(IvPDomain);
   ~BHV_Neural_Network() {};
@@ -40,7 +41,7 @@ public:
   void         onIdleToRunState();
   IvPFunction* onRunState();
   bool         processSensorReadings();
-  void         forwardPropNetwork(); 
+  void         forwardPropNetwork();
   IvPFunction* buildFunction();
 
 protected: // Local Utility functions
@@ -49,12 +50,12 @@ protected: // Configuration parameters
 
 protected: // State variables
   NeuralNetwork m_network;
-  
+
   std::vector<double>  m_sector_sensor_readings;
 
-  double m_best_heading;   // These will hold the outputs 
-  double m_best_speed;     // for now. 
-  
+  double m_best_heading;   // These will hold the outputs
+  double m_best_speed;     // for now.
+
 };
 
 

@@ -4,9 +4,8 @@
 #--------------------------------------------------------
 #                                   ivp_behavior_extend
 #--------------------------------------------------------
-ADD_LIBRARY(ivp_behavior_extend SHARED
-  ivp_behavior_extend.cpp)
-TARGET_LINK_LIBRARIES(ivp_behavior_extend
+add_library(ivp_behavior_extend ivp_behavior_extend.cpp)
+target_link_libraries(ivp_behavior_extend
    helmivp
    behaviors
    ivpbuild
