@@ -58,12 +58,35 @@ bool BHV_Neural_Network::setParam(string param, string val)
     }
 
     // Use the extension method to populate a vector of doubles
-    // from the first line
-    std::vector<double> vec;
+    // from line 0. These are the weights for the neural network
+    std::vector<double> weights;
     bool good_reading;
-    good_reading = setVecDoubleOnString(vec, lines[0]);
+    good_reading = setVecDoubleOnString(weights, lines[0]);
+    if(!good_reading) {
+      postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + val);
+      return(false);
+    }
 
-    // Also a helper function that turns a string into vector of ints?
+    // Use the extension method to populate a vector of ints
+    // from line 1. These define the structure of the neural network
+    std::vector<int> structure;
+    good_reading = setVecIntOnString(structure, lines[1]);
+    if(!good_reading) {
+      postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + val);
+      return(false);
+    }
+
+    // Get the output bounds of the neural network from
+    // line 2. These define the output boundaries of the network
+    std::vector<double> bounds_flat;
+    good_reading = setVecDoubleOnString(bounds_flat, lines[2]);
+    if(!good_reading) {
+      postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + val);
+      return(false);
+    }
+
+    // Turn those output bounds into the correct shape for the network
+    std::vector<std::vector<double>> bounds = reshapeVector2D(bounds_flat, structure.back(), 2);
 
     // And then maybe we have a line that just has the fitness/score for that network?
     // Just ignore anything after the first two lines for now
@@ -71,18 +94,11 @@ bool BHV_Neural_Network::setParam(string param, string val)
     // (they will be relevant instead for training)
 
     // Then load that into the neural network
+    m_network = NeuralNetwork(weights, structure, bounds);
   }
 
-  // if((param == "foo") && isNumber(val)) {
-  //   // Set local member variables here
-  //   return(true);
-  // }
-  // else if (param == "bar") {
-  //   // return(setBooleanOnString(m_my_bool, val));
-  // }
-
-  // If not handled above, then just return false;
-  return(false);
+  // If everything worked, then return true.
+  return(true);
 }
 
 //---------------------------------------------------------------

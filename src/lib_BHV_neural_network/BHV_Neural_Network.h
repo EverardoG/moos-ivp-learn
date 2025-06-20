@@ -16,6 +16,7 @@
 #include "AngleUtils.h"
 #include "GeomUtils.h"
 #include "ivp_behavior_extend.h"
+#include "general_utils.h"
 
 // This needs to read in a file containing parameters/structure
 //     Parameters is a comma-seperated list of precise doubles

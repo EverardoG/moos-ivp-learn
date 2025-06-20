@@ -95,6 +95,9 @@ bool SectorSense::Iterate()
 {
   AppCastingMOOSApp::Iterate();
   // Do your thing here!
+  // This is where we need to send outgoing mail
+  // for what SectorSense is generating as readings
+
   AppCastingMOOSApp::PostReport();
   return(true);
 }

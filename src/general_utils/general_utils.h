@@ -4,6 +4,7 @@
 #include "MBUtils.h"
 #include <cmath>
 #include <sstream>
+#include <iostream>
 
 //-------------------------------------------------------------
 // Procedure: calcDeltaHeading(double heading1, double heading2)
@@ -19,5 +20,9 @@ std::string vectorToStream(const std::vector<double>& vec);
 
 // Function to check if two floating-point numbers are close
 bool isClose(double a, double b, double rel_tol = 1e-9, double abs_tol = 0.0);
+
+// Reshape flat vector into 2D vector
+std::vector<std::vector<double>> reshapeVector2D(
+    const std::vector<double>& flat, size_t rows, size_t cols);
 
 #endif // GENERAL_UTILS_H

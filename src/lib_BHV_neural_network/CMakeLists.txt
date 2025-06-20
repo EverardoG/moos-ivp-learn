@@ -21,4 +21,5 @@ TARGET_LINK_LIBRARIES(BHV_Neural_Network
    geometry
    neural_network
    ivp_behavior_extend
+   general_utils
 )

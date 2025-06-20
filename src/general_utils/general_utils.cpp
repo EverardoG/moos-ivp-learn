@@ -45,3 +45,19 @@ bool isClose(double a, double b, double rel_tol, double abs_tol) {
     return std::abs(a - b) <= std::max(rel_tol * std::max(std::abs(a), std::abs(b)), abs_tol);
 }
 
+// Reshape a flat vector into a 2D vector with given rows and cols
+std::vector<std::vector<double>> reshapeVector2D(
+    const std::vector<double>& flat, size_t rows, size_t cols)
+{
+    std::vector<std::vector<double>> result;
+    if (flat.size() != rows * cols) {
+        // Handle error: size mismatch
+        std::cerr << "reshapeVector2D(): Mismatched size vector." << std::endl;
+        return result;
+    }
+    for (size_t i = 0; i < rows; ++i) {
+        std::vector<double> row(flat.begin() + i * cols, flat.begin() + (i + 1) * cols);
+        result.push_back(row);
+    }
+    return result;
+}

@@ -24,8 +24,9 @@ public:
     IvPBehaviorExtend(IvPDomain domain) : IvPBehavior(domain) {}
     virtual ~IvPBehaviorExtend() {}
 
-    // New method
+    // New methods
     bool setVecDoubleOnString(std::vector<double> given_vec_double, const std::string& str);
+    bool setVecIntOnString(std::vector<int> given_vec_int, const std::string& str);
 };
 
 #endif
