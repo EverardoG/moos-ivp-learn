@@ -15,7 +15,6 @@
 #include "OF_Coupler.h"
 #include "AngleUtils.h"
 #include "GeomUtils.h"
-#include "ivp_behavior_extend.h"
 #include "general_utils.h"
 
 // This needs to read in a file containing parameters/structure
@@ -27,7 +26,7 @@
 //     velocity action is irrespective of current velocity. Velocity of 1.0 means change the velocity to 1.0, not add 1.0 to current velocity.
 //     heading is relative to current heading. Relative heading of +0.5 means add 0.5 to current heading.
 
-class BHV_Neural_Network : public IvPBehaviorExtend {
+class BHV_Neural_Network : public IvPBehavior {
 public:
   BHV_Neural_Network(IvPDomain);
   ~BHV_Neural_Network() {};

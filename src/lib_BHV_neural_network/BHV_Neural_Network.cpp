@@ -18,7 +18,7 @@ using namespace std;
 // Constructor
 
 BHV_Neural_Network::BHV_Neural_Network(IvPDomain domain) :
-  IvPBehaviorExtend(domain)
+  IvPBehavior(domain)
 {
   // Provide a default behavior name
   IvPBehavior::setParam("name", "defaultname");
@@ -50,38 +50,40 @@ bool BHV_Neural_Network::setParam(string param, string val)
     // use FileBuffer() to read in config file
     // Assume the config file is in the mission directory
     //    (not the top level missions directory, but the directory of a particular mission)
-    string warning;
     vector<string> lines = fileBuffer(val);
     if(lines.size() == 0) {
-      warning = "File not found, or empty: " + val;
+      postWMessage("File not found, or empty: " + val);
       return(false);
     }
 
     // Use the extension method to populate a vector of doubles
     // from line 0. These are the weights for the neural network
     std::vector<double> weights;
+    string warning;
     bool good_reading;
-    good_reading = setVecDoubleOnString(weights, lines[0]);
+    good_reading = setVecDoubleOnString(weights, lines[0], warning);
     if(!good_reading) {
-      postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + val);
+      postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + val + ". " + warning);
       return(false);
     }
 
     // Use the extension method to populate a vector of ints
     // from line 1. These define the structure of the neural network
     std::vector<int> structure;
-    good_reading = setVecIntOnString(structure, lines[1]);
+    warning = "";
+    good_reading = setVecIntOnString(structure, lines[1], warning);
     if(!good_reading) {
-      postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + val);
+      postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + val + ". " + warning);
       return(false);
     }
 
     // Get the output bounds of the neural network from
     // line 2. These define the output boundaries of the network
     std::vector<double> bounds_flat;
-    good_reading = setVecDoubleOnString(bounds_flat, lines[2]);
+    good_reading = setVecDoubleOnString(bounds_flat, lines[2], warning);
+    warning = "";
     if(!good_reading) {
-      postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + val);
+      postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + val + ". " + warning);
       return(false);
     }
 
