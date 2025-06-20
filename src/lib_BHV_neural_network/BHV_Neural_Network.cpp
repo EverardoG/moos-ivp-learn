@@ -57,8 +57,11 @@ bool BHV_Neural_Network::setParam(string param, string val)
       return(false);
     }
 
-    // Then use Moos-ivp's helper function that turns a string into
-    // a vector of doubles
+    // Use the extension method to populate a vector of doubles
+    // from the first line
+    std::vector<double> vec;
+    bool good_reading;
+    good_reading = setVecDoubleOnString(vec, lines[0]);
 
     // Also a helper function that turns a string into vector of ints?
 
