@@ -16,7 +16,7 @@ double calcDeltaHeading(double heading1, double heading2);
 // Procedure: vectorToStream(const std::vector<double>& vec)
 //            turn a vector of doubles into a stream for
 //            easy printing to terminal
-std::string vectorToStream(const std::vector<double>& vec);
+std::string vectorToStream(const std::vector<double>& vec, const std::string& delimiter = " ");
 
 // Function to check if two floating-point numbers are close
 bool isClose(double a, double b, double rel_tol = 1e-9, double abs_tol = 0.0);

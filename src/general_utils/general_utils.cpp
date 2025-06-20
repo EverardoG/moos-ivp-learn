@@ -32,10 +32,13 @@ double calcDeltaHeading(double heading1, double heading2)
   return(delta_theta);
 }
 
-std::string vectorToStream(const std::vector<double>& vec) {
+std::string vectorToStream(const std::vector<double>& vec, const std::string& delimiter) {
     std::ostringstream oss;
-    for (const double& value : vec) {
-        oss << value << " ";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        oss << vec[i];
+        if (i != vec.size() - 1) {
+            oss << delimiter;
+        }
     }
     return oss.str();
 }

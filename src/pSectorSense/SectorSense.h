@@ -13,6 +13,7 @@
 #include "XYPoint.h"
 #include "AngleUtils.h"      // for relAngle
 #include <cmath>
+#include "general_utils.h"
 
 class SectorSense : public AppCastingMOOSApp
 {
@@ -50,6 +51,7 @@ class SectorSense : public AppCastingMOOSApp
    std::vector<XYPoint> m_swimmers;
    std::vector<bool>    m_swimmers_rescued;
 
+   std::string m_sensor_readings_str;
 };
 
 #endif

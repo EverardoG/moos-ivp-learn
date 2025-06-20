@@ -99,9 +99,10 @@ bool SectorSense::Iterate()
   // for what SectorSense is generating as readings
 
   // For now, I'll hardcode this so that we can test the pipeline
-  std::vector<double> sensor_readings = {1, 1, 1, 1, 1, 1, 1, 1};
-  // std::string sensor_readings_str = ;
-  // Notify("SECTOR_SENSOR_READING",)
+  std::vector<double> sensor_readings = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+  m_sensor_readings_str = vectorToStream(sensor_readings, ",");
+  Notify("SECTOR_SENSOR_READING", std::string("hello"));
+  // Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
 
   AppCastingMOOSApp::PostReport();
   return(true);
@@ -249,9 +250,10 @@ double SectorSense::calcDeltaHeading(double heading1, double heading2)
 bool SectorSense::buildReport()
 {
   m_msgs << "============================================" << endl;
-  m_msgs << "File:                                       " << endl;
+  m_msgs << "File: SectorSense.cpp                       " << endl;
   m_msgs << "============================================" << endl;
 
+  m_msgs << "m_sensor_readings_str: " << m_sensor_readings_str << endl;
 
   ACTable actab(3);
   actab << " Swimmer Idx | Info | Rescued ";

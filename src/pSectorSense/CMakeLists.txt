@@ -17,5 +17,6 @@ TARGET_LINK_LIBRARIES(pSectorSense
   apputil
   mbutil
   m
-  pthread)
+  pthread
+  general_utils)
 
