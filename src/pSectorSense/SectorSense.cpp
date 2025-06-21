@@ -101,8 +101,7 @@ bool SectorSense::Iterate()
   // For now, I'll hardcode this so that we can test the pipeline
   std::vector<double> sensor_readings = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
   m_sensor_readings_str = vectorToStream(sensor_readings, ",");
-  Notify("SECTOR_SENSOR_READING", std::string("hello"));
-  // Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
+  Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
 
   AppCastingMOOSApp::PostReport();
   return(true);

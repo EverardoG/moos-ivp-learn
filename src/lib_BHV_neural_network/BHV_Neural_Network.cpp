@@ -32,6 +32,8 @@ BHV_Neural_Network::BHV_Neural_Network(IvPDomain domain) :
 
   m_best_heading = 0.0;
   m_best_speed   = 0.0;
+
+  std::cout << "Successfully constructed BHV_Neural_Network" << std::endl;
 }
 
 //---------------------------------------------------------------
@@ -47,12 +49,34 @@ bool BHV_Neural_Network::setParam(string param, string val)
 
   // Initialize network using csv file
   if (param == "csv_directory") {
+    m_csv_directory = val;
+    return(true);
+  }
+
+  // We don't know what this parameter is. Return false
+  return(false);
+}
+
+//---------------------------------------------------------------
+// Procedure: onSetParamComplete()
+//   Purpose: Invoked once after all parameters have been handled.
+//            Good place to ensure all required params have are set.
+//            Or any inter-param relationships like a<b.
+
+void BHV_Neural_Network::onSetParamComplete()
+{
+}
+
+bool BHV_Neural_Network::initialize()
+{
+  if (m_network_loaded) return true;
+  else{
     // use FileBuffer() to read in config file
     // Assume the config file is in the mission directory
     //    (not the top level missions directory, but the directory of a particular mission)
-    vector<string> lines = fileBuffer(val);
+    vector<string> lines = fileBuffer(m_csv_directory);
     if(lines.size() == 0) {
-      postWMessage("File not found, or empty: " + val);
+      postWMessage("File not found, or empty: " + m_csv_directory);
       return(false);
     }
 
@@ -63,7 +87,7 @@ bool BHV_Neural_Network::setParam(string param, string val)
     bool good_reading;
     good_reading = setVecDoubleOnString(weights, lines[0], warning);
     if(!good_reading) {
-      postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + val + ". " + warning);
+      postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + m_csv_directory + ". " + warning);
       return(false);
     }
 
@@ -73,7 +97,7 @@ bool BHV_Neural_Network::setParam(string param, string val)
     warning = "";
     good_reading = setVecIntOnString(structure, lines[1], warning);
     if(!good_reading) {
-      postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + val + ". " + warning);
+      postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + m_csv_directory + ". " + warning);
       return(false);
     }
 
@@ -83,7 +107,7 @@ bool BHV_Neural_Network::setParam(string param, string val)
     good_reading = setVecDoubleOnString(bounds_flat, lines[2], warning);
     warning = "";
     if(!good_reading) {
-      postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + val + ". " + warning);
+      postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + m_csv_directory + ". " + warning);
       return(false);
     }
 
@@ -97,20 +121,11 @@ bool BHV_Neural_Network::setParam(string param, string val)
 
     // Then load that into the neural network
     m_network = NeuralNetwork(weights, structure, bounds);
+
+    // Mark that we have successfully loaded in our network
+    m_network_loaded = true;
+    return(true);
   }
-
-  // If everything worked, then return true.
-  return(true);
-}
-
-//---------------------------------------------------------------
-// Procedure: onSetParamComplete()
-//   Purpose: Invoked once after all parameters have been handled.
-//            Good place to ensure all required params have are set.
-//            Or any inter-param relationships like a<b.
-
-void BHV_Neural_Network::onSetParamComplete()
-{
 }
 
 //---------------------------------------------------------------
@@ -167,11 +182,13 @@ void BHV_Neural_Network::onRunToIdleState()
 
 IvPFunction* BHV_Neural_Network::onRunState()
 {
+  postEventMessage("Running onRunState() for BHV_Neural_Network");
 
   // Part 1: Get the latest sensor reading from SectorSense
   bool ok_sensor_reading = processSensorReadings();
   if (!ok_sensor_reading)
     return(0);
+  else return(0);
 
   // Part 2:
   forwardPropNetwork();

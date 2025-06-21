@@ -43,13 +43,16 @@ public:
   bool         processSensorReadings();
   void         forwardPropNetwork();
   IvPFunction* buildFunction();
+  bool         initialize();
 
 protected: // Local Utility functions
 
 protected: // Configuration parameters
+  std::string m_csv_directory;
 
 protected: // State variables
   NeuralNetwork m_network;
+  bool m_network_loaded = false;
 
   std::vector<double>  m_sector_sensor_readings;
 

@@ -14,7 +14,7 @@ Processconfig = ANTLER
   Run = pLogger            @ NewConsole = false
   Run = pNodeReporter      @ NewConsole = false
 
-  Run = pHelmIvP           @ NewConsole = false
+  Run = pHelmIvP           @ NewConsole = true
   Run = uProcessWatch      @ NewConsole = false
   Run = pContactMgrV20     @ NewConsole = false
   Run = pShare             @ NewConsole = false
