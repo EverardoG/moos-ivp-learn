@@ -220,11 +220,9 @@ IvPFunction* BHV_Neural_Network::onRunState()
   if (!initialize()) {
     return(0);
   }
-  return(0);
-
 
   forwardPropNetwork();
-  postEventMessage("Ran forward propogation on neural network.");
+  postEventMessage("Ran forward propogation on neural network. Velocity: "+std::to_string(m_best_speed)+" | Heading: "+std::to_string(m_best_heading));
 
   // Part 3: Build the IvP function
   IvPFunction *ipf = buildFunction();

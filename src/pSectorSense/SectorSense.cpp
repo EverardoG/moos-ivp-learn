@@ -23,9 +23,17 @@ SectorSense::SectorSense()
   m_nav_hdg        = 0.0;
 
   // These variables are fixed
-  m_sensor_rad     = 10.0;
+  m_sensor_rad     = 100.0;
+  m_saturation_rad = 0.1;
   m_number_sectors = 8;
   m_sector_width = 360.0/m_number_sectors;
+
+  m_swimmer_sensor.initialize(
+    m_sensor_rad,
+    m_saturation_rad,
+    m_number_sectors,
+    NormalizationRule::DYNAMIC
+  );
 }
 
 //---------------------------------------------------------
@@ -57,7 +65,7 @@ bool SectorSense::OnNewMail(MOOSMSG_LIST &NewMail)
     bool   mstr  = msg.IsString();
 #endif
 
-    if(key == "SWIMMER_ALEART") {
+    if(key == "SWIMMER_ALERT") {
       XYPoint new_point = string2Point(msg.GetString());
       m_swimmers.push_back(new_point);
       m_swimmers_rescued.push_back(false);
@@ -87,6 +95,15 @@ bool SectorSense::OnConnectToServer()
    return(true);
 }
 
+void SectorSense::updateSwimmers() {
+  m_swimmers_sense.clear();
+  for (int i = 0; i < m_swimmers.size(); i++) {
+    if (!m_swimmers_rescued[i]) {
+      m_swimmers_sense.push_back(m_swimmers[i]);
+    }
+  }
+}
+
 //---------------------------------------------------------
 // Procedure: Iterate()
 //            happens AppTick times per second
@@ -98,58 +115,18 @@ bool SectorSense::Iterate()
   // This is where we need to send outgoing mail
   // for what SectorSense is generating as readings
 
-  // For now, I'll hardcode this so that we can test the pipeline
-  std::vector<double> sensor_readings = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+  // Update which swimmers you should be sensing
+  updateSwimmers();
+
+  // Sense those swimmers!
+  std::vector<double> sensor_readings = m_swimmer_sensor.query(
+    m_swimmers_sense, m_nav_x, m_nav_y, m_nav_hdg
+  );
   m_sensor_readings_str = vectorToStream(sensor_readings, ",");
   Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
 
   AppCastingMOOSApp::PostReport();
   return(true);
-}
-
-//---------------------------------------------------------
-// Procedure: fillSensorBuckets()
-//            updates
-
-std::vector<std::vector<double>> SectorSense::fillSensorBuckets()
-{
-  std::vector<std::vector<double>> buckets;
-  for (int i=0; i<m_swimmers.size(); i++){
-
-    // How far away is this swimmer?
-    double dx = m_nav_x - m_swimmers[i].get_vx();
-    double dy = m_nav_y - m_swimmers[i].get_vy();
-    double dist = sqrt(dx*dx + dy*dy);
-
-    // Skip this swimmer if it's too far away
-    if (dist > m_sensor_rad)
-      continue;
-
-    // What is the relative heading to this swimmer?
-    double swimmer_heading = relAng(m_nav_x, m_nav_y,
-				m_swimmers[i].get_vx(), m_swimmers[i].get_vy());
-
-
-    // convert to local angle from straight ahead
-    // (This angle represents the difference between the current heading and the heading required to go to the siwmmer)
-    double angle_delta = calcDeltaHeading(m_nav_hdg, swimmer_heading);
-
-    // Represent heading from 0 to 360
-    angle_delta = angle360(angle_delta);
-
-    // Then we need to take this angle, and represent it in the bucket-frame
-    // Add sector_width/2.0 to the angle
-    // Represent heading from 0 to 360
-    // Now this angle represents which bucket this swimmer goes in
-    double bucket_angle = angle_delta + m_sector_width/2.0;
-
-    // Now divide the bucket_angle to get the bucket that this goes into
-    // fill up the bucket
-    int bucket_ind = bucket_angle / m_sector_width;
-    buckets[bucket_ind].push_back(dist);
-  }
-
-  return buckets;
 }
 
 //---------------------------------------------------------

@@ -16,6 +16,7 @@ enum class NormalizationRule {
 
 class SectorSensor {
   public:
+    SectorSensor() {};
     SectorSensor(
       const double& sensor_rad,
       const double& saturation_rad,
@@ -23,16 +24,32 @@ class SectorSensor {
       NormalizationRule normalization_rule = NormalizationRule::NONE,
       const double& fixed_normalization_factor = 1.0
     )
-      : m_sensor_rad(sensor_rad),
-      m_saturation_rad(saturation_rad),
-      m_number_sectors(number_sectors),
-      m_normalization_rule(normalization_rule),
-      m_fixed_normalization_factor(fixed_normalization_factor)
       {
-        m_sector_width = 360.0 / m_number_sectors;
-        m_verbosity_level = 1;
+        initialize(
+          sensor_rad,
+          saturation_rad,
+          number_sectors,
+          normalization_rule,
+          fixed_normalization_factor
+        );
       }
     ~SectorSensor();
+
+    void initialize(
+      const double& sensor_rad,
+      const double& saturation_rad,
+      const int& number_sectors,
+      NormalizationRule normalization_rule,
+      const double& fixed_normalization_factor = 1.0
+    ) {
+      m_sensor_rad = sensor_rad;
+      m_saturation_rad = saturation_rad;
+      m_number_sectors = number_sectors;
+      m_normalization_rule = normalization_rule;
+      m_fixed_normalization_factor = fixed_normalization_factor;
+      m_sector_width = 360.0 / m_number_sectors;
+      m_verbosity_level = 1;
+    }
 
     // Transform list of XY points into sensor readings
     std::vector<double> query(Entities entities, double self_x, double self_y, double self_heading);

@@ -14,6 +14,7 @@
 #include "AngleUtils.h"      // for relAngle
 #include <cmath>
 #include "general_utils.h"
+#include "sector_sensor.h"
 
 class SectorSense : public AppCastingMOOSApp
 {
@@ -24,9 +25,9 @@ class SectorSense : public AppCastingMOOSApp
  protected: // Standard MOOSApp functions to overload
    bool OnNewMail(MOOSMSG_LIST &NewMail);
    bool Iterate();
-   std::vector<std::vector<double>> fillSensorBuckets();
    bool OnConnectToServer();
    bool OnStartUp();
+   void updateSwimmers();
 
  protected: // Standard AppCastingMOOSApp function to overload
    bool buildReport();
@@ -40,6 +41,7 @@ class SectorSense : public AppCastingMOOSApp
    double m_sensor_rad;
    int    m_number_sectors;
    double m_sector_width;
+   double m_saturation_rad;
 
  private: // State variables
    double m_nav_x;
@@ -50,8 +52,10 @@ class SectorSense : public AppCastingMOOSApp
 
    std::vector<XYPoint> m_swimmers;
    std::vector<bool>    m_swimmers_rescued;
+   std::vector<XYPoint> m_swimmers_sense;
 
    std::string m_sensor_readings_str;
+   SectorSensor m_swimmer_sensor;
 };
 
 #endif
