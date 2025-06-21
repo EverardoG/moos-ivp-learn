@@ -3,12 +3,12 @@ ServerPort = $(MOOS_PORT)
 Community  = $(VNAME)
 
 #include plugs.moos <origin_warp>
-  
+
 //------------------------------------------------------------
 Processconfig = ANTLER
 {
   MSBetweenLaunches = 50
-   
+
   Run = MOOSDB             @ NewConsole = false
   Run = pMarinePIDV22      @ NewConsole = false
   Run = pLogger            @ NewConsole = false
@@ -59,13 +59,13 @@ ProcessConfig = pHelmIvP
   ok_skew     = any
 
   app_logging = true
-  behaviors   = targ_$(VNAME).bhv  
+  behaviors   = targ_$(VNAME).bhv
   verbose     = false
   domain      = course:0:359:360
   domain      = speed:0:3:31
   hold_on_app = pContactMgrV20
 
-	goals_mandatory = true	
+	goals_mandatory = true
 }
 
 //------------------------------------------
@@ -158,7 +158,7 @@ ProcessConfig = pContactMgrV20
   alert_verbose = true
 
 	post_all_ranges = true
-	
+
   contact_max_age = 35
 	display_radii_id = avd
   display_radii = false
@@ -187,7 +187,7 @@ ProcessConfig = pNodeReporter
   platform_type  = ship
 #endif
 	platform_length = 3
-	
+
 	platform_color = $(COLOR)
 
 	platform_group = $(VUSER="grp")
@@ -198,7 +198,7 @@ ProcessConfig = pNodeReporter
 
 //---------------------------------------
 // pMarinePIDV22 Config Block
-	
+
 ProcessConfig = pMarinePIDV22
 {
   AppTick    = 10
@@ -213,13 +213,13 @@ ProcessConfig = pMarinePIDV22
   // Yaw PID controller (Set for M300)
 #ifdef XMODE SIM
   yaw_pid_kp             = 1.5
-  yaw_pid_ki             = 0.5  
+  yaw_pid_ki             = 0.5
 #elseifdef XMODE M300
-  yaw_pid_kp             = 0.9 
-  yaw_pid_ki             = 0.3 
+  yaw_pid_kp             = 0.9
+  yaw_pid_ki             = 0.3
 #endif
-  yaw_pid_kd             = 0.3 
-  yaw_pid_integral_limit = 0.3 
+  yaw_pid_kd             = 0.3
+  yaw_pid_integral_limit = 0.3
 
   // Speed PID controller
   speed_pid_kp           = 1.0
@@ -244,7 +244,7 @@ ProcessConfig = pLogger
 {
   AppTick 	= 10
   CommsTick = 10
-  
+
   File      = LOG_%(VNAME)
   PATH      = ./
   AsyncLog  = true
@@ -259,7 +259,7 @@ ProcessConfig = pLogger
 
   // Log it all!!!!!
   LogAuxSrc = true
-  WildCardLogging = true 
+  WildCardLogging = true
   WildCardOmitPattern = *_STATUS
   WildCardOmitPattern = APPCAST
   WildCardOmitPattern = DB_VARSUMMARY
