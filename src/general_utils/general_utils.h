@@ -26,9 +26,9 @@ std::vector<std::vector<double>> reshapeVector2D(
     const std::vector<double>& flat, size_t rows, size_t cols);
 
 // Turn a string of comma seperated decimal numbers into a vector of doubles
-bool setVecDoubleOnString(std::vector<double> given_vec_double, const std::string& str, std::string& warning);
+bool setVecDoubleOnString(std::vector<double>& given_vec_double, const std::string& str, std::string& warning);
 
 // Turn a string of comma seperated integers into a vector of integers
-bool setVecIntOnString(std::vector<int> given_vec_int, const std::string& str, std::string& warning);
+bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, std::string& warning);
 
 #endif // GENERAL_UTILS_H

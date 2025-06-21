@@ -79,15 +79,24 @@ public:
 class NeuralNetwork {
 private:
     std::vector<Layer> layers; // Each layer contains multiple nodes
-    std::vector<std::vector<double>> bounds; // Bounds for final outputs
+    std::vector<std::vector<double>> m_bounds; // Bounds for final outputs
 
 public:
     // Constructor to initialize the network
-    NeuralNetwork() {}; 
-    NeuralNetwork(const std::vector<double>& weights, const std::vector<int>& structure, const std::vector<std::vector<double>>& bounds)
-        : bounds(bounds) {
+    NeuralNetwork() {};
+    NeuralNetwork(const std::vector<double>& weights, const std::vector<int>& structure, const std::vector<std::vector<double>>& bounds) {
+        std::string err("");
+        initialize(weights, structure, bounds, err);
+    }
+    NeuralNetwork(const std::vector<double>& weights, const std::vector<int>& structure, const std::vector<std::vector<double>>& bounds, std::string& err) {
+        initialize(weights, structure, bounds, err);
+    }
+
+    bool initialize(const std::vector<double>& weights, const std::vector<int>& structure, const std::vector<std::vector<double>>& bounds, std::string& err) {
+        m_bounds = bounds;
         if (structure.size() < 3) {
-            throw std::invalid_argument("Network structure must have at least an input, hidden, and output layer.");
+            err = "Network structure must have at least an input, hidden, and output layer.";
+            return(false);
         }
 
         size_t weight_index = 0;
@@ -97,12 +106,13 @@ public:
             int output_size = structure[i+1]; // Number of nodes in the current layer
             std::vector<Node> layer;
 
-            std::cout << "Initializing layer " << i + 1 << " with " << output_size << " nodes." << std::endl;
+            // std::cout << "Initializing layer " << i + 1 << " with " << output_size << " nodes." << std::endl;
 
             // For each node in this layer
             for (int j = 0; j < output_size; ++j) {
                 if (weight_index + input_size > weights.size()) {
-                    throw std::invalid_argument("Insufficient weights provided for the network structure.");
+                    err = "Insufficient weights provided for the network structure.";
+                    return false;
                 }
 
                 // Debug: Log weight allocation for each node
@@ -110,7 +120,6 @@ public:
                 for (size_t k = weight_index; k < weight_index + input_size; ++k) {
                     std::cout << weights[k] << " ";
                 }
-                std::cout << std::endl;
 
                 // Correctly allocate weights for each node
                 std::vector<double> node_weights(weights.begin() + weight_index, weights.begin() + weight_index + input_size);
@@ -123,16 +132,19 @@ public:
         }
 
         if (weight_index != weights.size()) {
-            std::cerr << "Error: Extra weights provided beyond the network structure." << std::endl;
-            std::cerr << "Expected weights used: " << weight_index << ", but provided: " << weights.size() << std::endl;
-            throw std::invalid_argument("Extra weights provided beyond the network structure.");
+            err = "Extra weights provided beyond the network structure. Expected weights used: "
+                + std::to_string(weight_index) + ", but provided: " + std::to_string(weights.size());
+                return(false);
         }
 
         if (bounds.size() != structure.back()) {
-            throw std::invalid_argument("Bounds size must match the number of outputs in the final layer.");
+            err = "Bounds size must match the number of outputs in the final layer.";
+            return(false);
         }
 
         std::cout << "Neural network initialized successfully." << std::endl;
+
+        return(true);
     }
 
     // Forward pass method
@@ -156,16 +168,16 @@ public:
             if (output_node.get_activation_type() == Node::ActivationType::Tanh) {
                 // Apply asymmetric bounds for Tanh activation
                 if (current_inputs[i] > 0) {
-                    current_inputs[i] *= bounds[i][1]; // Scale by the positive bound
+                    current_inputs[i] *= m_bounds[i][1]; // Scale by the positive bound
                 } else {
-                    current_inputs[i] *= -bounds[i][0]; // Scale by negative bound (add negative sign so we don't accidentally flip the sign of our output)
+                    current_inputs[i] *= -m_bounds[i][0]; // Scale by negative bound (add negative sign so we don't accidentally flip the sign of our output)
                 }
             } else {
                 // Apply cutoff bounds for other activation types
-                if (current_inputs[i] < bounds[i][0]) {
-                    current_inputs[i] = bounds[i][0];
-                } else if (current_inputs[i] > bounds[i][1]) {
-                    current_inputs[i] = bounds[i][1];
+                if (current_inputs[i] < m_bounds[i][0]) {
+                    current_inputs[i] = m_bounds[i][0];
+                } else if (current_inputs[i] > m_bounds[i][1]) {
+                    current_inputs[i] = m_bounds[i][1];
                 }
             }
         }

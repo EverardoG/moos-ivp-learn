@@ -65,7 +65,7 @@ std::vector<std::vector<double>> reshapeVector2D(
     return result;
 }
 
-bool setVecDoubleOnString(std::vector<double> given_vec_double, const std::string& str, std::string& warning) {
+bool setVecDoubleOnString(std::vector<double>& given_vec_double, const std::string& str, std::string& warning) {
   double temp_dbl;
   bool good_reading;
 
@@ -87,7 +87,7 @@ bool setVecDoubleOnString(std::vector<double> given_vec_double, const std::strin
   return true;
 }
 
-bool setVecIntOnString(std::vector<int> given_vec_int, const std::string& str, std::string& warning) {
+bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, std::string& warning) {
   int temp_int;
   bool good_reading;
 
