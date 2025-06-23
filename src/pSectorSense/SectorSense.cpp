@@ -51,6 +51,8 @@ bool SectorSense::OnNewMail(MOOSMSG_LIST &NewMail)
 
     if(key == "SWIMMER_ALERT") {
       processSwimmerAlert(msg);
+    } else if (key == "FOUND_SWIMMER") {
+      processFoundSwimmer(msg);
     } else if (key == "NAV_X"){
       m_nav_x = msg.GetDouble();
     } else if (key == "NAV_Y"){
@@ -283,12 +285,30 @@ void SectorSense::processSwimmerAlert(CMOOSMsg& msg) {
       // We got the id. If we don't have this id, add it.
       // Otherwise, don't do anything.
       unsigned int swimmer_id = std::stoi(value);
-      if (m_swimmers_recorded.count(swimmer_id) == 0) {
-        XYPoint new_point = string2Point(msg.GetString());
-        m_swimmers.push_back(new_point);
-        m_swimmers_rescued.push_back(false);
-        // Save the id so we don't recount this swimmer.
-        m_swimmers_recorded.insert(swimmer_id);
+      if (m_swimmer_map.count(swimmer_id) == 0) {
+        XYPoint position = string2Point(msg.GetString());
+        Swimmer new_swimmer(position);
+        m_swimmer_map[swimmer_id] = new_swimmer;
+      }
+    }
+  }
+  std::cout << msg.GetString() << std::endl;
+}
+
+void SectorSense::processFoundSwimmer(CMOOSMsg& msg) {
+  // Get the id of the swimmer so we don't double count any swimmers
+  std::vector<string> mvector = parseString(msg.GetString(), ",");
+  unsigned int vsize = mvector.size();
+  for (int i=0; i<vsize; i++) {
+    string param = tolower(biteStringX(mvector[i], '='));
+    string value = mvector[i];
+    if(param == "id") {
+      // We got the id. If we don't have this id, add it.
+      // Otherwise, don't do anything.
+      unsigned int swimmer_id = std::stoi(value);
+      if (m_swimmers_recorded.count(swimmer_id) > 0) {
+        // Mark that this swimmer has been saved
+        m_swimmer_map[swimmer_id].rescued = true;
       }
     }
   }
