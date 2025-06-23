@@ -14,7 +14,7 @@ Processconfig = ANTLER
   Run = pLogger            @ NewConsole = false
   Run = pNodeReporter      @ NewConsole = false
 
-  Run = pHelmIvP           @ NewConsole = true
+  Run = pHelmIvP           @ NewConsole = false
   Run = uProcessWatch      @ NewConsole = false
   Run = pContactMgrV20     @ NewConsole = false
   Run = pShare             @ NewConsole = false
@@ -25,8 +25,7 @@ Processconfig = ANTLER
   Run = uTimerScript       @ NewConsole = false
   Run = pRealm             @ NewConsole = false
 #ifdef VROLE rescue
-  Run = pSectorSense       @ NewConsole = false
-  Run = pSimpleControl     @ NewConsole = false
+  Run = pSectorSense       @ NewConsole = true
 #endif
 
 #ifdef XMODE SIM
@@ -77,8 +76,10 @@ ProcessConfig = pSectorSense
    AppTick   = 4
    CommsTick = 4
 
-   sensor_rad     = 10
+   sensor_rad     = 50
+   saturation_rad = 5
    number_sectors = 8
+   arc_points      = 3
 
 }
 
@@ -272,12 +273,12 @@ ProcessConfig = pLogger
 //--------------------------------------------------------
 // pSimpleControl config block
 
-ProcessConfig = pSimpleControl 
+ProcessConfig = pSimpleControl
 {
   AppTick     = 4
   CommsTick   = 4
 
   rudder_gain = 0.1
-  constant_thust = 20 
+  constant_thust = 20
 
 }

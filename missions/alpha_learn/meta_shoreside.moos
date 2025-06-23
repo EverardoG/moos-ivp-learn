@@ -6,7 +6,7 @@ ServerPort = 9000
 Community  = shoreside
 
 #include plugs.moos <origin_warp>
-  
+
 //--------------------------------------------------------
 Processconfig = ANTLER
 {
@@ -77,7 +77,7 @@ ProcessConfig = pMissionEval
   report_column = mhash=$[MHASH]
 
 	report_line_format = csp
-	
+
   result_flag = MISSION_EVALUATED = true
 }
 
@@ -91,29 +91,29 @@ ProcessConfig = uQueryDB
 
   halt_max_time  = 600
   pass_condition = (UFRM_WINNER != pending)
-}       
+}
 
 //------------------------------------------
 // pRealm config block
 
-ProcessConfig = pRealm                                          
-{                                                               
+ProcessConfig = pRealm
+{
   AppTick   = 4
   CommsTick = 4
-  
+
   relcast_interval = 0.8
   summary_interval = 2.0
   wrap_length = 90
   trunc_length = 270
   msg_max_hist = 30
-                                                                
+
   hist_var  = SWIMMER_ALERT_ABE
   hist_var  = SWIMMER_ALERT_BEN
   hist_var  = FOUND_SWIMMER
-                                                                
+
 	app_logging = true
 }
-	
+
 //------------------------------------------
 // uFldRescueMgr config block
 
@@ -127,7 +127,7 @@ ProcessConfig = uFldRescueMgr
 	swim_file = $(SWIM_FILE)
 
 	finish_flag = RETURN_ALL = true
-	
+
 	rescue_rng_min = 3
 	rescue_rng_max = 5
 	rescue_rng_pd  = 1.0
@@ -135,7 +135,7 @@ ProcessConfig = uFldRescueMgr
 	swimmer_color = lime
 
 	finish_upon_win = true
-	
+
 	show_rescue_rng = true
 	rescue_rng_transparency = 0.1
 }
@@ -168,7 +168,7 @@ ProcessConfig = uFldShoreBroker
   qbridge = MOOS_MANUAL_OVERIDE, MOOS_MANUAL_OVERRIDE
   qbridge = SURVEY_UPDATE, SCOUTED_SWIMMER, CONTACT_INFO
   qbridge = NODE_COLOR_CHANGE, PID_THRUST_CAP
-  
+
   bridge  = src=AVOID
   bridge  = src=UFRM_LEADER
   bridge  = src=UFRM_WINNER
@@ -176,7 +176,8 @@ ProcessConfig = uFldShoreBroker
   bridge  = src=FOUND_SWIMMER
   bridge  = src=RESCUED_SWIMMER
   bridge  = src=RESCUE_REGION
- 
+  //bridge  = src=VIEW_POLYGON
+
   bridge  = src=RETURN_ALL, alias=RETURN
   bridge  = src=RETURN_$V,  alias=RETURN
 }
@@ -188,16 +189,16 @@ ProcessConfig = pLogger
 {
   AppTick       = 10
   CommsTick     = 10
-  
+
   File          = XLOG_SHORESIDE
   PATH          = ./
   AsyncLog      = true
   FileTimeStamp = true
 
 	Log = MOB_ALERT @ 0 nosync
-	
+
   // Log it all!!!!!
-  WildCardLogging = true 
+  WildCardLogging = true
 }
 
 
@@ -213,9 +214,9 @@ ProcessConfig = uFldCollisionDetect
   near_miss_range = 8
   encounter_range = 20
 
-  encounter_flag = ENCOUNTER = $CPA                             
-  collision_flag = COLLISION = $CPA                             
-  near_miss_flag = NEAR_MISS = vname1=$V1,vname2=$V2,cpa=$CPA   
+  encounter_flag = ENCOUNTER = $CPA
+  collision_flag = COLLISION = $CPA
+  near_miss_flag = NEAR_MISS = vname1=$V1,vname2=$V2,cpa=$CPA
 
   //delay_time_to_clear = 100   // seconds
   //deploy_delay_time   = 5     // seconds
@@ -237,7 +238,7 @@ ProcessConfig = pMarineViewer
   CommsTick  = 4
 
 	app_logging = true
-	
+
   //tiff_file            = forrest19.tif
   tiff_file            = MIT_SP.tif
   set_pan_x            = 46
@@ -249,7 +250,7 @@ ProcessConfig = pMarineViewer
 	procs_font_size = medium
 	nodes_font_size = medium
 	infocast_font_size = medium
-	
+
   polygon_viewable_all    = true
   polygon_viewable_labels = false
   seglist_viewable_all    = true
@@ -257,16 +258,16 @@ ProcessConfig = pMarineViewer
   point_viewable_all    = true
   point_viewable_labels = true
 
-  left_context[unreg_swimmer]   = XSWIMMER_ALERT = type=unreg,x=$[XPOS],y=$[YPOS]	
-  left_context[unreg_swimmer]   = SURVEY_ALL=true 
+  left_context[unreg_swimmer]   = XSWIMMER_ALERT = type=unreg,x=$[XPOS],y=$[YPOS]
+  left_context[unreg_swimmer]   = SURVEY_ALL=true
   left_context[unreg_swimmer]   = RETURN_ALL=false
 
-  left_context[reg_swimmer]   = XSWIMMER_ALERT = type=reg,x=$[XPOS],y=$[YPOS]	
-  left_context[reg_swimmer]   = SURVEY_ALL=true 
+  left_context[reg_swimmer]   = XSWIMMER_ALERT = type=reg,x=$[XPOS],y=$[YPOS]
+  left_context[reg_swimmer]   = SURVEY_ALL=true
   left_context[reg_swimmer]   = RETURN_ALL=false
 
-  right_context[rescue]  = XFOUND_SWIMMER = x=$[XPOS],y=$[YPOS]	
-  right_context[floater] = XSWIMMER_ALERT = type=floater,x=$[XPOS],y=$[YPOS]	
+  right_context[rescue]  = XFOUND_SWIMMER = x=$[XPOS],y=$[YPOS]
+  right_context[floater] = XSWIMMER_ALERT = type=floater,x=$[XPOS],y=$[YPOS]
 
   appcast_viewable     = true
   appcast_color_scheme = indigo
@@ -285,18 +286,18 @@ ProcessConfig = pMarineViewer
 
 	watch_cluster = key=mission_top, vars=DEPLOY:RETURN:SURVEY:STATION_KEEP
 	watch_cluster = key=mission_top, vars=MODE:MOOS_MANUAL_OVERRIDE
-	
+
   vehicles_name_mode = names
 
 	scope = UFRM_GAME_STATUS
-	
+
   stale_report_thresh = 2
   stale_remove_thresh = 20000
 
-  button_one   = DEPLOY  # DEPLOY_ALL=true 
-  button_one   = DEPLOY  # MOOS_MANUAL_OVERRIDE_ALL=false 
+  button_one   = DEPLOY  # DEPLOY_ALL=true
+  button_one   = DEPLOY  # MOOS_MANUAL_OVERRIDE_ALL=false
   button_one   = RETURN_ALL=false # SURVEY_ALL=true
-  button_one   = STATION_KEEP_ALL=false 
+  button_one   = STATION_KEEP_ALL=false
 
   button_two   = RETURN   # RETURN_ALL=true  # SURVEY_ALL=false
   button_three = STATION  # STATION_KEEP_ALL=true # SURVEY_ALL=false
@@ -313,7 +314,7 @@ ProcessConfig = pMarineViewer
 
 	//button_9 = TCAP100  # PID_THRUST_CAP_ALL=100
 	//button_10 = TCAP50  # PID_THRUST_CAP_ALL=50
-	
+
 
 	}
 

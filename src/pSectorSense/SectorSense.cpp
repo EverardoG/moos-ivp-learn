@@ -9,6 +9,7 @@
 #include "MBUtils.h"
 #include "ACTable.h"
 #include "SectorSense.h"
+#include "XYPolygon.h" // Add this include for polygon support
 
 using namespace std;
 
@@ -17,23 +18,6 @@ using namespace std;
 
 SectorSense::SectorSense()
 {
-  // These variables change
-  m_nav_x          = 0.0;
-  m_nav_y          = 0.0;
-  m_nav_hdg        = 0.0;
-
-  // These variables are fixed
-  m_sensor_rad     = 100.0;
-  m_saturation_rad = 0.1;
-  m_number_sectors = 8;
-  m_sector_width = 360.0/m_number_sectors;
-
-  m_swimmer_sensor.initialize(
-    m_sensor_rad,
-    m_saturation_rad,
-    m_number_sectors,
-    NormalizationRule::DYNAMIC
-  );
 }
 
 //---------------------------------------------------------
@@ -66,10 +50,7 @@ bool SectorSense::OnNewMail(MOOSMSG_LIST &NewMail)
 #endif
 
     if(key == "SWIMMER_ALERT") {
-      XYPoint new_point = string2Point(msg.GetString());
-      m_swimmers.push_back(new_point);
-      m_swimmers_rescued.push_back(false);
-
+      processSwimmerAlert(msg);
     } else if (key == "NAV_X"){
       m_nav_x = msg.GetDouble();
     } else if (key == "NAV_Y"){
@@ -125,6 +106,13 @@ bool SectorSense::Iterate()
   m_sensor_readings_str = vectorToStream(sensor_readings, ",");
   Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
 
+  // Visualize sector readings
+  std::vector<XYPolygon> polygons = generatePolygons(sensor_readings);
+  for (const XYPolygon& poly : polygons) {
+    std::string spec = poly.get_spec();
+    Notify("VIEW_POLYGON", spec);
+  }
+
   AppCastingMOOSApp::PostReport();
   return(true);
 }
@@ -153,8 +141,14 @@ bool SectorSense::OnStartUp()
     if(param == "sensor_rad") {
       handled = setNonNegDoubleOnString(m_sensor_rad, value);
     }
+    else if(param == "saturation_rad") {
+      handled = setNonNegDoubleOnString(m_saturation_rad, value);
+    }
     else if(param == "number_sectors") {
       handled = setIntOnString(m_number_sectors, value);
+    }
+    else if(param == "arc_points") {
+      handled = setIntOnString(m_arc_points, value);
     }
 
     if(!handled)
@@ -162,13 +156,16 @@ bool SectorSense::OnStartUp()
 
   }
 
-  // initialize sensor buckets.
-  if (m_number_sectors > 0){
-    for (int i=0; i<m_number_sectors; i++){
-      m_sensor_buckets.push_back(0.0);
-    }
-  }
+  // Compute sector width
+  m_sector_width = 360.0/m_number_sectors;
 
+  // Initialize underlying sensor class
+  m_swimmer_sensor.initialize(
+    m_sensor_rad,
+    m_saturation_rad,
+    m_number_sectors,
+    NormalizationRule::DYNAMIC
+  );
 
   registerVariables();
   return(true);
@@ -230,6 +227,8 @@ bool SectorSense::buildReport()
   m_msgs << "============================================" << endl;
 
   m_msgs << "m_sensor_readings_str: " << m_sensor_readings_str << endl;
+  m_msgs << "num swimmers: " << m_swimmers.size() << std::endl;
+  m_msgs << "m_saturation_rad: " << m_saturation_rad << std::endl;
 
   ACTable actab(3);
   actab << " Swimmer Idx | Info | Rescued ";
@@ -244,6 +243,75 @@ bool SectorSense::buildReport()
   return(true);
 }
 
+// Helper function to create a sector polygon
+// arc_points: Number of points for arc smoothness
+XYPolygon SectorSense::buildSectorPolygon(double cx, double cy, double heading_deg,
+                             double sector_start_deg, double sector_end_deg,
+                             double radius, int arc_points)
+{
+  XYPolygon poly;
+  poly.add_vertex(cx, cy); // Center point
 
+  // Adjust angles to be offset by the heading
+  // No need to normalize angles back to 0->360 afterwards because
+  // sin and cos deal with the wrap-around
+  double start_rad = (sector_start_deg-heading_deg) * M_PI / 180.0;
+  double end_rad   = (sector_end_deg-heading_deg) * M_PI / 180.0;
+  double delta_rad = (end_rad - start_rad) / arc_points;
 
+  // Add points along the arc
+  for (int i = 0; i <= arc_points; ++i) {
+    double angle = start_rad + i * delta_rad;
+    double x = cx + radius * cos(angle);
+    double y = cy + radius * sin(angle);
+    poly.add_vertex(x, y);
+  }
+  poly.set_label("sector");
+  return poly;
+}
 
+// Helper function to process a swimmer alert message
+
+void SectorSense::processSwimmerAlert(CMOOSMsg& msg) {
+  // Get the id of the swimmer so we don't double count any swimmers
+  std::vector<string> mvector = parseString(msg.GetString(), ",");
+  unsigned int vsize = mvector.size();
+  for (int i=0; i<vsize; i++) {
+    string param = tolower(biteStringX(mvector[i], '='));
+    string value = mvector[i];
+    if(param == "id") {
+      // We got the id. If we don't have this id, add it.
+      // Otherwise, don't do anything.
+      unsigned int swimmer_id = std::stoi(value);
+      if (m_swimmers_recorded.count(swimmer_id) == 0) {
+        XYPoint new_point = string2Point(msg.GetString());
+        m_swimmers.push_back(new_point);
+        m_swimmers_rescued.push_back(false);
+        // Save the id so we don't recount this swimmer.
+        m_swimmers_recorded.insert(swimmer_id);
+      }
+    }
+  }
+  std::cout << msg.GetString() << std::endl;
+}
+
+std::vector<XYPolygon> SectorSense::generatePolygons(std::vector<double> sensor_readings) {
+  std::vector<XYPolygon> polygons;
+  for(int i=0; i<m_number_sectors; ++i) {
+    double sector_start = -(i*m_sector_width) + 90.0 - m_sector_width/2.0;
+    double sector_end = -(i*m_sector_width) + 90.0 + m_sector_width/2.0;
+    XYPolygon poly = buildSectorPolygon(
+      m_nav_x, m_nav_y, m_nav_hdg, sector_start, sector_end, m_sensor_rad, m_arc_points
+    );
+    // Add shading according to the sensor reading
+    double reading = 255.0*sensor_readings[i];
+    poly.set_color("edge", ColorPack(0,1,0));
+    poly.set_color("fill", ColorPack(0,1,0));
+    poly.set_color("vertex", ColorPack(0,1,0));
+    poly.set_transparency(sensor_readings[i]*0.5);
+    poly.set_label("sector_" + intToString(i));
+    poly.set_msg("reading=" + doubleToString(reading, 2));
+    polygons.push_back(poly);
+  }
+  return polygons;
+}

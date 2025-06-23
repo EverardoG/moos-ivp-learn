@@ -52,7 +52,8 @@
         "fstream": "cpp",
         "iomanip": "cpp",
         "sstream": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "unordered_set": "cpp"
     },
     "github.copilot.enable": {
         "*": false,
