@@ -21,8 +21,10 @@
 struct Swimmer {
   XYPoint position;
   bool rescued;
+  Swimmer(bool res) : rescued(res) {}
   Swimmer(const XYPoint& pos) : position(pos), rescued(false) {}
   Swimmer(const XYPoint& pos, bool res) : position(pos), rescued(res) {}
+  Swimmer() : rescued(false) {}
 };
 
 class SectorSense : public AppCastingMOOSApp
@@ -35,6 +37,7 @@ class SectorSense : public AppCastingMOOSApp
                              double sector_start_deg, double sector_end_deg,
                              double radius, int arc_points);
   void processSwimmerAlert(CMOOSMsg& msg);
+  void processFoundSwimmer(CMOOSMsg& msg);
   void processFoundSwimmer(CMOOSMsg& msg);
   std::vector<XYPolygon> generatePolygons(std::vector<double> sensor_readings);
 
@@ -71,6 +74,7 @@ class SectorSense : public AppCastingMOOSApp
    std::vector<bool>    m_swimmers_rescued;
    std::vector<XYPoint> m_swimmers_sense;
    std::unordered_set<int> m_swimmers_recorded;
+   std::unordered_map<int, Swimmer> m_swimmer_map;
    std::unordered_map<int, Swimmer> m_swimmer_map;
 
    std::string m_sensor_readings_str;
