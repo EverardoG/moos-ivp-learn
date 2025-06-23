@@ -26,6 +26,7 @@ ADD_SUBDIRECTORY(neural_network)
 ADD_SUBDIRECTORY(sector_sensor)
 ADD_SUBDIRECTORY(general_utils)
 ADD_SUBDIRECTORY(ivp_behavior_extend)
+ADD_SUBDIRECTORY(pSimpleControl)
 
 ##############################################################################
 #                           END of CMakeLists.txt

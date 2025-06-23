@@ -26,6 +26,7 @@ Processconfig = ANTLER
   Run = pRealm             @ NewConsole = false
 #ifdef VROLE rescue
   Run = pSectorSense       @ NewConsole = false
+  Run = pSimpleControl     @ NewConsole = false
 #endif
 
 #ifdef XMODE SIM
@@ -266,4 +267,17 @@ ProcessConfig = pLogger
   WildCardOmitPattern = DB_RWSUMMARY
 
   CompressAlogs = false
+}
+
+//--------------------------------------------------------
+// pSimpleControl config block
+
+ProcessConfig = pSimpleControl 
+{
+  AppTick     = 4
+  CommsTick   = 4
+
+  rudder_gain = 0.1
+  constant_thust = 20 
+
 }
