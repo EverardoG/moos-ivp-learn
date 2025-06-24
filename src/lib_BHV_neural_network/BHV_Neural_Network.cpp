@@ -27,10 +27,10 @@ BHV_Neural_Network::BHV_Neural_Network(IvPDomain domain) :
   m_domain = subDomain(m_domain, "course,speed");
 
   // Add any variables this behavior needs to subscribe for
-  addInfoVars("NAV_X, NAV_Y");
+  addInfoVars("NAV_HEADING");
   addInfoVars("SECTOR_SENSOR_READING");
 
-  m_best_heading = 0.0;
+  m_best_delta_heading = 0.0;
   m_best_speed   = 0.0;
 
   std::cout << "Successfully constructed BHV_Neural_Network" << std::endl;
@@ -216,13 +216,19 @@ IvPFunction* BHV_Neural_Network::onRunState()
     return(0);
   postEventMessage("Got the sensor readings.");
 
+  // Part 1a: Get the heading
+  bool ok_heading = processHeading();
+  if (!ok_heading)
+    return(0);
+  postEventMessage("Got the heading.");
+
   // Part 2:
   if (!initialize()) {
     return(0);
   }
 
   forwardPropNetwork();
-  postEventMessage("Ran forward propogation on neural network. Velocity: "+std::to_string(m_best_speed)+" | Heading: "+std::to_string(m_best_heading));
+  postEventMessage("Ran forward propogation on neural network. Velocity: "+std::to_string(m_best_speed)+" | Heading: "+std::to_string(m_best_delta_heading));
 
   // Part 3: Build the IvP function
   IvPFunction *ipf = buildFunction();
@@ -274,6 +280,17 @@ bool BHV_Neural_Network::processSensorReadings()
   return(true);
 }
 
+bool BHV_Neural_Network::processHeading()
+{
+  bool ok = false;
+  m_nav_heading = getBufferDoubleVal("NAV_HEADING", ok);
+  if (!ok) {
+    postWMessage("No ownship sensor info in info_buffer.");
+    return(false);
+  }
+  return(true);
+}
+
 //---------------------------------------------------------------
 // Procedure: forwardPropNetwork()
 //   Purpose: Runs a forward prop of the network
@@ -284,7 +301,7 @@ void BHV_Neural_Network::forwardPropNetwork()
 
   // Map from outputs to heading and speed
   m_best_speed   = outputs[0];
-  m_best_heading = outputs[1];
+  m_best_delta_heading = outputs[1];
 
   return;
 }
@@ -299,7 +316,7 @@ IvPFunction* BHV_Neural_Network::buildFunction()
 
   // Assemble function for course (heading)
   ZAIC_PEAK crs_zaic(m_domain, "course");
-  crs_zaic.setSummit(m_best_heading);
+  crs_zaic.setSummit(angle360(m_best_delta_heading+m_nav_heading));
   crs_zaic.setPeakWidth(10);
   crs_zaic.setBaseWidth(10);
   crs_zaic.setMinMaxUtil(20, 100);
