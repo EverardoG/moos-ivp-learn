@@ -46,6 +46,9 @@ SWIM_FILE=""
 # Custom: Max competition time
 MAX_TIME=""
 
+# Custom: Vehicle behaviors
+RESCUE_BEHAVIOR="FollowCOM"
+
 #-------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
 #-------------------------------------------------------
@@ -90,6 +93,15 @@ for ARGI; do
 	echo "  -4 :  Short for --swim_file=mit_04.txt       "
 	echo "  -5 :  Short for --swim_file=mit_05.txt       "
 	echo "  -6 :  Short for --swim_file=mit_06.txt       "
+	echo "                                               "
+    echo "Options (custom: setting up behaviors):        "
+    echo "  --rescuebehavior   Rescue vehicle behavior   "
+    echo "      Choices: FollowCOM, NeuralNetwork        "
+    echo "        FollowCOM (Default)                    "
+    echo "          Go to center of sensed swimmers      "
+    echo "        NeuralNetwork                          "
+    echo "          Use neural network to map sectors to "
+    echo "          a desired heading and velocity       "
 	exit 0;
     elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
@@ -237,7 +249,7 @@ fi
 #-------------------------------------------------------------
 # Part 6: Launch the vehicles
 #-------------------------------------------------------------
-VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD
+VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD --rescuebehavior=$RESCUE_BEHAVIOR"
 VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 for IX in `seq 1 $VAMT`;
 do

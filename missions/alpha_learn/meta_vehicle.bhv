@@ -47,12 +47,12 @@ Behavior = BHV_Scout
 
 //----------------------------------------------
 #ifdef VROLE rescue
-Behavior = BHV_Neural_Network
-#elseifdef VROLE fixed
-Behavior = BHV_Neural_Network
+#ifdef VBEHAVIOR follow_com
+Behavior = BHV_FollowCOM
+{
+}
 #else
-//Behavior = BHV_Neural_Network
-#endif
+Behavior = BHV_Neural_Network
 {
   name       = neural_network_bhv1
   pwt        = 100
@@ -62,6 +62,8 @@ Behavior = BHV_Neural_Network
   endflag    = RETURN = true
   csv_directory = neural_network_config.csv
 }
+#endif
+#endif
 
 //----------------------------------------------
 Behavior = BHV_StationKeep
