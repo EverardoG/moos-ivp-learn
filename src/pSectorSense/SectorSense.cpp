@@ -53,8 +53,6 @@ bool SectorSense::OnNewMail(MOOSMSG_LIST &NewMail)
       processSwimmerAlert(msg);
     } else if (key == "FOUND_SWIMMER") {
       processFoundSwimmer(msg);
-    } else if (key == "FOUND_SWIMMER") {
-      processFoundSwimmer(msg);
     } else if (key == "NAV_X"){
       m_nav_x = msg.GetDouble();
     } else if (key == "NAV_Y"){

@@ -38,7 +38,6 @@ class SectorSense : public AppCastingMOOSApp
                              double radius, int arc_points);
   void processSwimmerAlert(CMOOSMsg& msg);
   void processFoundSwimmer(CMOOSMsg& msg);
-  void processFoundSwimmer(CMOOSMsg& msg);
   std::vector<XYPolygon> generatePolygons(std::vector<double> sensor_readings);
 
  protected: // Standard MOOSApp functions to overload
@@ -74,7 +73,6 @@ class SectorSense : public AppCastingMOOSApp
    std::vector<bool>    m_swimmers_rescued;
    std::vector<XYPoint> m_swimmers_sense;
    std::unordered_set<int> m_swimmers_recorded;
-   std::unordered_map<int, Swimmer> m_swimmer_map;
    std::unordered_map<int, Swimmer> m_swimmer_map;
 
    std::string m_sensor_readings_str;
