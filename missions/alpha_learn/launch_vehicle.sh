@@ -1,8 +1,8 @@
-#!/bin/bash 
-#-------------------------------------------------------------- 
-#   Script: launch_vehicle.sh    
+#!/bin/bash
+#--------------------------------------------------------------
+#   Script: launch_vehicle.sh
 #  Mission: rescue_baseline
-#   Author: Michael Benjamin   
+#   Author: Michael Benjamin
 #   LastEd: March 2025
 #------------------------------------------------------------
 #  Part 1: Set convenience functions for producing terminal
@@ -38,7 +38,7 @@ STOCK_SPD="1.4"
 MAX_SPD="2"
 
 # Custom
-START_POS="0,0"  
+START_POS="0,0"
 SPEED="1.0"
 RETURN_POS="5,0"
 MAXSPD="2"
@@ -55,7 +55,7 @@ for ARGI; do
     CMD_ARGS+=" ${ARGI}"
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ] ; then
 	echo "$ME [OPTIONS] [time_warp]                        "
-	echo "                                                 " 
+	echo "                                                 "
 	echo "Options:                                         "
 	echo "  --help, -h             Show this help message  "
 	echo "  --just_make, -j        Only create targ files  "
@@ -78,20 +78,20 @@ for ARGI; do
 	echo "  --max_spd=<m/s>        Max Sim and Helm speed  "
 	echo "                                                 "
 	echo "Options (custom):                                "
-	echo "  --speed=meters/sec                             " 
+	echo "  --speed=meters/sec                             "
 	echo "    The speed use for transiting/loitering       "
-	echo "  --maxspd=meters/sec                            " 
+	echo "  --maxspd=meters/sec                            "
 	echo "    Max speed of vehicle (for sim and in-field)  "
-	echo "  --vrole=<rescue>, scout, fixed                 " 
+	echo "  --vrole=<rescue>, scout, fixed                 "
 	echo "    Vehicle role, either rescue, scout, or fixed "
-	echo "  --tmate=<vname>                                " 
+	echo "  --tmate=<vname>                                "
 	echo "    Name of the teammate vehicle if applicable   "
-	echo "  --pgr=<app>                                    " 
+	echo "  --pgr=<app>                                    "
 	echo "    Full path of version of pGenRescue           "
-	echo "  --vuser=<vuser>                                " 
+	echo "  --vuser=<vuser>                                "
 	echo "    Name of the user if competing                "
 	exit 0;
-    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then 
+    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
     elif [ "${ARGI}" = "--verbose" -o "${ARGI}" = "-v" ]; then
         VERBOSE="yes"
@@ -100,7 +100,7 @@ for ARGI; do
     elif [ "${ARGI}" = "--log_clean" -o "${ARGI}" = "-lc" ]; then
 	LOG_CLEAN="yes"
     elif [ "${ARGI}" = "--auto" -o "${ARGI}" = "-a" ]; then
-        AUTO_LAUNCHED="yes" 
+        AUTO_LAUNCHED="yes"
 
     elif [ "${ARGI:0:5}" = "--ip=" ]; then
         IP_ADDR="${ARGI#--ip=*}"
@@ -137,7 +137,7 @@ for ARGI; do
     elif [ "${ARGI:0:8}" = "--vuser=" ]; then
         VUSER="${ARGI#--vuser=*}"
 
-    else 
+    else
 	echo "$ME: Bad Arg:[$ARGI]. Exit Code 1."
 	exit 1
     fi
@@ -156,7 +156,7 @@ if [ "${XMODE}" = "M300" ]; then
 	exit 2
     fi
 fi
-     
+
 #--------------------------------------------------------------
 #  Part 4B: If VROLE is scout, ensure a teammate is specified
 #--------------------------------------------------------------
@@ -170,7 +170,7 @@ fi
 #---------------------------------------------------------------
 #  Part 4: If verbose, show vars and confirm before launching
 #---------------------------------------------------------------
-if [ "${VERBOSE}" = "yes" ]; then 
+if [ "${VERBOSE}" = "yes" ]; then
     echo "============================================"
     echo "     launch_vehicle.sh SUMMARY        $VNAME"
     echo "============================================"
@@ -207,7 +207,7 @@ if [ "${VERBOSE}" = "yes" ]; then
 fi
 
 #------------------------------------------------------------
-#  Part 6: If Log clean before launch, do it now. 
+#  Part 6: If Log clean before launch, do it now.
 #------------------------------------------------------------
 if [ "$LOG_CLEAN" = "yes" -a -f "clean.sh" ]; then
     vecho "Cleaning local Log Files"
@@ -215,7 +215,7 @@ if [ "$LOG_CLEAN" = "yes" -a -f "clean.sh" ]; then
 fi
 
 #------------------------------------------------------------
-#  Part 7: Create the .moos and .bhv files. 
+#  Part 7: Create the .moos and .bhv files.
 #------------------------------------------------------------
 NSFLAGS="--strict --force"
 if [ "${AUTO_LAUNCHED}" = "no" ]; then

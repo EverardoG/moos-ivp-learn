@@ -1,7 +1,7 @@
-#!/bin/bash 
-#------------------------------------------------------------ 
-#   Script: launch.sh    
-#   Author: Michael Benjamin   
+#!/bin/bash
+#------------------------------------------------------------
+#   Script: launch.sh
+#   Author: Michael Benjamin
 #   LastEd: March 2025
 #------------------------------------------------------------
 #  Part 1: Set convenience functions for producing terminal
@@ -55,35 +55,35 @@ for ARGI; do
 	echo "$ME: [OPTIONS] [time_warp]                     "
 	echo "                                               "
 	echo "Options:                                       "
-	echo "  --help, -h         Show this help message    " 
+	echo "  --help, -h         Show this help message    "
 	echo "  --verbose, -v      Verbose, confirm launch   "
-	echo "  --just_make, -j    Only create targ files    " 
-	echo "  --log_clean, -lc   Run clean.sh bef launch   " 
+	echo "  --just_make, -j    Only create targ files    "
+	echo "  --log_clean, -lc   Run clean.sh bef launch   "
 	echo "  --amt=N            Num vehicles to launch    "
 	echo "  --rand, -r         Rand vehicle positions    "
 	echo "  --max_spd=N        Max helm/sim speed        "
-        echo "  --mmod=<mod>       Mission variation/mod     "
+    echo "  --mmod=<mod>       Mission variation/mod     "
 	echo "                                               "
 	echo "Options (monte):                               "
 	echo "  --xlaunched, -x    Launched by xlaunch       "
 	echo "  --nogui, -ng       Headless launch, no gui   "
 	echo "                                               "
 	echo "Options (custom: type of competition):         "
-	echo "  --r1, -r1          1 rescue vehicle          " 
-	echo "  --r2, -r2          2 rescue vehicles         " 
-	echo "  --rs1, -rs1        1 rescue 1 scout          " 
-	echo "  --rs2, -rs2        2 teams, resc/scout each  " 
+	echo "  --r1, -r1          1 rescue vehicle          "
+	echo "  --r2, -r2          2 rescue vehicles         "
+	echo "  --rs1, -rs1        1 rescue 1 scout          "
+	echo "  --rs2, -rs2        2 teams, resc/scout each  "
 	echo "  --compete, -c      Competition               "
 	echo "                                               "
 	echo "Options (custom: dynamic swim file):           "
-	echo "  --rsl, -rsl        Rand swim locations       " 
-	echo "  --pav60, -pav60    Gen rand swimmers in pav60" 
-	echo "  --pav90, -pav90    Gen rand swimmers in pav90" 
-	echo "  --swimmers=<15>    Rand gen N reg swimmers   " 
-	echo "  --unreg=<0>        Rand gen N unreg swimmers " 
+	echo "  --rsl, -rsl        Rand swim locations       "
+	echo "  --pav60, -pav60    Gen rand swimmers in pav60"
+	echo "  --pav90, -pav90    Gen rand swimmers in pav90"
+	echo "  --swimmers=<15>    Rand gen N reg swimmers   "
+	echo "  --unreg=<0>        Rand gen N unreg swimmers "
 	echo "                                               "
 	echo "Options (custom: selection of swim file):      "
-	echo "  --swim_file=<file> Set the swim file         " 
+	echo "  --swim_file=<file> Set the swim file         "
 	echo "  -1 :  Short for --swim_file=mit_01.txt       "
 	echo "  -2 :  Short for --swim_file=mit_02.txt       "
 	echo "  -3 :  Short for --swim_file=mit_03.txt       "
@@ -91,7 +91,7 @@ for ARGI; do
 	echo "  -5 :  Short for --swim_file=mit_05.txt       "
 	echo "  -6 :  Short for --swim_file=mit_06.txt       "
 	exit 0;
-    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then 
+    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
     elif [ "${ARGI}" = "--verbose" -o "${ARGI}" = "-v" ]; then
 	VERBOSE=$ARGI
@@ -151,6 +151,9 @@ for ARGI; do
         SWIM_FILE=" ${ARGI}"
     elif [ "${ARGI}" = "-5" -o "${ARGI}" = "-6" ]; then
         SWIM_FILE=" ${ARGI}"
+
+    elif [ "${ARGI:0:16}" = "--rescuebehavior" ]; then
+        RESCUE_BEHAVIOR=" ${ARGI}"
 
     elif [ "${ARGI:0:11}" = "--max_time=" ]; then
         MAX_TIME=" ${ARGI}"
@@ -234,7 +237,7 @@ fi
 #-------------------------------------------------------------
 # Part 6: Launch the vehicles
 #-------------------------------------------------------------
-VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD "
+VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD
 VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 for IX in `seq 1 $VAMT`;
 do
@@ -267,7 +270,7 @@ do
 
     vecho "Launching vehicle: $IVARGS"
 
-    CMD="./launch_vehicle.sh $IVARGS"    
+    CMD="./launch_vehicle.sh $IVARGS"
     eval $CMD
     sleep 0.5
 done
@@ -282,7 +285,7 @@ SARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 SARGS+=" $MMOD "
 SARGS+=" $MAX_TIME $SWIM_FILE"
 vecho "Launching shoreside: $SARGS"
-./launch_shoreside.sh $SARGS 
+./launch_shoreside.sh $SARGS
 
 if [ "${JUST_MAKE}" != "" ]; then
     echo "$ME: Targ files made; exiting without launch."
