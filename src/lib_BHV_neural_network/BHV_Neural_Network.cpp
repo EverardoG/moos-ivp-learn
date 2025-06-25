@@ -208,7 +208,7 @@ void BHV_Neural_Network::onRunToIdleState()
 
 IvPFunction* BHV_Neural_Network::onRunState()
 {
-  postEventMessage("Running onRunState()");
+  postEventMessage("Running onRunState() in NeuralNetwork");
 
   // Part 1: Get the latest sensor reading from SectorSense
   bool ok_sensor_reading = processSensorReadings();

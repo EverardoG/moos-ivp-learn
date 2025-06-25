@@ -47,11 +47,11 @@ Behavior = BHV_Scout
 
 //----------------------------------------------
 #ifdef VROLE rescue
-#ifdef VBEHAVIOR follow_com
+#ifdef PRIMARY_BEHAVIOR FollowCOM
 Behavior = BHV_FollowCOM
 {
 }
-#else
+#elseifdef PRIMARY_BEHAVIOR NeuralNetwork
 Behavior = BHV_Neural_Network
 {
   name       = neural_network_bhv1

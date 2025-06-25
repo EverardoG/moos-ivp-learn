@@ -108,3 +108,57 @@ bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, 
   }
   return true;
 }
+
+// Functions for processing sector readings
+
+// Utility function that turns sector reading into relative angle (postive is CW)
+// Utility function that turns angle and density reading into an x,y in vehicle coords (right-hand coords)
+// Utility function that turns all the x,y positions into an average
+// Function that backs out of an x,y position to give a density at a relative angle to vehicle (right-hand coords)
+
+//-------------------------------------------------------------
+// Procedure: sectorToAngle
+//   Purpose: Returns relative angle to the center of a sector
+//   Example with 4 sectors:
+//     Angles:                    |  Sectors:
+//                   0            |             \     0     /
+//                   |            |               \       /
+//                   |            |                 \   /
+//         270 ----- A ----- 90   |         3         A          1
+//                   |            |                 /   \
+//                   |            |               /       \
+//                  180           |             /     2     \
+
+double sectorToAngle(int num_sectors, int sector_id) {
+  return 360.0*sector_id / (double)num_sectors;
+}
+
+XYPoint readingToXY(int num_sectors, int sector_id, double density) {
+  double angle = sectorToAngle(num_sectors, sector_id);
+  double x = density * sin(angle * M_PI/180.0);
+  double y = density * cos(angle * M_PI/180.0);
+  return XYPoint(x, y);
+}
+
+XYPoint sumXY(std::vector<XYPoint> pts) {
+  double sum_x = 0.0;
+  double sum_y = 0.0;
+  for (const XYPoint& pt : pts) {
+    sum_x = sum_x + pt.get_vx();
+    sum_y = sum_y + pt.get_vy();
+  }
+  return XYPoint(sum_x, sum_y);
+}
+
+XYPoint averageXY(std::vector<XYPoint> pts) {
+  double avg_x = 0.0;
+  double avg_y = 0.0;
+  for (const XYPoint& pt : pts) {
+    avg_x = avg_x + pt.get_vx();
+    avg_y = avg_y + pt.get_vy();
+  }
+  double num_pts_dbl = pts.size();
+  avg_x = avg_x / num_pts_dbl;
+  avg_y = avg_y / num_pts_dbl;
+  return XYPoint(avg_x, avg_y);
+}

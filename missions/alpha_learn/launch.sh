@@ -48,6 +48,7 @@ MAX_TIME=""
 
 # Custom: Vehicle behaviors
 RESCUE_BEHAVIOR="FollowCOM"
+SCOUT_BEHAVIOR="NotImplemented"
 
 #-------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
@@ -163,9 +164,11 @@ for ARGI; do
         SWIM_FILE=" ${ARGI}"
     elif [ "${ARGI}" = "-5" -o "${ARGI}" = "-6" ]; then
         SWIM_FILE=" ${ARGI}"
+    elif [[ "${ARGI}" == --rescuebehavior=* ]]; then
+        RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
 
-    elif [ "${ARGI:0:16}" = "--rescuebehavior" ]; then
-        RESCUE_BEHAVIOR=" ${ARGI}"
+    # elif [ "${ARGI:0:16}" = "--rescuebehavior" ]; then
+    #     RESCUE_BEHAVIOR=" ${ARGI}"
 
     elif [ "${ARGI:0:11}" = "--max_time=" ]; then
         MAX_TIME=" ${ARGI}"
@@ -178,6 +181,7 @@ done
 
 #------------------------------------------------------------
 #  Part 4: Set starting positions, speeds, vnames, colors
+#          and primary behaviors
 #------------------------------------------------------------
 INIT_VARS=" --amt=$VAMT $RAND_VPOS $VERBOSE $RAND_SWIMMERS"
 INIT_VARS+=" --format=$GAME_FORMAT $SWIM_REGION $SWIMMERS $UNREGERS "
@@ -190,6 +194,18 @@ VCOLOR=(`cat vcolors.txt`)
 VROLES=(`cat vroles.txt`)  #custom
 VMATES=(`cat vmates.txt`)  #custom
 VAPPS=(`cat vapps.txt`)  #custom
+# Primary behaviors need to be created from commandline arguments
+VBEHAVIORS=()
+for ((i=0; i<${#VROLES[@]}; i++)); do
+    if [ "${VROLES[$i]}" = "rescue" ]; then
+        VBEHAVIORS+=("$RESCUE_BEHAVIOR")
+    elif [ "${VROLES[$i]}" = "scout" ]; then
+        VBEHAVIORS+=("$SCOUT_BEHAVIOR")
+    else
+        echo "$ME: ERROR - Vehicle role '${VROLES[$i]}' is invalid. Must be 'rescue' or 'scout'. Exit Code 3."
+        exit 3
+    fi
+done
 
 VAMT=${#VROLES[@]}
 
@@ -234,6 +250,7 @@ if [ "${VERBOSE}" != "" ]; then
     echo "COMPETE         [${COMPETE}]                "
     echo "MAX_TIME =      [${MAX_TIME}]               "
     echo "VROLES =        [${VROLES[*]}]              "
+    echo "VBEHAVIORS =    [${VBEHAVIORS[*]}]          "
     echo "VMATES =        [${VMATES[*]}]              "
     echo "VAPPS =         [${VAPPS[*]}]               "
     echo "--------------------------------(Custom)----"
@@ -249,7 +266,7 @@ fi
 #-------------------------------------------------------------
 # Part 6: Launch the vehicles
 #-------------------------------------------------------------
-VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD --rescuebehavior=$RESCUE_BEHAVIOR"
+VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD "
 VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 for IX in `seq 1 $VAMT`;
 do
@@ -261,6 +278,7 @@ do
     IVARGS+=" --color=${VCOLOR[$IXX]} "
     IVARGS+=" --vrole=${VROLES[$IXX]} "
     IVARGS+=" --tmate=${VMATES[$IXX]} "
+    IVARGS+=" --primarybehavior=${VBEHAVIORS[$IXX]} "
 
     if [ "${COMPETE}" != "" ]; then
 	VAPP="${VAPPS[$IXX]}"

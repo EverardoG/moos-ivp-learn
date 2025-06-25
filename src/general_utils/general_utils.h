@@ -2,6 +2,7 @@
 #define GENERAL_UTILS_H
 
 #include "MBUtils.h"
+#include "XYPoint.h"
 #include <cmath>
 #include <sstream>
 #include <iostream>
@@ -30,5 +31,13 @@ bool setVecDoubleOnString(std::vector<double>& given_vec_double, const std::stri
 
 // Turn a string of comma seperated integers into a vector of integers
 bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, std::string& warning);
+
+double sectorToAngle(int num_sectors, int sector_id);
+
+XYPoint readingToXY(int num_sectors, int sector_id, double density);
+
+XYPoint sumXY(std::vector<XYPoint> pts);
+
+XYPoint averageXY(std::vector<XYPoint> pts);
 
 #endif // GENERAL_UTILS_H

@@ -47,6 +47,7 @@ VUSER=""
 
 TMATE=""
 VROLE="rescue"
+PRIMARY_BEHAVIOR="FollowCOM"
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -141,6 +142,8 @@ for ARGI; do
 
     elif [ "${ARGI:0:8}" = "--vrole=" ]; then
         VROLE="${ARGI#--vrole=*}"
+    elif [ "${ARGI:0:18}" = "--primarybehavior=" ]; then
+        PRIMARY_BEHAVIOR="${ARGI#--primarybehavior=*}"
     elif [ "${ARGI:0:8}" = "--tmate=" ]; then
         TMATE="${ARGI#--tmate=*}"
     elif [ "${ARGI:0:6}" = "--pgr=" ]; then
@@ -210,6 +213,7 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "FSEAT_IP =      [${FSEAT_IP}]     "
     echo "------------Custom----------------"
     echo "VROLE =         [${VROLE}]        "
+    echo "PRIMARY_BEHAVIOR = [${PRIMARY_BEHAVIOR}] "
     echo "TMATE =         [${TMATE}]        "
     echo "PGR =           [${PGR}]          "
     echo "VUSER =         [${VUSER}]        "
@@ -248,7 +252,7 @@ nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        START_POS=$START_POS         VNAME=$VNAME         \
        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD           \
        COLOR=$COLOR                 VROLE=$VROLE         \
-       TMATE=$TMATE
+       TMATE=$TMATE                 PRIMARY_BEHAVIOR=$PRIMARY_BEHAVIOR
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."

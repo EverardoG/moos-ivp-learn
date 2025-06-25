@@ -13,6 +13,8 @@
 #include "IvPBehavior.h"
 #include "ZAIC_PEAK.h"
 #include "OF_Coupler.h"
+#include "AngleUtils.h"
+#include "general_utils.h"
 
 class BHV_FollowCOM : public IvPBehavior {
 public:
@@ -31,14 +33,16 @@ public:
   bool         processSensorReadings();
   bool         updateHeading();
   IvPFunction* buildFunction();
+  bool         processHeading();
 
 protected: // Local Utility functions
 
 protected: // Configuration parameters
 
 protected: // State variables
-  double m_best_heading;
+  double m_best_delta_heading;
   double m_best_speed;
+  double m_nav_heading;
   std::vector<double> m_sector_sensor_readings;
 };
 

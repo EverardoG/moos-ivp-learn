@@ -20,6 +20,8 @@ target_include_directories(test_utils PRIVATE ${CMAKE_SOURCE_DIR})
 
 # Link the MOOS libraries and other dependencies
 target_link_libraries(general_utils PUBLIC
+  ${MOOS_LIBRARIES}
+  geometry
   mbutil
 )
 

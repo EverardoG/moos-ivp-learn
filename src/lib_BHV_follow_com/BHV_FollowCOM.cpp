@@ -27,9 +27,10 @@ BHV_FollowCOM::BHV_FollowCOM(IvPDomain domain) :
 
   // Add any variables this behavior needs to subscribe for
   addInfoVars("NAV_X, NAV_Y");
-  addInfoVars("SECTOR_SENSING_READING");
+  addInfoVars("NAV_HEADING");
+  addInfoVars("SECTOR_SENSOR_READING");
 
-  m_best_heading = 0.0;
+  m_best_delta_heading = 0.0;
   m_best_speed = 0.2;
 
   std::cout << "Successfully constructed BHV_FollowCOM" << std::endl;
@@ -128,7 +129,7 @@ bool BHV_FollowCOM::updateHeading() {
 
   // get the best angle we need to move to by computing the
   // atan of the local weighted inputs
-  m_best_heading = atan2(sum_y, sum_x);
+  m_best_delta_heading = atan2(sum_y, sum_x) * 180.0 / 3.14;
   return(true);
 }
 
@@ -170,13 +171,20 @@ bool BHV_FollowCOM::processSensorReadings() {
 
 IvPFunction* BHV_FollowCOM::onRunState()
 {
-  postEventMessage("Running onRunState()");
+  postEventMessage("Running onRunState() in FollowCOM");
 
   // Part 1: Get the latest sensor reading from SectorSense
   bool ok_sensor_reading = processSensorReadings();
   if (!ok_sensor_reading)
     return(0);
   postEventMessage("Got the sensor readings.");
+
+  // Part 1a: Get the heading
+  bool ok_heading = processHeading();
+  if (!ok_heading)
+    return(0);
+  postEventMessage("Got the heading.");
+
 
   // Part 2: Run the heading calculation
   if (!updateHeading()) {
@@ -194,7 +202,7 @@ IvPFunction* BHV_FollowCOM::onRunState()
 IvPFunction* BHV_FollowCOM::buildFunction() {
   // Assemble function for course (heading)
   ZAIC_PEAK crs_zaic(m_domain, "course");
-  crs_zaic.setSummit(m_best_heading);
+  crs_zaic.setSummit(angle360(m_best_delta_heading+m_nav_heading));
   crs_zaic.setPeakWidth(10);
   crs_zaic.setBaseWidth(10);
   crs_zaic.setMinMaxUtil(20, 100);
@@ -232,4 +240,15 @@ IvPFunction* BHV_FollowCOM::buildFunction() {
     ipf->setPWT(m_priority_wt);
 
   return(ipf);
+}
+
+bool BHV_FollowCOM::processHeading()
+{
+  bool ok = false;
+  m_nav_heading = getBufferDoubleVal("NAV_HEADING", ok);
+  if (!ok) {
+    postWMessage("No ownship sensor info in info_buffer.");
+    return(false);
+  }
+  return(true);
 }
