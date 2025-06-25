@@ -88,6 +88,11 @@ std::vector<double> SectorSensor::bucketsToReadings(Buckets buckets) {
         if (m_verbosity_level > 0) std::cerr << "SectorSensor Warning: Invalid normalization rule specified. Not applying any normalization to sensor readings." << std::endl;
     }
 
+    // Ensure that no reading is too close to zero to cause problems
+    for (int i=0; i < readings.size(); i++) {
+        if (readings[i] < 1E-4) readings[i] = 0.0;
+    }
+
     // Return the readings
     return readings;
 };
