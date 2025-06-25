@@ -109,13 +109,6 @@ bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, 
   return true;
 }
 
-// Functions for processing sector readings
-
-// Utility function that turns sector reading into relative angle (postive is CW)
-// Utility function that turns angle and density reading into an x,y in vehicle coords (right-hand coords)
-// Utility function that turns all the x,y positions into an average
-// Function that backs out of an x,y position to give a density at a relative angle to vehicle (right-hand coords)
-
 //-------------------------------------------------------------
 // Procedure: sectorToAngle
 //   Purpose: Returns relative angle to the center of a sector
@@ -161,4 +154,23 @@ XYPoint averageXY(std::vector<XYPoint> pts) {
   avg_x = avg_x / num_pts_dbl;
   avg_y = avg_y / num_pts_dbl;
   return XYPoint(avg_x, avg_y);
+}
+
+// Angle relative to vehicle
+//-------------------------------------------------------------
+// Procedure: XYToRelAngle
+//   Purpose: Returns relative angle to XYPoint
+//     following this convention.
+//     X is still horizontal and Y is still vertical
+//   Example: (X=1, Y=0) gives angle 90
+//                   0
+//                   |
+//                   |
+//         270 ----- A ----- 90
+//                   |
+//                   |
+//                  180
+
+double XYToRelAngle(XYPoint point) {
+  return relAng(XYPoint(0.0,0.0), point);
 }

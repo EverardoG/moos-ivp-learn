@@ -104,32 +104,15 @@ void BHV_FollowCOM::onRunToIdleState()
 }
 
 bool BHV_FollowCOM::updateHeading() {
-  if (m_sector_sensor_readings.size() == 0){
+  if (m_sector_sensor_readings.size() == 0) {
     return(false);
   }
-
-  int number_sectors = m_sector_sensor_readings.size();
-  double number_sec_dbl = static_cast<double>(number_sectors);
-
-  // Coordinates of each wieghted reading in body relative coordinates
-  std::vector<double> rel_x; // needed?
-  std::vector<double> rel_y;
-  double sum_x = 0.0;
-  double sum_y = 0.0;
-
-  for (int i=0; i<m_sector_sensor_readings.size(); i++){
-    // angle for this sensor
-    double i_dbl = static_cast<double>(i);
-    double angle = 360.0 / number_sec_dbl * i_dbl;
-    rel_x.push_back( sin( 3.14 / 180.0 * angle) * m_sector_sensor_readings[i]);
-    rel_y.push_back( cos( 3.14 / 180.0 * angle) * m_sector_sensor_readings[i]);
-    sum_x += sin( 3.14 / 180.0 * angle) * m_sector_sensor_readings[i];
-    sum_y += cos( 3.14 / 180.0 * angle) * m_sector_sensor_readings[i];
+  std::vector<XYPoint> readings_pts;
+  for (int i = 0; i < m_sector_sensor_readings.size(); i++) {
+    readings_pts.emplace_back(XYPoint(readingToXY(m_sector_sensor_readings.size(), i, m_sector_sensor_readings[i])));
   }
-
-  // get the best angle we need to move to by computing the
-  // atan of the local weighted inputs
-  m_best_delta_heading = atan2(sum_y, sum_x) * 180.0 / 3.14;
+  XYPoint sum_pt = sumXY(readings_pts);
+  m_best_delta_heading = XYToRelAngle(sum_pt);
   return(true);
 }
 

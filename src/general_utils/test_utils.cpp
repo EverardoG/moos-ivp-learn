@@ -117,6 +117,28 @@ bool test_averageXY(int test_verbose = 0) {
     return true;
 }
 
+bool test_XYToRelAngle(int test_verbose = 0) {
+    if (test_verbose > 0) std::cout << "Start --- test_XYToRelAngle()" << std::endl;
+    XYPoint point(1.0, 0.0);
+    double rel_angle = XYToRelAngle(point);
+    if (test_verbose > 0) std::cout << "Relative angle: " << rel_angle << " Expected: " << 90.0 << std::endl;
+    if (!isClose(rel_angle, 90.0)) return false;
+    point = XYPoint(0.0, 1.0);
+    rel_angle = XYToRelAngle(point);
+    if (test_verbose > 0) std::cout << "Relative angle: " << rel_angle << " Expected: " << 0.0 << std::endl;
+    if (!isClose(rel_angle, 0.0)) return false;
+    point = XYPoint(-1.0, 0.0);
+    rel_angle = XYToRelAngle(point);
+    if (test_verbose > 0) std::cout << "Relative angle: " << rel_angle << " Expected: " << 270.0 << std::endl;
+    if (!isClose(rel_angle, 270.0)) return false;
+    point = XYPoint(0.0, -1.0);
+    rel_angle = XYToRelAngle(point);
+    if (test_verbose > 0) std::cout << "Relative angle: " << rel_angle << " Expected: " << 180.0 << std::endl;
+    if (!isClose(rel_angle, 180.0)) return false;
+    if (test_verbose > 0) std::cout << "Finish --- test_XYToRelAngle()" << std::endl;
+    return true;
+}
+
 int main(int argc, char* argv[]) {
     int TEST_VERBOSE = 0;
     if (argc >= 2) {
@@ -147,4 +169,8 @@ int main(int argc, char* argv[]) {
     // Test averaging XY points
     if (!test_averageXY(TEST_VERBOSE)) std::cout << "FAILURE: test_averageXY" << std::endl;
     else std::cout << "PASSED: test_averageXY" << std::endl;
+
+    // Test getting angle from XY Points
+    if (!test_XYToRelAngle(TEST_VERBOSE)) std::cout << "FAILURE: test_XYToRelAngle" << std::endl;
+    else std::cout << "PASSED: test_XYToRelAngle" << std::endl;
 }

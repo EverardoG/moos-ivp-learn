@@ -3,6 +3,7 @@
 
 #include "MBUtils.h"
 #include "XYPoint.h"
+#include "AngleUtils.h"
 #include <cmath>
 #include <sstream>
 #include <iostream>
@@ -39,5 +40,7 @@ XYPoint readingToXY(int num_sectors, int sector_id, double density);
 XYPoint sumXY(std::vector<XYPoint> pts);
 
 XYPoint averageXY(std::vector<XYPoint> pts);
+
+double XYToRelAngle(XYPoint point);
 
 #endif // GENERAL_UTILS_H
