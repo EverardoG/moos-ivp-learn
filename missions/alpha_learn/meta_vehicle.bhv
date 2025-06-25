@@ -56,6 +56,7 @@ Behavior = BHV_FollowCOM
   condition  = MODE==SURVEYING
   perpetual  = true
   endflag    = RETURN = true
+  speed      = 1
 }
 #elseifdef PRIMARY_BEHAVIOR NeuralNetwork
 Behavior = BHV_Neural_Network

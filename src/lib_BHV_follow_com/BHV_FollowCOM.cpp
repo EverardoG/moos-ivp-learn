@@ -41,7 +41,13 @@ BHV_FollowCOM::BHV_FollowCOM(IvPDomain domain) :
 
 bool BHV_FollowCOM::setParam(string param, string val)
 {
-  // No parameters so always return false
+  param = tolower(param);
+  double double_val = atof(val.c_str());
+  if ((param == "speed") && (isNumber(val))) {
+    m_best_speed = double_val;
+    return(true);
+  }
+  // unrecognized parameter
   return(false);
 }
 
