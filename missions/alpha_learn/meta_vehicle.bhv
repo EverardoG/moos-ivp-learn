@@ -50,6 +50,12 @@ Behavior = BHV_Scout
 #ifdef PRIMARY_BEHAVIOR FollowCOM
 Behavior = BHV_FollowCOM
 {
+  name       = follow_com_bhv1
+  pwt        = 100
+  updates    = SURVEY_UPDATE
+  condition  = MODE==SURVEYING
+  perpetual  = true
+  endflag    = RETURN = true
 }
 #elseifdef PRIMARY_BEHAVIOR NeuralNetwork
 Behavior = BHV_Neural_Network
