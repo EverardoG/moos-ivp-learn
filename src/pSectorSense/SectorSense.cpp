@@ -328,13 +328,12 @@ std::vector<XYPolygon> SectorSense::generatePolygons(std::vector<double> sensor_
       m_nav_x, m_nav_y, m_nav_hdg, sector_start, sector_end, m_sensor_rad, m_arc_points
     );
     // Add shading according to the sensor reading
-    double reading = 255.0*sensor_readings[i];
     poly.set_color("edge", ColorPack(0,1,0));
     poly.set_color("fill", ColorPack(0,1,0));
     poly.set_color("vertex", ColorPack(0,1,0));
     poly.set_transparency(sensor_readings[i]*0.5);
     poly.set_label("sector_" + intToString(i));
-    poly.set_msg("reading=" + doubleToString(reading, 2));
+    poly.set_msg("reading=" + doubleToString(sensor_readings[i], 2));
     polygons.push_back(poly);
   }
   return polygons;
