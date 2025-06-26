@@ -20,13 +20,7 @@ set MODE = SURVEYING {
   MODE = ACTIVE
   RETURN != true
   SURVEY = true
-}
-
-set MODE = RETURNING {
-  MODE = ACTIVE
-  RETURN = true
-}
-
+} RETURNING
 #ifdef VROLE scout
 //----------------------------------------------
 Behavior = BHV_Scout
