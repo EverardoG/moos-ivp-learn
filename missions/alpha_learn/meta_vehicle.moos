@@ -25,7 +25,7 @@ Processconfig = ANTLER
   Run = uTimerScript       @ NewConsole = false
   Run = pRealm             @ NewConsole = false
 #ifdef VROLE rescue
-  Run = pSectorSense       @ NewConsole = true
+  Run = pSectorSense       @ NewConsole = false
 #endif
 
 #ifdef XMODE SIM
