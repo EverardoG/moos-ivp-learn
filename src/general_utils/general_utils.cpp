@@ -174,3 +174,12 @@ XYPoint averageXY(std::vector<XYPoint> pts) {
 double XYToRelAngle(XYPoint point) {
   return relAng(XYPoint(0.0,0.0), point);
 }
+
+// Get index of highest value in a vector
+int highestValueInd(std::vector<double> vec) {
+  if (vec.empty()) {
+    return -1;
+  }
+  std::vector<double>::iterator it = std::max_element(vec.begin(), vec.end());
+  return std::distance(vec.begin(), it);
+}

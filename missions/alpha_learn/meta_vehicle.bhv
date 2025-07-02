@@ -52,6 +52,17 @@ Behavior = BHV_FollowCOM
   endflag    = RETURN = true
   speed      = 1
 }
+#elseifdef PRIMARY_BEHAVIOR MaxReading
+Behavior = BHV_MaxReading
+{
+  name       = max_reading_bhv1
+  pwt        = 100
+  updates    = SURVEY_UPDATE
+  condition  = MODE==SURVEYING
+  perpetual  = true
+  endflag    = RETURN = true
+  speed      = 1
+}
 #elseifdef PRIMARY_BEHAVIOR NeuralNetwork
 Behavior = BHV_Neural_Network
 {

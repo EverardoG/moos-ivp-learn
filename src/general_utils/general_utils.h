@@ -33,14 +33,22 @@ bool setVecDoubleOnString(std::vector<double>& given_vec_double, const std::stri
 // Turn a string of comma seperated integers into a vector of integers
 bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, std::string& warning);
 
+// Turn a sector index into a 0->360 angle
 double sectorToAngle(int num_sectors, int sector_id);
 
+// Turn a sector reading into an XY point relative to sensor
 XYPoint readingToXY(int num_sectors, int sector_id, double density);
 
+// Sum many XY points into a single point
 XYPoint sumXY(std::vector<XYPoint> pts);
 
+// Take the average XY point of many XY points
 XYPoint averageXY(std::vector<XYPoint> pts);
 
+// Turn an XY point into a relative angle from a vehicle
 double XYToRelAngle(XYPoint point);
+
+// Get the index of the highest value in the vector
+int highestValueInd(std::vector<double> vec);
 
 #endif // GENERAL_UTILS_H
