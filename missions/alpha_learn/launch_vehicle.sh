@@ -48,6 +48,7 @@ VUSER=""
 TMATE=""
 VROLE="rescue"
 PRIMARY_BEHAVIOR="FollowCOM"
+TRIM="no"
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -99,6 +100,7 @@ for ARGI; do
     echo "          Use neural network to map sectors to a "
     echo "          desired heading and velocity           "
     echo "    Choices for scout vehicle not implemented    "
+    echo "  --trim, -t           Trim logging for learning "
 	echo "  --tmate=<vname>                                "
 	echo "    Name of the teammate vehicle if applicable   "
 	echo "  --pgr=<app>                                    "
@@ -147,6 +149,8 @@ for ARGI; do
         VROLE="${ARGI#--vrole=*}"
     elif [ "${ARGI:0:18}" = "--primarybehavior=" ]; then
         PRIMARY_BEHAVIOR="${ARGI#--primarybehavior=*}"
+    elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
+	    TRIM="yes"
     elif [ "${ARGI:0:8}" = "--tmate=" ]; then
         TMATE="${ARGI#--tmate=*}"
     elif [ "${ARGI:0:6}" = "--pgr=" ]; then
@@ -240,6 +244,8 @@ if [ "${AUTO_LAUNCHED}" = "no" ]; then
     NSFLAGS="--interactive --force"
 fi
 
+echo $TRIM
+
 nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        IP_ADDR=$IP_ADDR             MOOS_PORT=$MOOS_PORT \
        PSHARE_PORT=$PSHARE_PORT     SHORE_IP=$SHORE_IP   \
@@ -249,7 +255,7 @@ nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        MMOD=$MMOD                                        \
        VROLE=$VROLE                 TMATE=$TMATE         \
        PGR=$PGR                     VUSER=$VUSER         \
-       FSEAT_IP=$FSEAT_IP
+       FSEAT_IP=$FSEAT_IP           TRIM=$TRIM
 
 nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        START_POS=$START_POS         VNAME=$VNAME         \

@@ -1,8 +1,8 @@
-#!/bin/bash 
-#-------------------------------------------------------------- 
-#   Script: launch_shoreside.sh    
+#!/bin/bash
+#--------------------------------------------------------------
+#   Script: launch_shoreside.sh
 #  Mission: rescue_baseline
-#   Author: Michael Benjamin   
+#   Author: Michael Benjamin
 #   LastEd: March 2025
 #------------------------------------------------------------
 #  Part 1: Set convenience functions for producing terminal
@@ -12,9 +12,9 @@ vecho() { if [ "$VERBOSE" != "" ]; then echo "$ME: $1"; fi }
 on_exit() { echo; echo "$ME: Halting all apps"; kill -- -$$; }
 trap on_exit SIGINT
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 #  Part 2: Set global variable default values
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 ME=`basename "$0"`
 CMD_ARGS=""
 TIME_WARP=1
@@ -32,6 +32,7 @@ VNAMES=""
 
 # custom
 SWIM_FILE="mit_06.txt"
+TRIM="no"
 
 #--------------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -39,11 +40,11 @@ SWIM_FILE="mit_06.txt"
 for ARGI; do
     CMD_ARGS+="${ARGI} "
     if [ "${ARGI}" = "--help" -o "${ARGI}" = "-h" ]; then
-	echo "$ME: [OPTIONS] [time_warp]                     " 
+	echo "$ME: [OPTIONS] [time_warp]                     "
 	echo "                                               "
 	echo "Options:                                       "
-	echo "  --help, -h         Show this help message    " 
-	echo "  --just_make, -j    Only create targ files    " 
+	echo "  --help, -h         Show this help message    "
+	echo "  --just_make, -j    Only create targ files    "
 	echo "  --verbose, -v      Verbose, confirm launch   "
 	echo "                                               "
         echo "  --auto, -a                                   "
@@ -51,6 +52,7 @@ for ARGI; do
         echo "    Will not launch uMAC as the final step.    "
         echo "  --nogui, -n                                  "
         echo "    Headless mode - no pMarineViewer etc       "
+    echo "  --trim, -t         Trim logging for learning "
 	echo "                                               "
 	echo "  --ip=<localhost>                             "
 	echo "    Force pHostInfo to use this IP Address     "
@@ -64,7 +66,7 @@ for ARGI; do
         echo "  --vnames=<vnames>                            "
         echo "    Colon-separate list of all vehicle names   "
 	echo "                                               "
-	echo "  --swim_file=<mit_00.txt>                     " 
+	echo "  --swim_file=<mit_00.txt>                     "
 	echo "    Set the swim file                          "
 	echo "                                               "
 	echo "  -1 :  Short for --swim_file=mit_01.txt       "
@@ -74,7 +76,7 @@ for ARGI; do
 	echo "  -5 :  Short for --swim_file=mit_05.txt       "
 	echo "  -6 :  Short for --swim_file=mit_06.txt       "
 	exit 0;
-    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then 
+    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
     elif [ "${ARGI}" = "--just_make" -o "${ARGI}" = "-j" ]; then
 	JUST_MAKE="yes"
@@ -84,6 +86,8 @@ for ARGI; do
         AUTO_LAUNCHED="yes"
     elif [ "${ARGI}" = "--nogui" -o "${ARGI}" = "-n" ]; then
         LAUNCH_GUI="no"
+    elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
+	    TRIM="yes"
 
     elif [ "${ARGI:0:5}" = "--ip=" ]; then
         IP_ADDR="${ARGI#--ip=*}"
@@ -120,11 +124,11 @@ for ARGI; do
     fi
 done
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 #  Part 4: If not auto_launched (likely running in the field),
 #          and the IP_ADDR has not be explicitly set, try to get
-#          it using the ipaddrs.sh script. 
-#------------------------------------------------------------ 
+#          it using the ipaddrs.sh script.
+#------------------------------------------------------------
 if [ "${AUTO_LAUNCHED}" = "no" -a "${IP_ADDR}" = "localhost" ]; then
     MAYBE_IP_ADDR=`ipaddrs.sh --blunt`
     if [ $? = 0 ]; then
@@ -132,10 +136,10 @@ if [ "${AUTO_LAUNCHED}" = "no" -a "${IP_ADDR}" = "localhost" ]; then
     fi
 fi
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 #  Part 5: If verbose, show vars and confirm before launching
-#------------------------------------------------------------ 
-if [ "${VERBOSE}" = "yes" ]; then 
+#------------------------------------------------------------
+if [ "${VERBOSE}" = "yes" ]; then
     echo "=================================="
     echo "  launch_shoreside.sh SUMMARY     "
     echo "=================================="
@@ -159,42 +163,41 @@ if [ "${VERBOSE}" = "yes" ]; then
     read ANSWER
 fi
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 #  Part 6: Create the shoreside mission file
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 NSFLAGS="--strict --force"
 if [ "${AUTO_LAUNCHED}" = "no" ]; then
     NSFLAGS="--interactive --force"
 fi
-
 nsplug meta_shoreside.moos targ_shoreside.moos $NSFLAGS WARP=$TIME_WARP \
        IP_ADDR=$IP_ADDR             MOOS_PORT=$MOOS_PORT    \
        PSHARE_PORT=$PSHARE_PORT     LAUNCH_GUI=$LAUNCH_GUI  \
        MMOD=$MMOD                   VNAMES=$VNAMES          \
-       SWIM_FILE=$SWIM_FILE
+       SWIM_FILE=$SWIM_FILE         TRIM=$TRIM
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."
     exit 0
 fi
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 #  Part 7: Launch the shoreside MOOS community
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 echo "Launching Shoreside MOOS Community. WARP="$TIME_WARP
 pAntler targ_shoreside.moos >& /dev/null &
 echo "Done Launching Shoreside Community"
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 #  Part 8: If launched from script, we're done, exit now
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 if [ "${AUTO_LAUNCHED}" = "yes" ]; then
     exit 0
 fi
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 # Part 9: Launch uMAC until the mission is quit
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 uMAC targ_shoreside.moos
 trap "" SIGINT
 kill -- -$$

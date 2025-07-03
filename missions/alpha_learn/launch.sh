@@ -50,6 +50,9 @@ MAX_TIME=""
 RESCUE_BEHAVIOR="FollowCOM"
 SCOUT_BEHAVIOR="NotImplemented"
 
+# Custom: Logging
+TRIM="no"
+
 #-------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
 #-------------------------------------------------------
@@ -106,6 +109,10 @@ for ARGI; do
     echo "        NeuralNetwork                          "
     echo "          Use neural network to map sectors to "
     echo "          a desired heading and velocity       "
+    echo "Options (custom: logging):                     "
+    echo "  --trim, -t      Trim the alog files to only  "
+    echo "                  keep necessary data for      "
+    echo "                  learning                     "
 	exit 0;
     elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
@@ -169,9 +176,8 @@ for ARGI; do
         SWIM_FILE=" ${ARGI}"
     elif [[ "${ARGI}" == --rescuebehavior=* ]]; then
         RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
-
-    # elif [ "${ARGI:0:16}" = "--rescuebehavior" ]; then
-    #     RESCUE_BEHAVIOR=" ${ARGI}"
+    elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
+	    TRIM="yes"
 
     elif [ "${ARGI:0:11}" = "--max_time=" ]; then
         MAX_TIME=" ${ARGI}"
@@ -271,6 +277,9 @@ fi
 #-------------------------------------------------------------
 VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD "
 VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
+if [ "$TRIM" = "yes" ]; then
+    VARGS+=" --trim"
+fi
 for IX in `seq 1 $VAMT`;
 do
     IXX=$(($IX - 1))
@@ -317,6 +326,9 @@ SARGS=" --auto --mport=9000 --pshare=9200 $NOGUI "
 SARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 SARGS+=" $MMOD "
 SARGS+=" $MAX_TIME $SWIM_FILE"
+if [ "$TRIM" = "yes" ]; then
+    SARGS+=" --trim"
+fi
 vecho "Launching shoreside: $SARGS"
 ./launch_shoreside.sh $SARGS
 

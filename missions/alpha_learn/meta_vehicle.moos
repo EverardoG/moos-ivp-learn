@@ -11,7 +11,10 @@ Processconfig = ANTLER
 
   Run = MOOSDB             @ NewConsole = false
   Run = pMarinePIDV22      @ NewConsole = false
+
+#ifdef TRIM no
   Run = pLogger            @ NewConsole = false
+#endif
   Run = pNodeReporter      @ NewConsole = false
 
   Run = pHelmIvP           @ NewConsole = false
@@ -241,7 +244,7 @@ ProcessConfig = pMarinePIDV22
 
 //--------------------------------------------------
 // pLogger Config Block
-
+#ifdef TRIM no
 ProcessConfig = pLogger
 {
   AppTick 	= 10
@@ -269,6 +272,7 @@ ProcessConfig = pLogger
 
   CompressAlogs = false
 }
+#endif
 
 //--------------------------------------------------------
 // pSimpleControl config block
