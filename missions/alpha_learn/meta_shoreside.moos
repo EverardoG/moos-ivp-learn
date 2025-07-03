@@ -195,10 +195,12 @@ ProcessConfig = pLogger
   AsyncLog      = true
   FileTimeStamp = true
 
-	Log = MOB_ALERT @ 0 nosync
+  // Only get node reports
+  Log = NODE_REPORT @ 0 nosync
 
-  // Log it all!!!!!
-  WildCardLogging = true
+  // [Turning this off for now] Log it all!!!!!
+  // WildCardLogging = true
+  // Log = MOB_ALERT @ 0 nosync
 }
 
 
