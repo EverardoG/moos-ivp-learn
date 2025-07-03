@@ -7,6 +7,9 @@
 #include <cmath>
 #include <sstream>
 #include <iostream>
+#include <fstream>
+#include <regex>
+#include <filesystem>
 
 //-------------------------------------------------------------
 // Procedure: calcDeltaHeading(double heading1, double heading2)
@@ -50,5 +53,11 @@ double XYToRelAngle(XYPoint point);
 
 // Get the index of the highest value in the vector
 int highestValueInd(std::vector<double> vec);
+
+// Turn node reports into a csv file for easy processing
+bool processNodeReports(std::string shoreside_log_dir, std::string out_dir);
+
+// Check if two csv files have exactly the same contents
+bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int verbose = 0);
 
 #endif // GENERAL_UTILS_H

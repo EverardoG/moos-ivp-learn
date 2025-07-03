@@ -183,3 +183,65 @@ int highestValueInd(std::vector<double> vec) {
   std::vector<double>::iterator it = std::max_element(vec.begin(), vec.end());
   return std::distance(vec.begin(), it);
 }
+
+// Turn node reports into a csv file for easy processing
+bool processNodeReports(std::string shoreside_log_dir, std::string out_dir) {
+  std::ifstream infile(shoreside_log_dir);
+  std::string line;
+  std::ofstream outfile(out_dir);
+
+  // Stop if we can't open the output file
+  if (!outfile.is_open()) {
+    return false;
+  }
+
+  // Write the header
+  outfile << "abe_x,abe_y\n";
+
+  // Write out line-by-line from the node reports
+  std::regex pattern(R"(NAME=([^,]+),X=([^,]+),Y=([^,]+))");
+  while (std::getline(infile, line)) {
+    // Ignore empty lines
+    // Ignore lines that start with % sign
+    if (line.empty()) continue;
+    if (line[0] == '%') continue;
+
+    std::smatch match;
+    if (std::regex_search(line, match, pattern)) {
+      // Not using name yet, but it will be important later
+      // std::string name = match[1];
+      std::string x_str = match[2];
+      std::string y_str = match[3];
+      outfile << x_str << "," << y_str << "\n";
+    }
+  }
+  return true;
+}
+
+// Check if two csv files have exactly the same contents
+bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int verbose) {
+  std::ifstream f1(file1), f2(file2);
+  if (!f1.is_open() || !f2.is_open())
+    return false;
+
+  std::string line1, line2;
+  while (true) {
+    bool read1 = static_cast<bool>(std::getline(f1, line1));
+    bool read2 = static_cast<bool>(std::getline(f2, line2));
+    if (!read1 && !read2) {
+      // both files ended
+      if (verbose > 0) std::cout << "Csv files "<<file1<<" and "<<file2<<" are equal." << std::endl;
+      return true;
+    }
+    if (read1 != read2) {
+      // one file ended before the other
+      if (verbose > 0) std::cout << "Between csv files "<<file1<<" and "<<file2<<", one file ended before the other." << std::endl;
+      return false;
+    }
+    if (line1 != line2) {
+      // lines differ
+      if (verbose > 0) std::cout << "Different lines found between files "<<file1<<" and "<<file2<<". Lines "<<line1<<" and "<<line2<<" differ, respectively." << std::endl;
+      return false;
+    }
+  }
+}

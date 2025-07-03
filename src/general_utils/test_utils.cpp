@@ -139,6 +139,68 @@ bool test_XYToRelAngle(int test_verbose = 0) {
     return true;
 }
 
+bool test_csvFilesAreEqual(int test_verbose = 0) {
+    if (test_verbose > 0) std::cout << "Start --- test_csvFilesAreEqual()" << std::endl;
+
+    // Set up variables for managing directories
+    std::string base = "../resources/test";
+    std::string expected_csv = base + "/expected.csv";
+    std::string incorrect_csv = base + "/incorrect_extradigit.csv";
+
+    // Check all the incorrect csvs
+    if (csvFilesAreEqual(expected_csv, incorrect_csv, test_verbose))
+        return false;
+    if (test_verbose > 0) std::cout << "Passed with " << incorrect_csv << std::endl;
+    incorrect_csv = base + "/incorrect_extraline.csv";
+    if (csvFilesAreEqual(expected_csv, incorrect_csv, test_verbose))
+        return false;
+    if (test_verbose > 0) std::cout << "Passed with " << incorrect_csv << std::endl;
+    incorrect_csv = base + "/incorrect_removedigit.csv";
+    if (csvFilesAreEqual(expected_csv, incorrect_csv, test_verbose))
+        return false;
+    if (test_verbose > 0) std::cout << "Passed with " << incorrect_csv << std::endl;
+
+    // Check csvs that should be the same
+   std::string correct_csv = base + "/copy.csv";
+    if (!csvFilesAreEqual(expected_csv, correct_csv, test_verbose))
+        return false;
+    if (test_verbose > 0) std::cout << "Passed with " << correct_csv << std::endl;
+    if (!csvFilesAreEqual(expected_csv, expected_csv, test_verbose))
+        return false;
+    if (test_verbose > 0) std::cout << "Passed with " << expected_csv << std::endl;
+
+    if (test_verbose > 0) std::cout << "Finish --- test_csvFilesAreEqual()" << std::endl;
+    return true;
+}
+
+bool test_processNodeReports(int test_verbose = 0) {
+    if (test_verbose > 0) std::cout << "Start --- test_processNodeReports()" << std::endl;
+    // Set up dirs
+    std::string base = "../resources/test";
+    std::string alog_dir = base+"/alog.test";
+    std::string out_csv_dir = base+"/temp.csv";
+    std::string exp_csv_dir = base+"/expected.csv";
+
+    // Process node reports into csv
+    if (!processNodeReports(alog_dir, out_csv_dir)) return false;
+
+    // Read back in the csv and check that it matches what we expect
+    if (!csvFilesAreEqual(out_csv_dir, exp_csv_dir, test_verbose)) return false;
+
+    // Remove the generated csv file
+    bool delete_flag = std::filesystem::remove(out_csv_dir);
+    if (test_verbose > 0) {
+        if (delete_flag) {
+            std::cout << "Succesfully deleted temporary file: " << out_csv_dir << std::endl;
+        } else {
+            std::cout << "Error deleting temporary file: " << out_csv_dir << std::endl;
+        }
+    }
+
+    if (test_verbose > 0) std::cout << "Finish --- test_processNodeReports()" << std::endl;
+    return true;
+}
+
 int main(int argc, char* argv[]) {
     int TEST_VERBOSE = 0;
     if (argc >= 2) {
@@ -173,4 +235,12 @@ int main(int argc, char* argv[]) {
     // Test getting angle from XY Points
     if (!test_XYToRelAngle(TEST_VERBOSE)) std::cout << "FAILURE: test_XYToRelAngle" << std::endl;
     else std::cout << "PASSED: test_XYToRelAngle" << std::endl;
+
+    // Test comparing csv files
+    if (!test_csvFilesAreEqual(TEST_VERBOSE)) std::cout << "FAILURE: test_csvFilesAreEqual" << std::endl;
+    else std::cout << "PASSED: test_csvFilesAreEqual" << std::endl;
+
+    // Test processing a shoreside log file
+    if (!test_processNodeReports(TEST_VERBOSE)) std::cout << "FAILURE: test_processNodeReports" << std::endl;
+    else std::cout << "PASSED: test_processNodeReports" << std::endl;
 }
