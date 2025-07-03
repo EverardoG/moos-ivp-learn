@@ -53,8 +53,8 @@ Processconfig = ANTLER
 
 ProcessConfig = pHelmIvP
 {
-  AppTick    = 4
-  CommsTick  = 4
+  AppTick    = 10
+  CommsTick  = 10
 
   ok_skew     = any
 
@@ -176,8 +176,8 @@ ProcessConfig = pContactMgrV20
 
 ProcessConfig = pNodeReporter
 {
-  AppTick     = 6
-  CommsTick   = 6
+  AppTick     = 10
+  CommsTick   = 10
 
 #ifdef VROLE rescue
 	platform_type  = KAYAK
