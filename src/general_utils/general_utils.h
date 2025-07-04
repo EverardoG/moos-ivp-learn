@@ -55,7 +55,7 @@ double XYToRelAngle(XYPoint point);
 int highestValueInd(std::vector<double> vec);
 
 // Turn node reports into a csv file for easy processing
-bool processNodeReports(std::string shoreside_log_dir, std::string out_dir);
+bool processNodeReports(const std::string& shoreside_log_dir, const std::string& out_dir);
 
 // Check if two csv files have exactly the same contents
 bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int verbose = 0);

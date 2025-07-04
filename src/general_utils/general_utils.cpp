@@ -185,7 +185,7 @@ int highestValueInd(std::vector<double> vec) {
 }
 
 // Turn node reports into a csv file for easy processing
-bool processNodeReports(std::string shoreside_log_dir, std::string out_dir) {
+bool processNodeReports(const std::string& shoreside_log_dir, const std::string& out_dir) {
   std::ifstream infile(shoreside_log_dir);
   std::string line;
   std::ofstream outfile(out_dir);
