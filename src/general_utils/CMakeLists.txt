@@ -14,9 +14,11 @@ set(CMAKE_BUILD_TYPE Debug)
 
 # Add the test_utils executable
 add_executable(test_utils test_utils.cpp)
+add_executable(process_node_reports cli_process_node_reports.cpp)
 
 # Include directories if needed
 target_include_directories(test_utils PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(process_node_reports PRIVATE ${CMAKE_SOURCE_DIR})
 
 # Link the MOOS libraries and other dependencies
 target_link_libraries(general_utils PUBLIC
@@ -27,3 +29,4 @@ target_link_libraries(general_utils PUBLIC
 
 # Link the general_utils library to the test_utils executable
 target_link_libraries(test_utils PRIVATE general_utils)
+target_link_libraries(process_node_reports PRIVATE general_utils)
