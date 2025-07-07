@@ -243,4 +243,6 @@ int main(int argc, char* argv[]) {
     // Test processing a shoreside log file
     if (!test_processNodeReports(TEST_VERBOSE)) std::cout << "FAILURE: test_processNodeReports" << std::endl;
     else std::cout << "PASSED: test_processNodeReports" << std::endl;
+
+    // Test trimming down csv files
 }

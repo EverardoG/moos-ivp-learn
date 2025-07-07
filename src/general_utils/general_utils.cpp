@@ -245,3 +245,29 @@ bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int ve
     }
   }
 }
+
+// Take in a csv and output a csv with no duplicate rows
+bool csvFilterDuplicateRows(const std::string& in_csv, const std::string& out_csv, int verbose) {
+    std::ifstream infile(in_csv);
+    if (!infile.is_open()) {
+        if (verbose > 0) std::cout << "Failed to open input CSV: " << in_csv << std::endl;
+        return false;
+    }
+
+    std::ofstream outfile(out_csv);
+    if (!outfile.is_open()) {
+        if (verbose > 0) std::cout << "Failed to open output CSV: " << out_csv << std::endl;
+        return false;
+    }
+
+    std::unordered_set<std::string> seen_rows;
+    std::string line;
+
+    while (std::getline(infile, line)) {
+        if (seen_rows.insert(line).second) {  // Only insert if not already seen
+            outfile << line << '\n';
+        }
+    }
+
+    return true;
+}

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <regex>
 #include <filesystem>
+#include <unordered_set>
 
 //-------------------------------------------------------------
 // Procedure: calcDeltaHeading(double heading1, double heading2)
@@ -59,5 +60,8 @@ bool processNodeReports(const std::string& shoreside_log_dir, const std::string&
 
 // Check if two csv files have exactly the same contents
 bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int verbose = 0);
+
+// Take in a csv and output a csv with no duplicate rows
+bool csvFilterDuplicateRows(const std::string& in_csv, const std::string& out_csv, int verbose = 0);
 
 #endif // GENERAL_UTILS_H
