@@ -20,13 +20,7 @@ set MODE = SURVEYING {
   MODE = ACTIVE
   RETURN != true
   SURVEY = true
-}
-
-set MODE = RETURNING {
-  MODE = ACTIVE
-  RETURN = true
-}
-
+} RETURNING
 #ifdef VROLE scout
 //----------------------------------------------
 Behavior = BHV_Scout
@@ -47,12 +41,30 @@ Behavior = BHV_Scout
 
 //----------------------------------------------
 #ifdef VROLE rescue
+#ifdef PRIMARY_BEHAVIOR FollowCOM
+Behavior = BHV_FollowCOM
+{
+  name       = follow_com_bhv1
+  pwt        = 100
+  updates    = SURVEY_UPDATE
+  condition  = MODE==SURVEYING
+  perpetual  = true
+  endflag    = RETURN = true
+  speed      = 1
+}
+#elseifdef PRIMARY_BEHAVIOR MaxReading
+Behavior = BHV_MaxReading
+{
+  name       = max_reading_bhv1
+  pwt        = 100
+  updates    = SURVEY_UPDATE
+  condition  = MODE==SURVEYING
+  perpetual  = true
+  endflag    = RETURN = true
+  speed      = 1
+}
+#elseifdef PRIMARY_BEHAVIOR NeuralNetwork
 Behavior = BHV_Neural_Network
-#elseifdef VROLE fixed
-Behavior = BHV_Neural_Network
-#else
-//Behavior = BHV_Neural_Network
-#endif
 {
   name       = neural_network_bhv1
   pwt        = 100
@@ -62,6 +74,8 @@ Behavior = BHV_Neural_Network
   endflag    = RETURN = true
   csv_directory = neural_network_config.csv
 }
+#endif
+#endif
 
 //----------------------------------------------
 Behavior = BHV_StationKeep
@@ -174,6 +188,6 @@ Behavior = BHV_OpRegionV24
 	save_dist = 4
 	halt_dist = 10
 
-	recover_spd = 0.6
+ //recover_spd = 0.6
 }
 

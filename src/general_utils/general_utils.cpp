@@ -108,3 +108,166 @@ bool setVecIntOnString(std::vector<int>& given_vec_int, const std::string& str, 
   }
   return true;
 }
+
+//-------------------------------------------------------------
+// Procedure: sectorToAngle
+//   Purpose: Returns relative angle to the center of a sector
+//   Example with 4 sectors:
+//     Angles:                    |  Sectors:
+//                   0            |             \     0     /
+//                   |            |               \       /
+//                   |            |                 \   /
+//         270 ----- A ----- 90   |         3         A          1
+//                   |            |                 /   \
+//                   |            |               /       \
+//                  180           |             /     2     \
+
+double sectorToAngle(int num_sectors, int sector_id) {
+  return 360.0*sector_id / (double)num_sectors;
+}
+
+XYPoint readingToXY(int num_sectors, int sector_id, double density) {
+  double angle = sectorToAngle(num_sectors, sector_id);
+  double x = density * sin(angle * M_PI/180.0);
+  double y = density * cos(angle * M_PI/180.0);
+  return XYPoint(x, y);
+}
+
+XYPoint sumXY(std::vector<XYPoint> pts) {
+  double sum_x = 0.0;
+  double sum_y = 0.0;
+  for (const XYPoint& pt : pts) {
+    sum_x = sum_x + pt.get_vx();
+    sum_y = sum_y + pt.get_vy();
+  }
+  return XYPoint(sum_x, sum_y);
+}
+
+XYPoint averageXY(std::vector<XYPoint> pts) {
+  double avg_x = 0.0;
+  double avg_y = 0.0;
+  for (const XYPoint& pt : pts) {
+    avg_x = avg_x + pt.get_vx();
+    avg_y = avg_y + pt.get_vy();
+  }
+  double num_pts_dbl = pts.size();
+  avg_x = avg_x / num_pts_dbl;
+  avg_y = avg_y / num_pts_dbl;
+  return XYPoint(avg_x, avg_y);
+}
+
+// Angle relative to vehicle
+//-------------------------------------------------------------
+// Procedure: XYToRelAngle
+//   Purpose: Returns relative angle to XYPoint
+//     following this convention.
+//     X is still horizontal and Y is still vertical
+//   Example: (X=1, Y=0) gives angle 90
+//                   0
+//                   |
+//                   |
+//         270 ----- A ----- 90
+//                   |
+//                   |
+//                  180
+
+double XYToRelAngle(XYPoint point) {
+  return relAng(XYPoint(0.0,0.0), point);
+}
+
+// Get index of highest value in a vector
+int highestValueInd(std::vector<double> vec) {
+  if (vec.empty()) {
+    return -1;
+  }
+  std::vector<double>::iterator it = std::max_element(vec.begin(), vec.end());
+  return std::distance(vec.begin(), it);
+}
+
+// Turn node reports into a csv file for easy processing
+bool processNodeReports(const std::string& shoreside_log_dir, const std::string& out_dir) {
+  std::ifstream infile(shoreside_log_dir);
+  std::string line;
+  std::ofstream outfile(out_dir);
+
+  // Stop if we can't open the output file
+  if (!outfile.is_open()) {
+    return false;
+  }
+
+  // Write the header
+  outfile << "abe_x,abe_y\n";
+
+  // Write out line-by-line from the node reports
+  std::regex pattern(R"(NAME=([^,]+),X=([^,]+),Y=([^,]+))");
+  while (std::getline(infile, line)) {
+    // Ignore empty lines
+    // Ignore lines that start with % sign
+    if (line.empty()) continue;
+    if (line[0] == '%') continue;
+
+    std::smatch match;
+    if (std::regex_search(line, match, pattern)) {
+      // Not using name yet, but it will be important later
+      // std::string name = match[1];
+      std::string x_str = match[2];
+      std::string y_str = match[3];
+      outfile << x_str << "," << y_str << "\n";
+    }
+  }
+  return true;
+}
+
+// Check if two csv files have exactly the same contents
+bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int verbose) {
+  std::ifstream f1(file1), f2(file2);
+  if (!f1.is_open() || !f2.is_open())
+    return false;
+
+  std::string line1, line2;
+  while (true) {
+    bool read1 = static_cast<bool>(std::getline(f1, line1));
+    bool read2 = static_cast<bool>(std::getline(f2, line2));
+    if (!read1 && !read2) {
+      // both files ended
+      if (verbose > 0) std::cout << "Csv files "<<file1<<" and "<<file2<<" are equal." << std::endl;
+      return true;
+    }
+    if (read1 != read2) {
+      // one file ended before the other
+      if (verbose > 0) std::cout << "Between csv files "<<file1<<" and "<<file2<<", one file ended before the other." << std::endl;
+      return false;
+    }
+    if (line1 != line2) {
+      // lines differ
+      if (verbose > 0) std::cout << "Different lines found between files "<<file1<<" and "<<file2<<". Lines "<<line1<<" and "<<line2<<" differ, respectively." << std::endl;
+      return false;
+    }
+  }
+}
+
+// Take in a csv and output a csv with no duplicate rows
+bool csvFilterDuplicateRows(const std::string& in_csv, const std::string& out_csv, int verbose) {
+    std::ifstream infile(in_csv);
+    if (!infile.is_open()) {
+        if (verbose > 0) std::cout << "Failed to open input CSV: " << in_csv << std::endl;
+        return false;
+    }
+
+    std::ofstream outfile(out_csv);
+    if (!outfile.is_open()) {
+        if (verbose > 0) std::cout << "Failed to open output CSV: " << out_csv << std::endl;
+        return false;
+    }
+
+    std::unordered_set<std::string> seen_rows;
+    std::string line;
+
+    while (std::getline(infile, line)) {
+        if (seen_rows.insert(line).second) {  // Only insert if not already seen
+            outfile << line << '\n';
+        }
+    }
+
+    return true;
+}

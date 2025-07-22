@@ -11,7 +11,10 @@ Processconfig = ANTLER
 
   Run = MOOSDB             @ NewConsole = false
   Run = pMarinePIDV22      @ NewConsole = false
+
+#ifdef TRIM no
   Run = pLogger            @ NewConsole = false
+#endif
   Run = pNodeReporter      @ NewConsole = false
 
   Run = pHelmIvP           @ NewConsole = false
@@ -25,7 +28,7 @@ Processconfig = ANTLER
   Run = uTimerScript       @ NewConsole = false
   Run = pRealm             @ NewConsole = false
 #ifdef VROLE rescue
-  Run = pSectorSense       @ NewConsole = true
+  Run = pSectorSense       @ NewConsole = false
 #endif
 
 #ifdef XMODE SIM
@@ -53,8 +56,8 @@ Processconfig = ANTLER
 
 ProcessConfig = pHelmIvP
 {
-  AppTick    = 4
-  CommsTick  = 4
+  AppTick    = 10
+  CommsTick  = 10
 
   ok_skew     = any
 
@@ -176,8 +179,8 @@ ProcessConfig = pContactMgrV20
 
 ProcessConfig = pNodeReporter
 {
-  AppTick     = 6
-  CommsTick   = 6
+  AppTick     = 10
+  CommsTick   = 10
 
 #ifdef VROLE rescue
 	platform_type  = KAYAK
@@ -241,7 +244,7 @@ ProcessConfig = pMarinePIDV22
 
 //--------------------------------------------------
 // pLogger Config Block
-
+#ifdef TRIM no
 ProcessConfig = pLogger
 {
   AppTick 	= 10
@@ -269,6 +272,7 @@ ProcessConfig = pLogger
 
   CompressAlogs = false
 }
+#endif
 
 //--------------------------------------------------------
 // pSimpleControl config block

@@ -51,6 +51,8 @@ bool SectorSense::OnNewMail(MOOSMSG_LIST &NewMail)
 
     if(key == "SWIMMER_ALERT") {
       processSwimmerAlert(msg);
+    } else if (key == "FOUND_SWIMMER") {
+      processFoundSwimmer(msg);
     } else if (key == "NAV_X"){
       m_nav_x = msg.GetDouble();
     } else if (key == "NAV_Y"){
@@ -78,9 +80,11 @@ bool SectorSense::OnConnectToServer()
 
 void SectorSense::updateSwimmers() {
   m_swimmers_sense.clear();
-  for (int i = 0; i < m_swimmers.size(); i++) {
-    if (!m_swimmers_rescued[i]) {
-      m_swimmers_sense.push_back(m_swimmers[i]);
+  for (const std::pair<int, Swimmer>& entry : m_swimmer_map) {
+    int id = entry.first;
+    const Swimmer& s = entry.second;
+    if (!s.rescued) {
+      m_swimmers_sense.push_back(s.position);
     }
   }
 }
@@ -178,6 +182,7 @@ void SectorSense::registerVariables()
 {
   AppCastingMOOSApp::RegisterVariables();
   Register("SWIMMER_ALERT", 0);
+  Register("FOUND_SWIMMER", 0);
   Register("NAV_X", 0);
   Register("NAV_Y", 0);
   Register("NAV_HEADING", 0);
@@ -227,16 +232,17 @@ bool SectorSense::buildReport()
   m_msgs << "============================================" << endl;
 
   m_msgs << "m_sensor_readings_str: " << m_sensor_readings_str << endl;
-  m_msgs << "num swimmers: " << m_swimmers.size() << std::endl;
-  m_msgs << "m_saturation_rad: " << m_saturation_rad << std::endl;
+  m_msgs << "num swimmers_logged: " << m_swimmer_map.size() << std::endl;
+  m_msgs << "--------------------------------------------" << endl;
 
   ACTable actab(3);
   actab << " Swimmer Idx | Info | Rescued ";
   actab.addHeaderLines();
-  for (int i=0; i<m_swimmers.size(); i++){
-    actab << intToString(i) << m_swimmers[i].get_spec()
-	  << boolToString(m_swimmers_rescued[i]) ;
-  }
+  for (const std::pair<int, Swimmer>& entry : m_swimmer_map) {
+      int id = entry.first;
+      const Swimmer& s = entry.second;
+      actab << intToString(id) << s.position.get_spec() << boolToString(s.rescued);
+    }
 
   m_msgs << actab.getFormattedString();
 
@@ -283,16 +289,34 @@ void SectorSense::processSwimmerAlert(CMOOSMsg& msg) {
       // We got the id. If we don't have this id, add it.
       // Otherwise, don't do anything.
       unsigned int swimmer_id = std::stoi(value);
-      if (m_swimmers_recorded.count(swimmer_id) == 0) {
-        XYPoint new_point = string2Point(msg.GetString());
-        m_swimmers.push_back(new_point);
-        m_swimmers_rescued.push_back(false);
-        // Save the id so we don't recount this swimmer.
-        m_swimmers_recorded.insert(swimmer_id);
+      if (m_swimmer_map.count(swimmer_id) == 0) {
+        XYPoint position = string2Point(msg.GetString());
+        Swimmer new_swimmer(position);
+        m_swimmer_map[swimmer_id] = new_swimmer;
       }
     }
   }
-  std::cout << msg.GetString() << std::endl;
+}
+
+void SectorSense::processFoundSwimmer(CMOOSMsg& msg) {
+  // Get the id of the swimmer
+  std::vector<string> mvector = parseString(msg.GetString(), ",");
+  unsigned int vsize = mvector.size();
+  for (int i=0; i<vsize; i++) {
+    string param = tolower(biteStringX(mvector[i], '='));
+    if(param == "id") {
+      // We got the id. If we have this id, mark it as rescued
+      // Otherwise, add it and mark it as rescued
+      unsigned int swimmer_id = std::stoi(mvector[i]);
+      if (m_swimmer_map.count(swimmer_id) > 0) {
+        // Mark that this swimmer has been saved
+        m_swimmer_map[swimmer_id].rescued = true;
+      }
+      else {
+        m_swimmer_map[swimmer_id] = Swimmer(true);
+      }
+    }
+  }
 }
 
 std::vector<XYPolygon> SectorSense::generatePolygons(std::vector<double> sensor_readings) {
@@ -304,13 +328,12 @@ std::vector<XYPolygon> SectorSense::generatePolygons(std::vector<double> sensor_
       m_nav_x, m_nav_y, m_nav_hdg, sector_start, sector_end, m_sensor_rad, m_arc_points
     );
     // Add shading according to the sensor reading
-    double reading = 255.0*sensor_readings[i];
     poly.set_color("edge", ColorPack(0,1,0));
     poly.set_color("fill", ColorPack(0,1,0));
     poly.set_color("vertex", ColorPack(0,1,0));
     poly.set_transparency(sensor_readings[i]*0.5);
     poly.set_label("sector_" + intToString(i));
-    poly.set_msg("reading=" + doubleToString(reading, 2));
+    poly.set_msg("reading=" + doubleToString(sensor_readings[i], 2));
     polygons.push_back(poly);
   }
   return polygons;

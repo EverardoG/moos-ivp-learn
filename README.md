@@ -34,7 +34,19 @@ To run the mission you can use the following commands, assuming `moos-ivp-learn`
 
 ```
 cd ~/moos-ivp-learn/missions/alpha_learn
-learnKill; ./clean; ./launch.sh 10
+learnKill; ./clean.sh; ./launch.sh 10
+```
+
+# Other Helpful Commands
+
+Replay the mission you just ran. (Run this command from the same directory you launched the mission from.)
+```
+alogview */*.alog
+```
+
+Edit git history for bookkeeping.
+```
+git rebase -i HEAD~10
 ```
 
 # Directory Structure

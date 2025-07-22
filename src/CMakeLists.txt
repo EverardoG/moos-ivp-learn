@@ -20,6 +20,8 @@ ADD_SUBDIRECTORY(pExampleApp)
 ADD_SUBDIRECTORY(pXRelayTest)
 
 ADD_SUBDIRECTORY(lib_BHV_neural_network)
+ADD_SUBDIRECTORY(lib_BHV_follow_com)
+ADD_SUBDIRECTORY(lib_BHV_max_reading)
 ADD_SUBDIRECTORY(pSectorSense)
 ADD_SUBDIRECTORY(uFldRecordKeeper)
 ADD_SUBDIRECTORY(neural_network)

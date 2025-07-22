@@ -41,6 +41,7 @@ public:
   void         onIdleToRunState();
   IvPFunction* onRunState();
   bool         processSensorReadings();
+  bool         processHeading();
   void         forwardPropNetwork();
   IvPFunction* buildFunction();
   bool         initialize();
@@ -51,12 +52,13 @@ protected: // Configuration parameters
   std::string m_csv_directory;
 
 protected: // State variables
+  double m_nav_heading;
   NeuralNetwork m_network;
   bool m_network_loaded = false;
 
   std::vector<double>  m_sector_sensor_readings;
 
-  double m_best_heading;   // These will hold the outputs
+  double m_best_delta_heading;   // These will hold the outputs
   double m_best_speed;     // for now.
 
 };

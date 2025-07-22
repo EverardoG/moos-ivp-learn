@@ -1,7 +1,7 @@
-#!/bin/bash 
-#------------------------------------------------------------ 
-#   Script: launch.sh    
-#   Author: Michael Benjamin   
+#!/bin/bash
+#------------------------------------------------------------
+#   Script: launch.sh
+#   Author: Michael Benjamin
 #   LastEd: March 2025
 #------------------------------------------------------------
 #  Part 1: Set convenience functions for producing terminal
@@ -46,6 +46,13 @@ SWIM_FILE=""
 # Custom: Max competition time
 MAX_TIME=""
 
+# Custom: Vehicle behaviors
+RESCUE_BEHAVIOR="FollowCOM"
+SCOUT_BEHAVIOR="NotImplemented"
+
+# Custom: Logging
+TRIM="no"
+
 #-------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
 #-------------------------------------------------------
@@ -55,43 +62,59 @@ for ARGI; do
 	echo "$ME: [OPTIONS] [time_warp]                     "
 	echo "                                               "
 	echo "Options:                                       "
-	echo "  --help, -h         Show this help message    " 
+	echo "  --help, -h         Show this help message    "
 	echo "  --verbose, -v      Verbose, confirm launch   "
-	echo "  --just_make, -j    Only create targ files    " 
-	echo "  --log_clean, -lc   Run clean.sh bef launch   " 
+	echo "  --just_make, -j    Only create targ files    "
+	echo "  --log_clean, -lc   Run clean.sh bef launch   "
 	echo "  --amt=N            Num vehicles to launch    "
 	echo "  --rand, -r         Rand vehicle positions    "
 	echo "  --max_spd=N        Max helm/sim speed        "
-        echo "  --mmod=<mod>       Mission variation/mod     "
+    echo "  --mmod=<mod>       Mission variation/mod     "
 	echo "                                               "
 	echo "Options (monte):                               "
 	echo "  --xlaunched, -x    Launched by xlaunch       "
 	echo "  --nogui, -ng       Headless launch, no gui   "
 	echo "                                               "
 	echo "Options (custom: type of competition):         "
-	echo "  --r1, -r1          1 rescue vehicle          " 
-	echo "  --r2, -r2          2 rescue vehicles         " 
-	echo "  --rs1, -rs1        1 rescue 1 scout          " 
-	echo "  --rs2, -rs2        2 teams, resc/scout each  " 
+	echo "  --r1, -r1          1 rescue vehicle          "
+	echo "  --r2, -r2          2 rescue vehicles         "
+	echo "  --rs1, -rs1        1 rescue 1 scout          "
+	echo "  --rs2, -rs2        2 teams, resc/scout each  "
 	echo "  --compete, -c      Competition               "
 	echo "                                               "
 	echo "Options (custom: dynamic swim file):           "
-	echo "  --rsl, -rsl        Rand swim locations       " 
-	echo "  --pav60, -pav60    Gen rand swimmers in pav60" 
-	echo "  --pav90, -pav90    Gen rand swimmers in pav90" 
-	echo "  --swimmers=<15>    Rand gen N reg swimmers   " 
-	echo "  --unreg=<0>        Rand gen N unreg swimmers " 
+	echo "  --rsl, -rsl        Rand swim locations       "
+	echo "  --pav60, -pav60    Gen rand swimmers in pav60"
+	echo "  --pav90, -pav90    Gen rand swimmers in pav90"
+	echo "  --swimmers=<15>    Rand gen N reg swimmers   "
+	echo "  --unreg=<0>        Rand gen N unreg swimmers "
 	echo "                                               "
 	echo "Options (custom: selection of swim file):      "
-	echo "  --swim_file=<file> Set the swim file         " 
+	echo "  --swim_file=<file> Set the swim file         "
 	echo "  -1 :  Short for --swim_file=mit_01.txt       "
 	echo "  -2 :  Short for --swim_file=mit_02.txt       "
 	echo "  -3 :  Short for --swim_file=mit_03.txt       "
 	echo "  -4 :  Short for --swim_file=mit_04.txt       "
 	echo "  -5 :  Short for --swim_file=mit_05.txt       "
 	echo "  -6 :  Short for --swim_file=mit_06.txt       "
+	echo "                                               "
+    echo "Options (custom: setting up behaviors):        "
+    echo "  --rescuebehavior   Rescue vehicle behavior   "
+    echo "      Choices: FollowCOM, NeuralNetwork        "
+    echo "        FollowCOM (Default)                    "
+    echo "          Go to center of sensed swimmers      "
+    echo "        MaxReading                             "
+    echo "          Go to sector with highest reading of "
+    echo "          sensed swimmers                      "
+    echo "        NeuralNetwork                          "
+    echo "          Use neural network to map sectors to "
+    echo "          a desired heading and velocity       "
+    echo "Options (custom: logging):                     "
+    echo "  --trim, -t      Trim the alog files to only  "
+    echo "                  keep necessary data for      "
+    echo "                  learning                     "
 	exit 0;
-    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then 
+    elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
     elif [ "${ARGI}" = "--verbose" -o "${ARGI}" = "-v" ]; then
 	VERBOSE=$ARGI
@@ -151,6 +174,10 @@ for ARGI; do
         SWIM_FILE=" ${ARGI}"
     elif [ "${ARGI}" = "-5" -o "${ARGI}" = "-6" ]; then
         SWIM_FILE=" ${ARGI}"
+    elif [[ "${ARGI}" == --rescuebehavior=* ]]; then
+        RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
+    elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
+	    TRIM="yes"
 
     elif [ "${ARGI:0:11}" = "--max_time=" ]; then
         MAX_TIME=" ${ARGI}"
@@ -163,6 +190,7 @@ done
 
 #------------------------------------------------------------
 #  Part 4: Set starting positions, speeds, vnames, colors
+#          and primary behaviors
 #------------------------------------------------------------
 INIT_VARS=" --amt=$VAMT $RAND_VPOS $VERBOSE $RAND_SWIMMERS"
 INIT_VARS+=" --format=$GAME_FORMAT $SWIM_REGION $SWIMMERS $UNREGERS "
@@ -175,6 +203,18 @@ VCOLOR=(`cat vcolors.txt`)
 VROLES=(`cat vroles.txt`)  #custom
 VMATES=(`cat vmates.txt`)  #custom
 VAPPS=(`cat vapps.txt`)  #custom
+# Primary behaviors need to be created from commandline arguments
+VBEHAVIORS=()
+for ((i=0; i<${#VROLES[@]}; i++)); do
+    if [ "${VROLES[$i]}" = "rescue" ]; then
+        VBEHAVIORS+=("$RESCUE_BEHAVIOR")
+    elif [ "${VROLES[$i]}" = "scout" ]; then
+        VBEHAVIORS+=("$SCOUT_BEHAVIOR")
+    else
+        echo "$ME: ERROR - Vehicle role '${VROLES[$i]}' is invalid. Must be 'rescue' or 'scout'. Exit Code 3."
+        exit 3
+    fi
+done
 
 VAMT=${#VROLES[@]}
 
@@ -219,6 +259,7 @@ if [ "${VERBOSE}" != "" ]; then
     echo "COMPETE         [${COMPETE}]                "
     echo "MAX_TIME =      [${MAX_TIME}]               "
     echo "VROLES =        [${VROLES[*]}]              "
+    echo "VBEHAVIORS =    [${VBEHAVIORS[*]}]          "
     echo "VMATES =        [${VMATES[*]}]              "
     echo "VAPPS =         [${VAPPS[*]}]               "
     echo "--------------------------------(Custom)----"
@@ -236,6 +277,9 @@ fi
 #-------------------------------------------------------------
 VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD "
 VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
+if [ "$TRIM" = "yes" ]; then
+    VARGS+=" --trim"
+fi
 for IX in `seq 1 $VAMT`;
 do
     IXX=$(($IX - 1))
@@ -246,6 +290,7 @@ do
     IVARGS+=" --color=${VCOLOR[$IXX]} "
     IVARGS+=" --vrole=${VROLES[$IXX]} "
     IVARGS+=" --tmate=${VMATES[$IXX]} "
+    IVARGS+=" --primarybehavior=${VBEHAVIORS[$IXX]} "
 
     if [ "${COMPETE}" != "" ]; then
 	VAPP="${VAPPS[$IXX]}"
@@ -267,7 +312,7 @@ do
 
     vecho "Launching vehicle: $IVARGS"
 
-    CMD="./launch_vehicle.sh $IVARGS"    
+    CMD="./launch_vehicle.sh $IVARGS"
     eval $CMD
     sleep 0.5
 done
@@ -281,8 +326,11 @@ SARGS=" --auto --mport=9000 --pshare=9200 $NOGUI "
 SARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 SARGS+=" $MMOD "
 SARGS+=" $MAX_TIME $SWIM_FILE"
+if [ "$TRIM" = "yes" ]; then
+    SARGS+=" --trim"
+fi
 vecho "Launching shoreside: $SARGS"
-./launch_shoreside.sh $SARGS 
+./launch_shoreside.sh $SARGS
 
 if [ "${JUST_MAKE}" != "" ]; then
     echo "$ME: Targ files made; exiting without launch."
