@@ -33,6 +33,7 @@ VNAMES=""
 # custom
 SWIM_FILE="mit_06.txt"
 TRIM="no"
+LOGDIR="./"
 
 #--------------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -53,6 +54,7 @@ for ARGI; do
         echo "  --nogui, -n                                  "
         echo "    Headless mode - no pMarineViewer etc       "
     echo "  --trim, -t         Trim logging for learning "
+    echo "  --logdir, -ld      Directory to save log info"
 	echo "                                               "
 	echo "  --ip=<localhost>                             "
 	echo "    Force pHostInfo to use this IP Address     "
@@ -88,6 +90,8 @@ for ARGI; do
         LAUNCH_GUI="no"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
+    elif [[ "${ARGI}" = --logdir=* ]]; then
+        LOGDIR="${ARGI#--logdir=}"
 
     elif [ "${ARGI:0:5}" = "--ip=" ]; then
         IP_ADDR="${ARGI#--ip=*}"
@@ -159,6 +163,9 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "----------------------------------"
     echo "SWIM_FILE =     [${SWIM_FILE}]    "
     echo "----------------------------------"
+    echo "TRIM =          [${TRIM}]         "
+    echo "LOGDIR =        [${LOGDIR}]       "
+    echo "----------------------------------"
     echo -n "Hit any key to continue launch "
     read ANSWER
 fi
@@ -174,7 +181,8 @@ nsplug meta_shoreside.moos targ_shoreside.moos $NSFLAGS WARP=$TIME_WARP \
        IP_ADDR=$IP_ADDR             MOOS_PORT=$MOOS_PORT    \
        PSHARE_PORT=$PSHARE_PORT     LAUNCH_GUI=$LAUNCH_GUI  \
        MMOD=$MMOD                   VNAMES=$VNAMES          \
-       SWIM_FILE=$SWIM_FILE         TRIM=$TRIM
+       SWIM_FILE=$SWIM_FILE         TRIM=$TRIM              \
+       LOGDIR=$LOGDIR
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."

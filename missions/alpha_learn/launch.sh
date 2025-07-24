@@ -109,10 +109,13 @@ for ARGI; do
     echo "        NeuralNetwork                          "
     echo "          Use neural network to map sectors to "
     echo "          a desired heading and velocity       "
+    echo "                                               "
     echo "Options (custom: logging):                     "
     echo "  --trim, -t      Trim the alog files to only  "
     echo "                  keep necessary data for      "
     echo "                  learning                     "
+    echo "  --logdir, -ld   Directory to save log files  "
+
 	exit 0;
     elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
         TIME_WARP=$ARGI
@@ -178,6 +181,8 @@ for ARGI; do
         RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
+    elif [[ "${ARGI}" = --logdir=* ]]; then
+        LOGDIR="${ARGI#--logdir=}"
 
     elif [ "${ARGI:0:11}" = "--max_time=" ]; then
         MAX_TIME=" ${ARGI}"
@@ -280,6 +285,9 @@ VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
 if [ "$TRIM" = "yes" ]; then
     VARGS+=" --trim"
 fi
+if [ ! -z "$LOGDIR" ]; then
+    VARGS+=" --logdir=$LOGDIR"
+fi
 for IX in `seq 1 $VAMT`;
 do
     IXX=$(($IX - 1))
@@ -329,6 +337,10 @@ SARGS+=" $MAX_TIME $SWIM_FILE"
 if [ "$TRIM" = "yes" ]; then
     SARGS+=" --trim"
 fi
+if [ ! -z "$LOGDIR" ]; then
+    SARGS+=" --logdir=$LOGDIR"
+fi
+
 vecho "Launching shoreside: $SARGS"
 ./launch_shoreside.sh $SARGS
 

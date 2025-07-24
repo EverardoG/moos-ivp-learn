@@ -49,6 +49,7 @@ TMATE=""
 VROLE="rescue"
 PRIMARY_BEHAVIOR="FollowCOM"
 TRIM="no"
+LOGDIR="./"
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -101,6 +102,7 @@ for ARGI; do
     echo "          desired heading and velocity           "
     echo "    Choices for scout vehicle not implemented    "
     echo "  --trim, -t           Trim logging for learning "
+    echo "  --logdir, -ld        Directory to save log info"
 	echo "  --tmate=<vname>                                "
 	echo "    Name of the teammate vehicle if applicable   "
 	echo "  --pgr=<app>                                    "
@@ -151,6 +153,9 @@ for ARGI; do
         PRIMARY_BEHAVIOR="${ARGI#--primarybehavior=*}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
+    elif [[ "${ARGI}" = --logdir=* ]]; then
+        LOGDIR="${ARGI#--logdir=}"
+
     elif [ "${ARGI:0:8}" = "--tmate=" ]; then
         TMATE="${ARGI#--tmate=*}"
     elif [ "${ARGI:0:6}" = "--pgr=" ]; then
@@ -224,6 +229,10 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "TMATE =         [${TMATE}]        "
     echo "PGR =           [${PGR}]          "
     echo "VUSER =         [${VUSER}]        "
+    echo "----------------------------------"
+    echo "TRIM =          [${TRIM}]         "
+    echo "LOGDIR =        [${LOGDIR}]       "
+    echo "----------------------------------"
     echo -n "Hit any key to continue launching $VNAME "
     read ANSWER
 fi
@@ -255,7 +264,8 @@ nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        MMOD=$MMOD                                        \
        VROLE=$VROLE                 TMATE=$TMATE         \
        PGR=$PGR                     VUSER=$VUSER         \
-       FSEAT_IP=$FSEAT_IP           TRIM=$TRIM
+       FSEAT_IP=$FSEAT_IP           TRIM=$TRIM           \
+       LOGDIR=$LOGDIR
 
 nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        START_POS=$START_POS         VNAME=$VNAME         \
