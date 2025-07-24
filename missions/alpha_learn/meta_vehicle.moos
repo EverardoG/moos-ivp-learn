@@ -253,7 +253,11 @@ ProcessConfig = pLogger
   File      = LOG_%(VNAME)
   PATH      = $(LOGDIR)
   AsyncLog  = true
+#ifdef NOSTAMP --nostamp
+  FileTimeStamp = false
+#else
   FileTimeStamp = true
+#endif
 
   Log = IVPHELM_LIFE_EVENT @ 0 nosync
   Log = SURVEY_UPDATE @ 0 nosync

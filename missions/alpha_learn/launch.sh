@@ -52,6 +52,7 @@ SCOUT_BEHAVIOR="NotImplemented"
 
 # Custom: Logging
 TRIM="no"
+NOSTAMP=""
 
 #-------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
@@ -115,6 +116,8 @@ for ARGI; do
     echo "                  keep necessary data for      "
     echo "                  learning                     "
     echo "  --logdir, -ld   Directory to save log files  "
+    echo "  --nostamp       Do not include timestamp     "
+    echo "                  in directory names for logs  "
 
 	exit 0;
     elif [ "${ARGI//[^0-9]/}" = "$ARGI" -a "$TIME_WARP" = 1 ]; then
@@ -183,6 +186,8 @@ for ARGI; do
 	    TRIM="yes"
     elif [[ "${ARGI}" = --logdir=* ]]; then
         LOGDIR="${ARGI#--logdir=}"
+    elif [ "${ARGI}" = "--nostamp" ]; then
+	    NOSTAMP=$ARGI
 
     elif [ "${ARGI:0:11}" = "--max_time=" ]; then
         MAX_TIME=" ${ARGI}"
@@ -273,6 +278,10 @@ if [ "${VERBOSE}" != "" ]; then
     echo "RAND_SWIMMERS   [${RAND_SWIMMERS}]          "
     echo "SWIMMERS        [${SWIMMERS}]               "
     echo "UNREGERS        [${UNREGERS}]               "
+    echo "--------------------------------(Custom)----"
+    echo "TRIM            [${TRIM}]                   "
+    echo "LOGDIR          [${LOGDIR}]                 "
+    echo "NOSTAMP         [${NOSTAMP}]                "
     echo -n "Hit any key to continue launch           "
     read ANSWER
 fi
@@ -281,7 +290,7 @@ fi
 # Part 6: Launch the vehicles
 #-------------------------------------------------------------
 VARGS=" --sim --auto --max_spd=$MAX_SPD $MMOD "
-VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
+VARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE $NOSTAMP"
 if [ "$TRIM" = "yes" ]; then
     VARGS+=" --trim"
 fi
@@ -331,7 +340,7 @@ done
 #  Part 7: Launch the Shoreside mission file
 #------------------------------------------------------------
 SARGS=" --auto --mport=9000 --pshare=9200 $NOGUI "
-SARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE "
+SARGS+=" $TIME_WARP $JUST_MAKE $VERBOSE $NOSTAMP"
 SARGS+=" $MMOD "
 SARGS+=" $MAX_TIME $SWIM_FILE"
 if [ "$TRIM" = "yes" ]; then
