@@ -48,6 +48,7 @@ VUSER=""
 TMATE=""
 VROLE="rescue"
 PRIMARY_BEHAVIOR="FollowCOM"
+NETWORK_CSV_DIR="neural_network_config.csv"
 TRIM="no"
 LOGDIR="./"
 NOSTAMP=""
@@ -102,6 +103,10 @@ for ARGI; do
     echo "          Use neural network to map sectors to a "
     echo "          desired heading and velocity           "
     echo "    Choices for scout vehicle not implemented    "
+    echo "  --neural_network_config=<csv_directory>        "
+    echo "    Directory to the csv file containing neural  "
+    echo "    network configuration for NeuralNetwork      "
+    echo "    behavior                                     "
     echo "  --trim, -t           Trim logging for learning "
     echo "  --logdir, -ld        Directory to save log info"
     echo "  --nostamp       Do not include timestamp       "
@@ -154,6 +159,8 @@ for ARGI; do
         VROLE="${ARGI#--vrole=*}"
     elif [ "${ARGI:0:18}" = "--primarybehavior=" ]; then
         PRIMARY_BEHAVIOR="${ARGI#--primarybehavior=*}"
+    elif [ "${ARGI:0:23}" = "--neural_network_config" ]; then
+        NEURAL_NETWORK_CONFIG="${ARGI#--neural_network_config=*}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
     elif [[ "${ARGI}" = --logdir=* ]]; then
@@ -278,7 +285,8 @@ nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        START_POS=$START_POS         VNAME=$VNAME         \
        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD           \
        COLOR=$COLOR                 VROLE=$VROLE         \
-       TMATE=$TMATE                 PRIMARY_BEHAVIOR=$PRIMARY_BEHAVIOR
+       TMATE=$TMATE                 PRIMARY_BEHAVIOR=$PRIMARY_BEHAVIOR \
+       NEURAL_NETWORK_CONFIG=$NEURAL_NETWORK_CONFIG
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."

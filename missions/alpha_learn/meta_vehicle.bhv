@@ -72,7 +72,7 @@ Behavior = BHV_Neural_Network
   condition  = MODE==SURVEYING
   perpetual  = true
   endflag    = RETURN = true
-  csv_directory = neural_network_config.csv
+  csv_directory = $(NEURAL_NETWORK_CONFIG)
 }
 #endif
 #endif

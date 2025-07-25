@@ -49,6 +49,7 @@ MAX_TIME=""
 # Custom: Vehicle behaviors
 RESCUE_BEHAVIOR="FollowCOM"
 SCOUT_BEHAVIOR="NotImplemented"
+NEURAL_NETWORK_DIR="./"
 
 # Custom: Logging
 TRIM="no"
@@ -304,6 +305,7 @@ do
     IVARGS+=" --start_pos=${VEHPOS[$IXX]} "
     IVARGS+=" --stock_spd=${SPEEDS[$IXX]} "
     IVARGS+=" --vname=${VNAMES[$IXX]} "
+    IVARGS+=" --neural_network_config=${NEURAL_NETWORK_DIR}neural_network_${VNAMES[$IXX]}.csv"
     IVARGS+=" --color=${VCOLOR[$IXX]} "
     IVARGS+=" --vrole=${VROLES[$IXX]} "
     IVARGS+=" --tmate=${VMATES[$IXX]} "
