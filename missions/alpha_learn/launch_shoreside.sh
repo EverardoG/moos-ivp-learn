@@ -181,6 +181,7 @@ fi
 #------------------------------------------------------------
 #  Part 6: Create the shoreside mission file
 #------------------------------------------------------------
+# TODO: If LOGDIR does not exist, make it!
 NSFLAGS="--strict --force"
 if [ "${AUTO_LAUNCHED}" = "no" ]; then
     NSFLAGS="--interactive --force"

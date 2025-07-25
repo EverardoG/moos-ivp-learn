@@ -246,6 +246,7 @@ fi
 #------------------------------------------------------------
 #  Part 6: If Log clean before launch, do it now.
 #------------------------------------------------------------
+# TODO: If LOGDIR does not exist, make it!
 if [ "$LOG_CLEAN" = "yes" -a -f "clean.sh" ]; then
     vecho "Cleaning local Log Files"
     ./clean.sh
