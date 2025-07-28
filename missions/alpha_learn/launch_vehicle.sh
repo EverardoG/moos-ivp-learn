@@ -253,10 +253,19 @@ fi
 #------------------------------------------------------------
 #  Part 6: If Log clean before launch, do it now.
 #------------------------------------------------------------
-# TODO: If LOGDIR does not exist, make it!
 if [ "$LOG_CLEAN" = "yes" -a -f "clean.sh" ]; then
     vecho "Cleaning local Log Files"
     ./clean.sh
+fi
+
+# Check if LOGDIR exists, create it if it doesn't
+if [ ! -d "$LOGDIR" ]; then
+    vecho "Creating log directory: $LOGDIR"
+    mkdir -p "$LOGDIR"
+    if [ $? -ne 0 ]; then
+        echo "$ME: Error creating log directory $LOGDIR. Exit Code 4."
+        exit 4
+    fi
 fi
 
 #------------------------------------------------------------

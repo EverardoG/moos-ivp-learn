@@ -181,7 +181,16 @@ fi
 #------------------------------------------------------------
 #  Part 6: Create the shoreside mission file
 #------------------------------------------------------------
-# TODO: If LOGDIR does not exist, make it!
+# Check if LOGDIR exists, create it if it doesn't
+if [ ! -d "$LOGDIR" ]; then
+    vecho "Creating log directory: $LOGDIR"
+    mkdir -p "$LOGDIR"
+    if [ $? -ne 0 ]; then
+        echo "$ME: Error creating log directory $LOGDIR. Exit Code 4."
+        exit 4
+    fi
+fi
+
 NSFLAGS="--strict --force"
 if [ "${AUTO_LAUNCHED}" = "no" ]; then
     NSFLAGS="--interactive --force"
