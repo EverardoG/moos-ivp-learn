@@ -121,6 +121,9 @@ for ARGI; do
     echo "        NeuralNetwork                          "
     echo "          Use neural network to map sectors to "
     echo "          a desired heading and velocity       "
+    echo "  --neural_network_dir=<dir>                   "
+    echo "      Directory containing neural network csv  "
+    echo "      files for individual vehicles            "
     echo "                                               "
     echo "Options (custom: logging):                     "
     echo "  --trim, -t      Trim the alog files to only  "
@@ -198,6 +201,8 @@ for ARGI; do
         SWIM_FILE=" ${ARGI}"
     elif [[ "${ARGI}" == --rescuebehavior=* ]]; then
         RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
+    elif [[ "${ARGI}" == --neural_network_dir=* ]]; then
+        NEURAL_NETWORK_DIR="${ARGI#--neural_network_dir=}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
     elif [[ "${ARGI}" = --logdir=* ]]; then
@@ -299,6 +304,7 @@ if [ "${VERBOSE}" != "" ]; then
     echo "TRIM            [${TRIM}]                   "
     echo "LOGDIR          [${LOGDIR}]                 "
     echo "NOSTAMP         [${NOSTAMP}]                "
+    echo "NEURAL_NETWORK_DIR   [${NEURAL_NETWORK_DIR}]"
     echo -n "Hit any key to continue launch           "
     read ANSWER
 fi
