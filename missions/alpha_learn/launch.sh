@@ -30,6 +30,7 @@ MMOD=""
 XLAUNCHED="no"
 NOGUI=""
 AUTODEPLOY="no"
+LAUNCH_UMAYFINISH="no"
 
 # Custom: num vehicles/teams
 GAME_FORMAT="r1"
@@ -79,6 +80,12 @@ for ARGI; do
 	echo "  --nogui, -ng       Headless launch, no gui   "
     echo "  --autodeploy       Automatically deploy      "
     echo "                     vehicles                  "
+    echo "  --uMayFinish                                 "
+    echo "    Launch uMayFinish after launching the      "
+    echo "    mission. By default the max_db_uptime is   "
+    echo "    600 seconds (10 minutes)                   "
+    echo "    Invoking this argument automatically       "
+    echo "    applies --xlaunched                        "
 	echo "                                               "
 	echo "Options (custom: type of competition):         "
 	echo "  --r1, -r1          1 rescue vehicle          "
@@ -151,6 +158,9 @@ for ARGI; do
 	NOGUI="--nogui"
     elif [ "${ARGI}" = "--autodeploy" ]; then
     AUTODEPLOY="yes"
+    elif [ "${ARGI}" = "--uMayFinish" ]; then
+    LAUNCH_UMAYFINISH="yes"
+    XLAUNCHED="yes"
     elif [ "${ARGI}" = "--compete" -o "${ARGI}" = "-c" ]; then
 	COMPETE=$ARGI
 
@@ -374,6 +384,17 @@ fi
 #------------------------------------------------------------
 if [ "${XLAUNCHED}" != "yes" ]; then
     uMAC --paused targ_shoreside.moos
+    trap "" SIGINT
+    echo; echo "$ME: Halting all apps"
+    kill -- -$$
+fi
+
+#------------------------------------------------------------
+#  Part 9: If auto-launched, launch uMayFinish if specified
+#------------------------------------------------------------
+# Note: XLAUNCHED must be set to "yes" to reach this logic
+if [ "${LAUNCH_UMAYFINISH}" = "yes" ]; then
+    uMayFinish --max_time=600 targ_shoreside.moos
     trap "" SIGINT
     echo; echo "$ME: Halting all apps"
     kill -- -$$
