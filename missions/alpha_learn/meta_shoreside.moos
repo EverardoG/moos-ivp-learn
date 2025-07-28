@@ -30,7 +30,9 @@ Processconfig = ANTLER
   Run = uFldRescueMgr       @ NewConsole = false
   Run = pMissionEval        @ NewConsole = false
   Run = uFldRecordKeeper    @ NewConsole = false
+#ifdef AUTODEPLOY yes
   Run = pAutoPoke           @ NewConsole = false
+#endif
 }
 
 #include plugs.moos <pHostInfo>
@@ -40,6 +42,7 @@ Processconfig = ANTLER
 //----------------------------------------------------
 // pAutoPoke Config Block
 
+#ifdef AUTODEPLOY yes
 ProcessConfig = pAutoPoke
 {
   AppTick    = 2
@@ -48,8 +51,9 @@ ProcessConfig = pAutoPoke
   flag = DEPLOY_ALL=true
   flag = MOOS_MANUAL_OVERRIDE_ALL=false
 
-  required_nodes = 2
+  required_nodes = $(AUTODEPLOY_NUM_NODES)
 }
+#endif
 
 
 //--------------------------------------------------

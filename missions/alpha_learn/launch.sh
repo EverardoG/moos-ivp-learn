@@ -26,9 +26,10 @@ RAND_VPOS=""
 MAX_SPD="2"
 MMOD=""
 
-# Monte
+# Automated Launching (Monte)
 XLAUNCHED="no"
 NOGUI=""
+AUTODEPLOY="no"
 
 # Custom: num vehicles/teams
 GAME_FORMAT="r1"
@@ -73,9 +74,11 @@ for ARGI; do
 	echo "  --max_spd=N        Max helm/sim speed        "
     echo "  --mmod=<mod>       Mission variation/mod     "
 	echo "                                               "
-	echo "Options (monte):                               "
+	echo "Options (automated launching):                 "
 	echo "  --xlaunched, -x    Launched by xlaunch       "
 	echo "  --nogui, -ng       Headless launch, no gui   "
+    echo "  --autodeploy       Automatically deploy      "
+    echo "                     vehicles                  "
 	echo "                                               "
 	echo "Options (custom: type of competition):         "
 	echo "  --r1, -r1          1 rescue vehicle          "
@@ -146,6 +149,8 @@ for ARGI; do
 	XLAUNCHED="yes"
     elif [ "${ARGI}" = "--nogui" -o "${ARGI}" = "-ng" ]; then
 	NOGUI="--nogui"
+    elif [ "${ARGI}" = "--autodeploy" ]; then
+    AUTODEPLOY="yes"
     elif [ "${ARGI}" = "--compete" -o "${ARGI}" = "-c" ]; then
 	COMPETE=$ARGI
 
@@ -265,6 +270,7 @@ if [ "${VERBOSE}" != "" ]; then
     echo "--------------------------------(Monte)-----"
     echo "XLAUNCHED =     [${XLAUNCHED}]              "
     echo "NOGUI =         [${NOGUI}]                  "
+    echo "AUTODEPLOY =    [${AUTODEPLOY}]             "
     echo "--------------------------------(Custom)----"
     echo "GAME_FORMAT     [${GAME_FORMAT}]            "
     echo "COMPETE         [${COMPETE}]                "
@@ -350,6 +356,9 @@ if [ "$TRIM" = "yes" ]; then
 fi
 if [ ! -z "$LOGDIR" ]; then
     SARGS+=" --logdir=$LOGDIR"
+fi
+if [ "$AUTODEPLOY" = "yes" ]; then
+    SARGS+=" --autodeploy=$VAMT"
 fi
 
 vecho "Launching shoreside: $SARGS"

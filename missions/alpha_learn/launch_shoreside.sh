@@ -35,6 +35,8 @@ SWIM_FILE="mit_06.txt"
 TRIM="no"
 LOGDIR="./"
 NOSTAMP=""
+AUTODEPLOY="no"
+AUTODEPLOY_NUM_NODES=-1
 
 #--------------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -52,6 +54,9 @@ for ARGI; do
     echo "  --auto, -a                                   "
     echo "    Auto-launched by a script.                 "
     echo "    Will not launch uMAC as the final step.    "
+    echo "  --autodeploy=<num-nodes>                     "
+    echo "    Auto deploy once the required number of    "
+    echo "    nodes (vehicles) have spun up              "
     echo "  --nogui, -n                                  "
     echo "    Headless mode - no pMarineViewer etc       "
     echo "  --trim, -t         Trim logging for learning "
@@ -91,6 +96,13 @@ for ARGI; do
 	VERBOSE="yes"
     elif [ "${ARGI}" = "--auto" -o "${ARGI}" = "-a" ]; then
         AUTO_LAUNCHED="yes"
+    elif [ "${ARGI:0:13}" = "--autodeploy=" ]; then
+        AUTODEPLOY="yes"
+        AUTODEPLOY_NUM_NODES="${ARGI#--autodeploy=}"
+        if ! [[ "$AUTODEPLOY_NUM_NODES" =~ ^[0-9]+$ ]]; then
+            echo "Error: Not a valid number for --autodeploy: $AUTODEPLOY_NUM_NODES. Exit code 2"
+            exit 2
+        fi
     elif [ "${ARGI}" = "--nogui" -o "${ARGI}" = "-n" ]; then
         LAUNCH_GUI="no"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
@@ -159,6 +171,8 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "TIME_WARP =     [${TIME_WARP}]    "
     echo "JUST_MAKE =     [${JUST_MAKE}]    "
     echo "AUTO_LAUNCHED = [${AUTO_LAUNCHED}]"
+    echo "AUTODEPLOY =   [${AUTODEPLOY}]    "
+    echo "AUTODEPLOY_NUM_NODES = [${AUTODEPLOY_NUM_NODES}]"
     echo "----------------------------------"
     echo "IP_ADDR =       [${IP_ADDR}]      "
     echo "MOOS_PORT =     [${MOOS_PORT}]    "
@@ -200,7 +214,8 @@ nsplug meta_shoreside.moos targ_shoreside.moos $NSFLAGS WARP=$TIME_WARP \
        PSHARE_PORT=$PSHARE_PORT     LAUNCH_GUI=$LAUNCH_GUI  \
        MMOD=$MMOD                   VNAMES=$VNAMES          \
        SWIM_FILE=$SWIM_FILE         TRIM=$TRIM              \
-       LOGDIR=$LOGDIR               NOSTAMP=$NOSTAMP
+       LOGDIR=$LOGDIR               NOSTAMP=$NOSTAMP        \
+       AUTODEPLOY=$AUTODEPLOY       AUTODEPLOY_NUM_NODES=$AUTODEPLOY_NUM_NODES
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."
