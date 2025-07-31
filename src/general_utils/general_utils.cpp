@@ -184,37 +184,62 @@ int highestValueInd(std::vector<double> vec) {
   return std::distance(vec.begin(), it);
 }
 
-// Turn node reports into a csv file for easy processing
 bool processNodeReports(const std::string& shoreside_log_dir, const std::string& out_dir) {
   std::ifstream infile(shoreside_log_dir);
   std::string line;
-  std::ofstream outfile(out_dir);
 
-  // Stop if we can't open the output file
-  if (!outfile.is_open()) {
-    return false;
-  }
+  // Set to track seen names
+  std::unordered_set<std::string> seen_names;
 
-  // Write the header
-  outfile << "abe_x,abe_y\n";
-
-  // Write out line-by-line from the node reports
+  // Regex pattern to match NAME, X, and Y
   std::regex pattern(R"(NAME=([^,]+),X=([^,]+),Y=([^,]+))");
+
   while (std::getline(infile, line)) {
-    // Ignore empty lines
-    // Ignore lines that start with % sign
-    if (line.empty()) continue;
-    if (line[0] == '%') continue;
+    // Ignore empty lines and lines that start with %
+    if (line.empty() || line[0] == '%') continue;
 
     std::smatch match;
     if (std::regex_search(line, match, pattern)) {
-      // Not using name yet, but it will be important later
-      // std::string name = match[1];
+      std::string name = match[1];
       std::string x_str = match[2];
       std::string y_str = match[3];
+
+      // Trim trailing periods
+      // (They are sometimes left over as artifacts from the first regex)
+      x_str = std::regex_replace(x_str, std::regex(R"(\.+$)"), "");
+      y_str = std::regex_replace(y_str, std::regex(R"(\.+$)"), "");
+
+      // Check if the name has been seen before
+      if (seen_names.find(name) == seen_names.end()) {
+        // Add the name to the set
+        seen_names.insert(name);
+
+        // Create a new file for this name
+        std::string file_path = out_dir + "/" + name + "_positions.csv";
+        std::ofstream outfile(file_path);
+
+        // Stop if we can't open the output file
+        if (!outfile.is_open()) {
+          std::cerr << "Failed to create file: " << file_path << std::endl;
+          return false;
+        }
+
+        // Write the header to the new file
+        outfile << "x,y\n";
+        outfile.close();
+      }
+
+      // Append the x,y positions to the corresponding file
+      std::ofstream outfile(out_dir + "/" + name + "_positions.csv", std::ios::app);
+      if (!outfile.is_open()) {
+        std::cerr << "Failed to open file: " << out_dir + "/" + name + "_positions.csv" << std::endl;
+        return false;
+      }
       outfile << x_str << "," << y_str << "\n";
+      outfile.close();
     }
   }
+
   return true;
 }
 
