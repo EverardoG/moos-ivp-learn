@@ -45,6 +45,15 @@ UNREGERS=""
 # Custom: The main input file
 SWIM_FILE=""
 
+# Custom: Configuration file paths
+VPOSITIONS_FILE="vpositions.txt"
+VSPEEDS_FILE="vspeeds.txt"
+VNAMES_FILE="vnames.txt"
+VCOLORS_FILE="vcolors.txt"
+VROLES_FILE="vroles.txt"
+VMATES_FILE="vmates.txt"
+VAPPS_FILE="vapps.txt"
+
 # Custom: Max competition time
 MAX_TIME=""
 
@@ -109,6 +118,15 @@ for ARGI; do
 	echo "  -4 :  Short for --swim_file=mit_04.txt       "
 	echo "  -5 :  Short for --swim_file=mit_05.txt       "
 	echo "  -6 :  Short for --swim_file=mit_06.txt       "
+	echo "                                               "
+	echo "Options (custom: configuration file paths):    "
+	echo "  --vpositions=<file> Set vehicle position file"
+	echo "  --vspeeds=<file>    Set vehicle speeds file  "
+	echo "  --vnames=<file>     Set vehicle names file   "
+	echo "  --vcolors=<file>    Set vehicle colors file  "
+	echo "  --vroles=<file>     Set vehicle roles file   "
+	echo "  --vmates=<file>     Set vehicle mates file   "
+	echo "  --vapps=<file>      Set vehicle apps file    "
 	echo "                                               "
     echo "Options (custom: setting up behaviors):        "
     echo "  --rescuebehavior   Rescue vehicle behavior   "
@@ -199,6 +217,20 @@ for ARGI; do
         SWIM_FILE=" ${ARGI}"
     elif [ "${ARGI}" = "-5" -o "${ARGI}" = "-6" ]; then
         SWIM_FILE=" ${ARGI}"
+    elif [ "${ARGI:0:13}" = "--vpositions=" ]; then
+        VPOSITIONS_FILE="${ARGI#--vpositions=}"
+    elif [ "${ARGI:0:10}" = "--vspeeds=" ]; then
+        VSPEEDS_FILE="${ARGI#--vspeeds=}"
+    elif [ "${ARGI:0:9}" = "--vnames=" ]; then
+        VNAMES_FILE="${ARGI#--vnames=}"
+    elif [ "${ARGI:0:10}" = "--vcolors=" ]; then
+        VCOLORS_FILE="${ARGI#--vcolors=}"
+    elif [ "${ARGI:0:9}" = "--vroles=" ]; then
+        VROLES_FILE="${ARGI#--vroles=}"
+    elif [ "${ARGI:0:9}" = "--vmates=" ]; then
+        VMATES_FILE="${ARGI#--vmates=}"
+    elif [ "${ARGI:0:8}" = "--vapps=" ]; then
+        VAPPS_FILE="${ARGI#--vapps=}"
     elif [[ "${ARGI}" == --rescuebehavior=* ]]; then
         RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
     elif [[ "${ARGI}" == --neural_network_dir=* ]]; then
@@ -227,13 +259,13 @@ INIT_VARS=" --amt=$VAMT $RAND_VPOS $VERBOSE $RAND_SWIMMERS"
 INIT_VARS+=" --format=$GAME_FORMAT $SWIM_REGION $SWIMMERS $UNREGERS "
 ./init_field.sh $INIT_VARS
 
-VEHPOS=(`cat vpositions.txt`)
-SPEEDS=(`cat vspeeds.txt`)
-VNAMES=(`cat vnames.txt`)
-VCOLOR=(`cat vcolors.txt`)
-VROLES=(`cat vroles.txt`)  #custom
-VMATES=(`cat vmates.txt`)  #custom
-VAPPS=(`cat vapps.txt`)  #custom
+VEHPOS=(`cat $VPOSITIONS_FILE`)
+SPEEDS=(`cat $VSPEEDS_FILE`)
+VNAMES=(`cat $VNAMES_FILE`)
+VCOLOR=(`cat $VCOLORS_FILE`)
+VROLES=(`cat $VROLES_FILE`)  #custom
+VMATES=(`cat $VMATES_FILE`)  #custom
+VAPPS=(`cat $VAPPS_FILE`)  #custom
 # Primary behaviors need to be created from commandline arguments
 VBEHAVIORS=()
 for ((i=0; i<${#VROLES[@]}; i++)); do
@@ -300,6 +332,14 @@ if [ "${VERBOSE}" != "" ]; then
     echo "RAND_SWIMMERS   [${RAND_SWIMMERS}]          "
     echo "SWIMMERS        [${SWIMMERS}]               "
     echo "UNREGERS        [${UNREGERS}]               "
+    echo "------------------------(Config Files)-----"
+    echo "VPOSITIONS_FILE [${VPOSITIONS_FILE}]        "
+    echo "VSPEEDS_FILE    [${VSPEEDS_FILE}]           "
+    echo "VNAMES_FILE     [${VNAMES_FILE}]            "
+    echo "VCOLORS_FILE    [${VCOLORS_FILE}]           "
+    echo "VROLES_FILE     [${VROLES_FILE}]            "
+    echo "VMATES_FILE     [${VMATES_FILE}]            "
+    echo "VAPPS_FILE      [${VAPPS_FILE}]             "
     echo "--------------------------------(Custom)----"
     echo "TRIM            [${TRIM}]                   "
     echo "LOGDIR          [${LOGDIR}]                 "
