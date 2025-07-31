@@ -253,9 +253,9 @@ ProcessConfig = pLogger
   File      = LOG_%(VNAME)
   PATH      = $(LOGDIR)
   AsyncLog  = true
-#ifdef NOSTAMP --nostamp
+#ifdef NOSTAMP yes
   FileTimeStamp = false
-#else
+#elseifdef NOSTAMP no
   FileTimeStamp = true
 #endif
 

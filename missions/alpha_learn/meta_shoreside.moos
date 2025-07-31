@@ -197,9 +197,9 @@ ProcessConfig = pLogger
   File          = XLOG_SHORESIDE
   PATH          = $(LOGDIR)
   AsyncLog      = true
-#ifdef NOSTAMP --nostamp
+#ifdef NOSTAMP yes
   FileTimeStamp = false
-#else
+#elseifdef NOSTAMP no
   FileTimeStamp = true
 #endif
 

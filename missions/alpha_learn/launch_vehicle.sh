@@ -51,7 +51,7 @@ PRIMARY_BEHAVIOR="FollowCOM"
 NETWORK_CSV_DIR="neural_network_config.csv"
 TRIM="no"
 LOGDIR="./"
-NOSTAMP=""
+NOSTAMP="no"
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -166,7 +166,7 @@ for ARGI; do
     elif [[ "${ARGI}" = --logdir=* ]]; then
         LOGDIR="${ARGI#--logdir=}"
     elif [ "${ARGI}" = "--nostamp" ]; then
-	    NOSTAMP=$ARGI
+	    NOSTAMP="yes"
 
     elif [ "${ARGI:0:8}" = "--tmate=" ]; then
         TMATE="${ARGI#--tmate=*}"

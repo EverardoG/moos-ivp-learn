@@ -34,7 +34,7 @@ VNAMES=""
 SWIM_FILE="mit_06.txt"
 TRIM="no"
 LOGDIR="./"
-NOSTAMP=""
+NOSTAMP="no"
 AUTODEPLOY="no"
 AUTODEPLOY_NUM_NODES=-1
 
@@ -110,7 +110,7 @@ for ARGI; do
     elif [[ "${ARGI}" = --logdir=* ]]; then
         LOGDIR="${ARGI#--logdir=}"
     elif [ "${ARGI}" = "--nostamp" ]; then
-	    NOSTAMP=$ARGI
+	    NOSTAMP="yes"
 
     elif [ "${ARGI:0:5}" = "--ip=" ]; then
         IP_ADDR="${ARGI#--ip=*}"
