@@ -83,6 +83,6 @@ killall -9 uSpeechRec uDialogManager
 
 killall -9 pAntler pLogger
 
-killall -9 pSectorSense uFldRecordKeeper
+killall -9 pSectorSense pMissionMonitor uFldRecordKeeper
 
 echo Done - Killed all MOOS-Related Processes.....

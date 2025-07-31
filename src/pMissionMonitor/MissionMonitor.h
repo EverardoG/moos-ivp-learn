@@ -36,7 +36,6 @@ class MissionMonitor : public AppCastingMOOSApp {
   bool Iterate();
   bool OnConnectToServer();
   bool OnStartUp();
-  void updateAgents(CMOOSMsg &msg);
 
  protected:  // Standard AppCastingMOOSApp function to overload
   bool buildReport();
@@ -45,12 +44,10 @@ class MissionMonitor : public AppCastingMOOSApp {
   void registerVariables();
 
  private:  // Configuration variables
-  double m_sensor_rad;
-  int m_number_sectors;
-  int m_arc_points;
-  double m_sector_width;
-  double m_saturation_rad;
   bool debug;
+  void updateAgents(CMOOSMsg &msg);
+  void updateMissionArea(CMOOSMsg &msg);
+  bool isPointInMissionArea(const XYPoint &point);
 
  private:  // State variables
   double m_nav_x = 0.0;
@@ -60,6 +57,7 @@ class MissionMonitor : public AppCastingMOOSApp {
   std::string m_debug_messages;  // Accumulate debug messages
 
   std::unordered_map<std::string, Agent> m_agent_map;
+  std::vector<XYPoint> m_mission_area;
 };
 
 #endif
