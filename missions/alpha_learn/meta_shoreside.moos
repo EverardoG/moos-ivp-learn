@@ -30,6 +30,7 @@ Processconfig = ANTLER
   Run = uFldRescueMgr       @ NewConsole = false
   Run = pMissionEval        @ NewConsole = false
   Run = uFldRecordKeeper    @ NewConsole = false
+  Run = pMissionMonitor     @ NewConsole = true
 #ifdef AUTODEPLOY yes
   Run = pAutoPoke           @ NewConsole = false
 #endif
@@ -338,5 +339,18 @@ ProcessConfig = uFldRecordKeeper
 {
   AppTick    = 4
   CommsTick  = 4
+
+}
+
+
+//--------------------------------------------------------
+// pMissionMonitor config block
+
+ProcessConfig = pMissionMonitor
+{
+  AppTick    = 4
+  CommsTick  = 4
+
+  debug      = false
 
 }
