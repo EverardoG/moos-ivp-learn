@@ -441,7 +441,7 @@ fi
 # Note: XLAUNCHED must be set to "yes" to reach this logic
 if [ "${LAUNCH_UMAYFINISH}" = "yes" ]; then
     uMayFinish --max_time=600 targ_shoreside.moos
-    trap "" SIGINT
+    trap "exit 0" SIGINT
     echo; echo "$ME: Halting all apps"
     kill -- -$$
 fi
