@@ -31,6 +31,7 @@ XLAUNCHED="no"
 NOGUI=""
 AUTODEPLOY="no"
 LAUNCH_UMAYFINISH="no"
+MAXDBUPTIME=600
 
 # Custom: num vehicles/teams
 GAME_FORMAT="r1"
@@ -95,6 +96,10 @@ for ARGI; do
     echo "    600 seconds (10 minutes)                   "
     echo "    Invoking this argument automatically       "
     echo "    applies --xlaunched                        "
+    echo "  --max_db_uptime=N                            "
+    echo "    Max time passed to uMayFinish. Invoking    "
+    echo "    this argument automatically applies        "
+    echo "    --uMayFinish                               "
 	echo "                                               "
 	echo "Options (custom: type of competition):         "
 	echo "  --r1, -r1          1 rescue vehicle          "
@@ -182,6 +187,10 @@ for ARGI; do
     elif [ "${ARGI}" = "--uMayFinish" ]; then
     LAUNCH_UMAYFINISH="yes"
     XLAUNCHED="yes"
+    elif [ "${ARGI:0:15}" = "--max_db_uptime" ]; then
+    LAUNCH_UMAYFINISH="yes"
+    XLAUNCHED="yes"
+    MAXDBUPTIME="${ARGI#--max_db_uptime=*}"
     elif [ "${ARGI}" = "--compete" -o "${ARGI}" = "-c" ]; then
 	COMPETE=$ARGI
 
@@ -318,6 +327,8 @@ if [ "${VERBOSE}" != "" ]; then
     echo "XLAUNCHED =     [${XLAUNCHED}]              "
     echo "NOGUI =         [${NOGUI}]                  "
     echo "AUTODEPLOY =    [${AUTODEPLOY}]             "
+    echo "LAUNCH_UMAYFINISH = [${LAUNCH_UMAYFINISH}]  "
+    echo "MAXDBUPTIME =   [${MAXDBUPTIME}]            "
     echo "--------------------------------(Custom)----"
     echo "GAME_FORMAT     [${GAME_FORMAT}]            "
     echo "COMPETE         [${COMPETE}]                "
@@ -440,7 +451,7 @@ fi
 #------------------------------------------------------------
 # Note: XLAUNCHED must be set to "yes" to reach this logic
 if [ "${LAUNCH_UMAYFINISH}" = "yes" ]; then
-    uMayFinish --max_time=600 targ_shoreside.moos
+    uMayFinish --max_time=$MAXDBUPTIME targ_shoreside.moos
     trap "exit 0" SIGINT
     echo; echo "$ME: Halting all apps"
     kill -- -$$
