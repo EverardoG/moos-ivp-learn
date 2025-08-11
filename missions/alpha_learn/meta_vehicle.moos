@@ -79,7 +79,7 @@ ProcessConfig = pSectorSense
    AppTick   = 4
    CommsTick = 4
 
-   sensor_rad     = 50
+   sensor_rad     = $(OBSERVATION_RADIUS)
    saturation_rad = 5
    number_sectors = 8
    arc_points      = 3

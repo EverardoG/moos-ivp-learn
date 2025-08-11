@@ -48,6 +48,7 @@ VUSER=""
 TMATE=""
 VROLE="rescue"
 PRIMARY_BEHAVIOR="FollowCOM"
+OBSERVATION_RADIUS=50
 NETWORK_CSV_DIR="neural_network_config.csv"
 TRIM="no"
 LOGDIR="./"
@@ -89,6 +90,9 @@ for ARGI; do
 	echo "    Max speed of vehicle (for sim and in-field)  "
 	echo "  --vrole=<rescue>, scout, fixed                 "
 	echo "    Vehicle role, either rescue, scout, or fixed "
+    echo "  --observation_radius=<meters>                  "
+    echo "    Observation radius for vehicle. How far the  "
+    echo "    vehicle can \"see\"                          "
     echo "  --primarybehavior=<behavior_choice>            "
     echo "    Which behavior should be the primary behavior"
     echo "    that the vehicle is running                  "
@@ -155,6 +159,8 @@ for ARGI; do
     elif [ "${ARGI:0:10}" = "--max_spd=" ]; then
         MAX_SPD="${ARGI#--max_spd=*}"
 
+    elif [ "${ARGI:0:21}" = "--observation_radius=" ]; then
+        OBSERVATION_RADIUS="${ARGI#--observation_radius=*}"
     elif [ "${ARGI:0:8}" = "--vrole=" ]; then
         VROLE="${ARGI#--vrole=*}"
     elif [ "${ARGI:0:18}" = "--primarybehavior=" ]; then
@@ -236,6 +242,7 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "------------Fld-------------------"
     echo "FSEAT_IP =      [${FSEAT_IP}]     "
     echo "------------Custom----------------"
+    echo "OBSERVATION_RADIUS = [${OBSERVATION_RADIUS}]"
     echo "VROLE =         [${VROLE}]        "
     echo "PRIMARY_BEHAVIOR = [${PRIMARY_BEHAVIOR}] "
     echo "TMATE =         [${TMATE}]        "
@@ -288,7 +295,8 @@ nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        VROLE=$VROLE                 TMATE=$TMATE         \
        PGR=$PGR                     VUSER=$VUSER         \
        FSEAT_IP=$FSEAT_IP           TRIM=$TRIM           \
-       LOGDIR=$LOGDIR               NOSTAMP=$NOSTAMP
+       LOGDIR=$LOGDIR               NOSTAMP=$NOSTAMP     \
+       OBSERVATION_RADIUS=$OBSERVATION_RADIUS
 
 nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        START_POS=$START_POS         VNAME=$VNAME         \

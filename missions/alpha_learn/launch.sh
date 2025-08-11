@@ -59,6 +59,7 @@ VAPPS_FILE="vapps.txt"
 MAX_TIME=""
 
 # Custom: Vehicle behaviors
+RESCUE_OBSERVATION_RADIUS=50
 RESCUE_BEHAVIOR="FollowCOM"
 SCOUT_BEHAVIOR="NotImplemented"
 NEURAL_NETWORK_DIR="./"
@@ -134,6 +135,9 @@ for ARGI; do
 	echo "  --vapps=<file>      Set vehicle apps file    "
 	echo "                                               "
     echo "Options (custom: setting up behaviors):        "
+    echo "  --rescue_observation_radius=<meters>         "
+    echo "    Observation radius for rescue vehicles     "
+    echo "    (How far a rescue vehicle can \"see\")     "
     echo "  --rescuebehavior   Rescue vehicle behavior   "
     echo "      Choices: FollowCOM, NeuralNetwork        "
     echo "        FollowCOM (Default)                    "
@@ -242,6 +246,8 @@ for ARGI; do
         VAPPS_FILE="${ARGI#--vapps=}"
     elif [[ "${ARGI}" == --rescuebehavior=* ]]; then
         RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
+    elif [[ "${ARGI:0:28}" == --rescue_observation_radius=* ]]; then
+        RESCUE_OBSERVATION_RADIUS="${ARGI#--rescue_observation_radius=}"
     elif [[ "${ARGI}" == --neural_network_dir=* ]]; then
         NEURAL_NETWORK_DIR="${ARGI#--neural_network_dir=}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
@@ -355,6 +361,9 @@ if [ "${VERBOSE}" != "" ]; then
     echo "TRIM            [${TRIM}]                   "
     echo "LOGDIR          [${LOGDIR}]                 "
     echo "NOSTAMP         [${NOSTAMP}]                "
+    echo "----------------------(Custom:Behaviors)----"
+    echo "RESCUE_BEHAVIOR      [${RESCUE_BEHAVIOR}]   "
+    echo "RESCUE_OBSERVATION_RADIUS  [${RESCUE_OBSERVATION_RADIUS}]"
     echo "NEURAL_NETWORK_DIR   [${NEURAL_NETWORK_DIR}]"
     echo -n "Hit any key to continue launch           "
     read ANSWER
@@ -383,6 +392,11 @@ do
     IVARGS+=" --vrole=${VROLES[$IXX]} "
     IVARGS+=" --tmate=${VMATES[$IXX]} "
     IVARGS+=" --primarybehavior=${VBEHAVIORS[$IXX]} "
+
+    # Check if the primary behavior is "rescue" and add observation_radius
+    if [ "${VROLES[$IXX]}" = "rescue" ]; then
+        IVARGS+=" --observation_radius=${RESCUE_OBSERVATION_RADIUS} "
+    fi
 
     if [ "${COMPETE}" != "" ]; then
 	VAPP="${VAPPS[$IXX]}"
