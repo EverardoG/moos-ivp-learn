@@ -10,7 +10,6 @@ Processconfig = ANTLER
   MSBetweenLaunches = 50
 
   Run = MOOSDB             @ NewConsole = false
-  Run = pMarinePIDV22      @ NewConsole = false
 
 #ifdef TRIM no
   Run = pLogger            @ NewConsole = false
@@ -36,6 +35,7 @@ Processconfig = ANTLER
 #elseifdef XMODE M300
   Run = iM300              @ NewConsole = false
   Run = iM300Health        @ NewConsole = false
+  Run = pMarinePIDV22      @ NewConsole = false
 #endif
 
 	}

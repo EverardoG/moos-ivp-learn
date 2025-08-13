@@ -2,16 +2,16 @@
 MOOSTimeWarp = $(WARP)
 
 // Forest Lake
-// LatOrigin  = 43.825300 
-// LongOrigin = -70.330400 
+// LatOrigin  = 43.825300
+// LongOrigin = -70.330400
 
 // MIT Sailing Pavilion (deprecated)
-// LatOrigin  = 42.358456  
-// LongOrigin = -71.087589 
+// LatOrigin  = 42.358456
+// LongOrigin = -71.087589
 
 // MIT Sailing Pavilion (updated 4/22/25)
 LatOrigin  = 42.358436
-LongOrigin = -71.087448 
+LongOrigin = -71.087448
 
 
 <tag><pHostInfo>
@@ -40,6 +40,33 @@ ProcessConfig = uSimMarineV22
 
 	turn_rate = 99
 	turn_spd_loss = 0.5
+
+  depth_control = false
+
+  // Yaw PID controller (Set for M300)
+#ifdef XMODE SIM
+  yaw_pid_kp             = 1.5
+  yaw_pid_ki             = 0.5
+#elseifdef XMODE M300
+  yaw_pid_kp             = 0.9
+  yaw_pid_ki             = 0.3
+#endif
+  yaw_pid_kd             = 0.3
+  yaw_pid_integral_limit = 0.3
+
+  // Speed PID controller
+  speed_pid_kp           = 1.0
+  speed_pid_kd           = 0.0
+  speed_pid_ki           = 0.0
+  speed_pid_integral_limit = 0.07
+
+  // Maximums
+  maxrudder  = 100 // 100
+  maxthrust  = 100
+
+  // A non-zero SPEED_FACTOR overrides use of SPEED_PID
+  // Will set DESIRED_THRUST = DESIRED_SPEED * SPEED_FACTOR
+  //SPEED_FACTOR = 20
 }
 
 
@@ -47,10 +74,10 @@ ProcessConfig = uSimMarineV22
 //------------------------------------------
 // uProcessWatch config block
 
-ProcessConfig = uProcessWatch                                   
-{                                                               
-  AppTick   = 4                                                 
-  CommsTick = 4  
+ProcessConfig = uProcessWatch
+{
+  AppTick   = 4
+  CommsTick = 4
 
   watch_all = true
   nowatch   = uXMS*
@@ -60,7 +87,7 @@ ProcessConfig = uProcessWatch
 
 	summary_wait = 5
 }
-	
+
 <tag><pShare>
 //---------------------------------------------------------
 // pShare config block
@@ -73,7 +100,7 @@ ProcessConfig = pShare
   input = route = localhost:$(PSHARE_PORT)
 }
 
-	
+
 <tag><iM300>
 //---------------------------------------------------------
 // iM300 config block
@@ -88,7 +115,7 @@ ProcessConfig = iM300
 	ip_addr    = $(FSEAT_IP)
 
 	stale_thresh = 15
-	
+
 	max_rudder = 50
 	max_thrust = 100
 	drive_mode = normal
@@ -103,17 +130,17 @@ ProcessConfig = iM300
 	// heading_source options are gps, imu, or auto where auto uses imu
 	// when available and not timed out as defined in the stale_thresh
 	// parameter
-  heading_source = auto    
+  heading_source = auto
 
 	// threshold in seconds, default is 1.5
 	stale_thresh = 5
-	
+
 	nav_prefix     = NAV
 	gps_prefix		 = GPS
 	compass_prefix = COMPASS
 }
 
-	
+
 <tag><iM300Health>
 //------------------------------------------------
 // iM300Health config block
@@ -122,11 +149,11 @@ ProcessConfig = iM300Health
 {
    AppTick   = 4
    CommsTick = 4
-   
+
    StaleTime = 3.0         //  Time until messages are considered stale
    MaxHeadingDelta = 5.0   //  Max Delta allowable between IMU and GPS
 
    LowBattThresh  = 13.0
-   FullBattThresh = 14.4 
+   FullBattThresh = 14.4
 }
 
