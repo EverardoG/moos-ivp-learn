@@ -110,11 +110,13 @@ bool SectorSense::Iterate()
   m_sensor_readings_str = vectorToStream(sensor_readings, ",");
   Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
 
-  // Visualize sector readings
-  std::vector<XYPolygon> polygons = generatePolygons(sensor_readings);
-  for (const XYPolygon& poly : polygons) {
-    std::string spec = poly.get_spec();
-    Notify("VIEW_POLYGON", spec);
+  // Visualize sector readings only if enabled
+  if (m_visualize_swim_sectors) {
+    std::vector<XYPolygon> polygons = generatePolygons(sensor_readings);
+    for (const XYPolygon& poly : polygons) {
+      std::string spec = poly.get_spec();
+      Notify("VIEW_POLYGON", spec);
+    }
   }
 
   AppCastingMOOSApp::PostReport();
@@ -153,6 +155,9 @@ bool SectorSense::OnStartUp()
     }
     else if(param == "arc_points") {
       handled = setIntOnString(m_arc_points, value);
+    }
+    else if(param == "visualize_swim_sectors") {
+      handled = setBooleanOnString(m_visualize_swim_sectors, value);
     }
 
     if(!handled)

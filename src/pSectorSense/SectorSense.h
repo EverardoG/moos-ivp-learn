@@ -61,6 +61,7 @@ class SectorSense : public AppCastingMOOSApp
    int    m_arc_points;
    double m_sector_width;
    double m_saturation_rad;
+   bool   m_visualize_swim_sectors;
 
  private: // State variables
    double m_nav_x=0.0;
