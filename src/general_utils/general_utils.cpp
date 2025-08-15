@@ -209,6 +209,13 @@ bool processNodeReports(const std::string& shoreside_log_dir, const std::string&
       x_str = std::regex_replace(x_str, std::regex(R"(\.+$)"), "");
       y_str = std::regex_replace(y_str, std::regex(R"(\.+$)"), "");
 
+      // Validate that x_str and y_str can be converted to doubles
+      double x_val, y_val;
+      if (!setDoubleOnString(x_val, x_str) || !setDoubleOnString(y_val, y_str)) {
+        // Skip this entry if either x or y is not a valid double
+        continue;
+      }
+
       // Check if the name has been seen before
       if (seen_names.find(name) == seen_names.end()) {
         // Add the name to the set
