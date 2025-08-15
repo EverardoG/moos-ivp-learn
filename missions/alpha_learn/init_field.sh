@@ -39,14 +39,14 @@ for ARGI; do
 	echo "  --rand, -r         Rand vehicle positions    "
 	echo "                                               "
 	echo "Options (custom):                              "
-	echo "  --rsl, -rsl        Rand swim locations       " 
-	echo "  --format<format>   Game format r1,r2,rs1,rs2 " 
+	echo "  --rsl, -rsl        Rand swim locations       "
+	echo "  --format<format>   Game format r1,r2,rs1,rs2 "
 	echo "                                               "
-	echo "  --pav60            Gen rand swimmers in pav60" 
-	echo "  --pav90            Gen rand swimmers in pav90" 
-	echo "  --swim_file=<file> Set the swim file         " 
-	echo "  --swimmers=<15>    Rand gen N reg swimmers   " 
-	echo "  --unreg=<0>        Rand gen N unreg swimmers " 
+	echo "  --pav60            Gen rand swimmers in pav60"
+	echo "  --pav90            Gen rand swimmers in pav90"
+	echo "  --swim_file=<file> Set the swim file         "
+	echo "  --swimmers=<15>    Rand gen N reg swimmers   "
+	echo "  --unreg=<0>        Rand gen N unreg swimmers "
 	exit 0;
     elif [ "${ARGI:0:6}" = "--amt=" ]; then
         VEHICLE_AMT="${ARGI#--amt=*}"
@@ -73,7 +73,7 @@ for ARGI; do
         UNREGERS="${ARGI#--unreg=*}"
 	RAND_SWIMMERS="true"
 
-    else 
+    else
 	echo "$ME: Bad Arg: $ARGI. Exit Code 1."
 	exit 1
     fi
@@ -92,7 +92,7 @@ VPOS_CNT=`wc -l vpositions.txt | awk '{print $1}'`
 echo "VPOS_CNT = $VPOS_CNT"
 echo "VEHICLE_AMT = $VEHICLE_AMT"
 if [ "${VPOS_CNT}" != "${VEHICLE_AMT}" ]; then
-    rm -f vpositions.txt 
+    rm -f vpositions.txt
 fi
 if [ "${RAND_VPOS}" = "yes" -o  ! -f "vpositions.txt" ]; then
     pickpos --poly="-2,-8 : 4,-13 : 60,13 : 57,18" --buffer=15 \
@@ -106,15 +106,10 @@ if [ "${RAND_SWIMMERS}" != "" ]; then
 fi
 
 # Set the speeds and names
-pickpos --amt=$VEHICLE_AMT --spd=1.2:1.2 > vspeeds.txt 
+pickpos --amt=$VEHICLE_AMT --spd=1.2:1.2 > vspeeds.txt
 pickpos --amt=$VEHICLE_AMT --vnames  > vnames.txt
 
-# Handle the chosen game format
-if [ "${GAME_FORMAT}" = "r2" ]; then
-    echo -e "rescue\nrescue" > vroles.txt
-    echo -e "abe\nabe"       > vmates.txt
-    echo -e "yellow\nred"    > vcolors.txt
-elif [ "${GAME_FORMAT}" = "rs1" ]; then
+if [ "${GAME_FORMAT}" = "rs1" ]; then
     echo -e "rescue\nscout" > vroles.txt
     echo -e "abe\nabe"      > vmates.txt
     echo -e "blue\nblue"    > vcolors.txt
@@ -122,12 +117,65 @@ elif [ "${GAME_FORMAT}" = "rs2" ]; then
     echo -e "rescue\nrescue\nscout\nscout" > vroles.txt
     echo -e "abe\nben\nabe\nben"           > vmates.txt
     echo -e "green\nblue\ngreen\nblue"     > vcolors.txt
+elif [[ "${GAME_FORMAT}" =~ ^r([0-9]+)$ ]]; then
+    # Handle dynamic rN format
+    N="${BASH_REMATCH[1]}"
+
+    # Define fixed color array (20 colors starting with yellow, red)
+    COLORS=("yellow" "red" "blue" "green" "orange" "purple" "cyan" "magenta"
+            "brown" "pink" "lime" "coral" "gold" "violet" "turquoise" "crimson"
+            "forestgreen" "dodgerblue" "darkorange" "mediumorchid")
+
+    # Generate roles (all rescue)
+    ROLES=""
+    for ((i=1; i<=N; i++)); do
+        if [ $i -eq 1 ]; then
+            ROLES="rescue"
+        else
+            ROLES="${ROLES}\nrescue"
+        fi
+    done
+    echo -e "$ROLES" > vroles.txt
+
+    # Generate mates (all abe)
+    MATES=""
+    for ((i=1; i<=N; i++)); do
+        if [ $i -eq 1 ]; then
+            MATES="abe"
+        else
+            MATES="${MATES}\nabe"
+        fi
+    done
+    echo -e "$MATES" > vmates.txt
+
+    # Generate colors (cyclical from fixed array)
+    VEHICLE_COLORS=""
+    for ((i=1; i<=N; i++)); do
+        color_index=$(((i-1) % 20))
+        color="${COLORS[$color_index]}"
+        if [ $i -eq 1 ]; then
+            VEHICLE_COLORS="$color"
+        else
+            VEHICLE_COLORS="${VEHICLE_COLORS}\n$color"
+        fi
+    done
+    echo -e "$VEHICLE_COLORS" > vcolors.txt
+
+    # Generate vehicle names (abe1, abe2, abe3, etc.)
+    VNAMES=""
+    for ((i=1; i<=N; i++)); do
+        if [ $i -eq 1 ]; then
+            VNAMES="abe$i"
+        else
+            VNAMES="${VNAMES}\nabe$i"
+        fi
+    done
+    echo -e "$VNAMES" > vnames.txt
 else # format=r1
     echo "rescue" > vroles.txt
     echo "abe"    > vmates.txt
     echo "yellow" > vcolors.txt
 fi
-
 
 #------------------------------------------------------------
 #  Part 6: Set other aspects of the field, e.g., obstacles

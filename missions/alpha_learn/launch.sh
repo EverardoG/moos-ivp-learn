@@ -103,8 +103,7 @@ for ARGI; do
     echo "    --uMayFinish                               "
 	echo "                                               "
 	echo "Options (custom: type of competition):         "
-	echo "  --r1, -r1          1 rescue vehicle          "
-	echo "  --r2, -r2          2 rescue vehicles         "
+    echo "  --rN, -rN          N rescue vehicles         "
 	echo "  --rs1, -rs1        1 rescue 1 scout          "
 	echo "  --rs2, -rs2        2 teams, resc/scout each  "
 	echo "  --compete, -c      Competition               "
@@ -197,20 +196,17 @@ for ARGI; do
     MAXDBUPTIME="${ARGI#--max_db_uptime=*}"
     elif [ "${ARGI}" = "--compete" -o "${ARGI}" = "-c" ]; then
 	COMPETE=$ARGI
-
-
-    elif [ "${ARGI}" = "--r1" -o "${ARGI}" = "-r1" ]; then
-	GAME_FORMAT="r1"
-    elif [ "${ARGI}" = "--r2" -o "${ARGI}" = "-r2" ]; then
-	GAME_FORMAT="r2"
-	VAMT="2"
+    elif [[ "${ARGI}" =~ ^--r([0-9]+)$ ]] || [[ "${ARGI}" =~ ^-r([0-9]+)$ ]]; then
+        # Extract the number from --rN or -rN
+        N="${BASH_REMATCH[1]}"
+        GAME_FORMAT="r${N}"
+        VAMT="${N}"
     elif [ "${ARGI}" = "--rs1" -o "${ARGI}" = "-rs1" ]; then
-	GAME_FORMAT="rs1"
-	VAMT="2"
+        GAME_FORMAT="rs1"
+        VAMT="2"
     elif [ "${ARGI}" = "--rs2" -o "${ARGI}" = "-rs2" ]; then
-	GAME_FORMAT="rs2"
-	VAMT="4"
-
+        GAME_FORMAT="rs2"
+        VAMT="4"
     elif [ "${ARGI}" = "--rsl" -o "${ARGI}" = "-rsl" ]; then
 	RAND_SWIMMERS=" ${ARGI}"
     elif [ "${ARGI}" = "--pav60" -o "${ARGI}" = "-pav60" ]; then
