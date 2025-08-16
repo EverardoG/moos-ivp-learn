@@ -38,21 +38,21 @@ ProcessConfig = uSimMarineV22
   start_pos = $(START_POS)
   prefix    = NAV
 
-	turn_rate = 99
+	turn_rate = 200
 	turn_spd_loss = 0.5
 
   depth_control = false
 
   // Yaw PID controller (Set for M300)
 #ifdef XMODE SIM
-  yaw_pid_kp             = 1.5
-  yaw_pid_ki             = 0.5
+  yaw_pid_kp             = 2.5
+  yaw_pid_ki             = 2.5
 #elseifdef XMODE M300
   yaw_pid_kp             = 0.9
   yaw_pid_ki             = 0.3
 #endif
   yaw_pid_kd             = 0.3
-  yaw_pid_integral_limit = 0.3
+  yaw_pid_integral_limit = 1.0
 
   // Speed PID controller
   speed_pid_kp           = 1.0

@@ -63,7 +63,7 @@ Behavior = BHV_MaxReading
   condition  = MODE==SURVEYING
   perpetual  = true
   endflag    = RETURN = true
-  speed      = 1
+  speed      = 0.2
 }
 #elseifdef PRIMARY_BEHAVIOR NeuralNetwork
 Behavior = BHV_Neural_Network

@@ -22,7 +22,7 @@ BHV_MaxReading::BHV_MaxReading(IvPDomain domain) :
   // Provide a default behavior name
   IvPBehavior::setParam("name", "defaultname");
 
-  // Declare the behavior decision space
+  // Declare the behavior decision space - back to course+speed
   m_domain = subDomain(m_domain, "course,speed");
 
   // Add any variables this behavior needs to subscribe for
@@ -31,7 +31,7 @@ BHV_MaxReading::BHV_MaxReading(IvPDomain domain) :
   addInfoVars("SECTOR_SENSOR_READING");
 
   m_best_delta_heading = 0.0;
-  m_best_speed = 0.2;
+  m_best_speed = 0.2;  // Very slow default speed
 
   std::cout << "Successfully constructed BHV_MaxReading" << std::endl;
 }
@@ -117,10 +117,6 @@ bool BHV_MaxReading::updateHeading() {
   // Get the sector with the highest reading
   int sector_ind = highestValueInd(m_sector_sensor_readings);
   if (sector_ind == -1) {
-    // Technically this should never happen because
-    // the value is only -1 if the size of the vector is 0
-    // The vector should never be of size 0 
-    // because of the size check
     return(false);
   }
   // Figure out the relative angle to that sector
@@ -195,11 +191,24 @@ IvPFunction* BHV_MaxReading::onRunState()
 }
 
 IvPFunction* BHV_MaxReading::buildFunction() {
-  // Assemble function for course (heading)
+  // Use realistic speed
+  double realistic_speed = 1.0;
+
+  // Get proximity estimate from max sensor reading
+  double max_reading = 0.0;
+  if (m_sector_sensor_readings.size() > 0) {
+    max_reading = *std::max_element(m_sector_sensor_readings.begin(), m_sector_sensor_readings.end());
+  }
+
+  // Add a spiral offset - turn slightly "inside" the target to spiral inward
+  double spiral_offset = 15.0 * (1.0 - max_reading);  // 15° offset when far, 0° when close
+  double spiral_heading = m_best_delta_heading - spiral_offset;  // Turn "inside" the target
+
+  // Moderate heading constraints that work with vehicle dynamics
   ZAIC_PEAK crs_zaic(m_domain, "course");
-  crs_zaic.setSummit(angle360(m_best_delta_heading+m_nav_heading));
-  crs_zaic.setPeakWidth(10);
-  crs_zaic.setBaseWidth(10);
+  crs_zaic.setSummit(angle360(spiral_heading + m_nav_heading));
+  crs_zaic.setPeakWidth(20);    // Relaxed constraints
+  crs_zaic.setBaseWidth(60);    // Allow natural turning arcs
   crs_zaic.setMinMaxUtil(20, 100);
   crs_zaic.setSummitDelta(60);
   crs_zaic.setValueWrap(true);
@@ -209,11 +218,11 @@ IvPFunction* BHV_MaxReading::buildFunction() {
     return(0);
   }
 
-  // Assemble function for speed
+  // Realistic speed control
   ZAIC_PEAK spd_zaic(m_domain, "speed");
-  spd_zaic.setSummit(m_best_speed);
-  spd_zaic.setPeakWidth(0.1);
-  spd_zaic.setBaseWidth(0.1);
+  spd_zaic.setSummit(realistic_speed);
+  spd_zaic.setPeakWidth(0.2);
+  spd_zaic.setBaseWidth(0.4);
   spd_zaic.setMinMaxUtil(20, 100);
   spd_zaic.setSummitDelta(60);
   if(spd_zaic.stateOK() == false) {
@@ -226,11 +235,8 @@ IvPFunction* BHV_MaxReading::buildFunction() {
   IvPFunction *crs_ipf = crs_zaic.extractIvPFunction();
 
   OF_Coupler coupler;
-  IvPFunction *ipf = coupler.couple(crs_ipf, spd_ipf, 50, 50);
+  IvPFunction *ipf = coupler.couple(crs_ipf, spd_ipf, 60, 40);
 
-  // Prior to returning the IvP function, apply the priority wt
-  // Actual weight applied may be some value different than the configured
-  // m_priority_wt, depending on the behavior author's insite.
   if(ipf)
     ipf->setPWT(m_priority_wt);
 
@@ -247,3 +253,5 @@ bool BHV_MaxReading::processHeading()
   }
   return(true);
 }
+
+

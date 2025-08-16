@@ -89,7 +89,7 @@ ProcessConfig = pSectorSense
 
    sense_vehicles = true
    visualize_swim_sectors = true
-   visualize_vehicle_sectors = true
+   visualize_vehicle_sectors = false
    arc_points     = 3
 
 }
