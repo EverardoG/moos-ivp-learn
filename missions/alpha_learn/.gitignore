@@ -6,4 +6,8 @@ vcolors.txt
 vnames.txt
 vpositions.txt
 vspeeds.txt
+
 XLOG_SHORESIDE**
+abe_positions.csv
+apptainer_out.log
+.DS_Store

@@ -38,6 +38,9 @@ public:
 protected: // Local Utility functions
 
 protected: // Configuration parameters
+  int m_swimmer_sectors;
+  int m_vehicle_sectors;
+  int m_expected_total_sectors;
 
 protected: // State variables
   double m_best_delta_heading;

@@ -6,7 +6,7 @@
 #        Chris Gagner, and tips borrowed from Dave Billin
 #=======================================================================
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 PROJECT( IVP_EXTEND )
 
 set (CMAKE_CXX_STANDARD 11)
@@ -29,7 +29,11 @@ SET( RUNTIME_OUTPUT_DIRECTORY "${IVP_EXTEND_BIN_DIR}"  CACHE PATH "" )
 # Find MOOS
 #=======================================================================
 find_package(MOOS 10.0)
-INCLUDE_DIRECTORIES(${MOOS_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(
+  ${MOOS_INCLUDE_DIRS}
+  /Users/ever/moos-ivp/MOOS/MOOSCore/Core/libMOOS/include
+  /Users/ever/moos-ivp/MOOS/MOOSGeodesy/libMOOSGeodesy/include
+)
 
 #=======================================================================
 # Find the "moos-ivp" base directory
@@ -58,6 +62,7 @@ INCLUDE_DIRECTORIES(${IVP_INCLUDE_DIRS})
 
 FILE(GLOB IVP_LIBRARY_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/lib )
 LINK_DIRECTORIES(${IVP_LIBRARY_DIRS})
+LINK_DIRECTORIES(${MOOSIVP_SOURCE_TREE_BASE}/build/MOOS/MOOSGeodesy/lib)
 
 #======================================================================
 # Specify Compiler Flags
@@ -68,7 +73,7 @@ IF( ${WIN32} )
    #---------------------------------------------
    IF(MSVC)
       # Flags for Microsoft Visual Studio
-      SET( WALL_ON OFF CACHE BOOL 
+      SET( WALL_ON OFF CACHE BOOL
          "tell me about all compiler warnings (-Wall) ")
       IF(WALL_ON)
          SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
@@ -87,13 +92,13 @@ ELSE( ${WIN32} )
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -g -Wdeprecated-declarations")
    IF(CMAKE_COMPILER_IS_GNUCXX)
       # Flags for the GNU C++ Compiler
-      SET( WALL_ON OFF CACHE BOOL 
+      SET( WALL_ON OFF CACHE BOOL
          "tell me about all compiler warnings (-Wall) ")
       IF(WALL_ON)
          SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" -C++11)
       ENDIF( WALL_ON)
    ELSE(CMAKE_COMPILER_IS_GNUCXX)
-    
+
    ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 ENDIF( ${WIN32} )

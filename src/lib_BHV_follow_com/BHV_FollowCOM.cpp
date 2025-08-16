@@ -32,6 +32,8 @@ BHV_FollowCOM::BHV_FollowCOM(IvPDomain domain) :
 
   m_best_delta_heading = 0.0;
   m_best_speed = 0.2;
+  m_swimmer_sectors = 8;
+  m_vehicle_sectors = 8;
 
   std::cout << "Successfully constructed BHV_FollowCOM" << std::endl;
 }
@@ -47,6 +49,14 @@ bool BHV_FollowCOM::setParam(string param, string val)
     m_best_speed = double_val;
     return(true);
   }
+  else if ((param == "swimmer_sectors") && (isNumber(val))) {
+    m_swimmer_sectors = double_val;
+    return(true);
+  }
+  else if ((param == "vehicle_sectors") && (isNumber(val))) {
+    m_vehicle_sectors = double_val;
+    return(true);
+  }
   // unrecognized parameter
   return(false);
 }
@@ -59,6 +69,8 @@ bool BHV_FollowCOM::setParam(string param, string val)
 
 void BHV_FollowCOM::onSetParamComplete()
 {
+  // Calculate expected total sectors once after all parameters are set
+  m_expected_total_sectors = m_swimmer_sectors + m_vehicle_sectors;
 }
 
 //---------------------------------------------------------------
@@ -138,8 +150,16 @@ bool BHV_FollowCOM::processSensorReadings() {
 
   std::vector<std::string> readings_str = parseString(sensor_input_str, ',');
 
+  // Validate total size matches expected swimmer + vehicle sectors
+  if((int)readings_str.size() != m_expected_total_sectors) {
+    postWMessage("Sector reading size mismatch. Expected: " + intToString(m_expected_total_sectors) +
+                 ", Got: " + intToString(readings_str.size()));
+    return(false);
+  }
+
+  // Extract only swimmer readings (first m_swimmer_sectors readings)
   m_sector_sensor_readings.clear();
-  for (int i=0; i<readings_str.size(); i++){
+  for (int i=0; i<m_swimmer_sectors; i++){
 
     good_reading = setDoubleOnString(temp_dbl, readings_str[i]);
 

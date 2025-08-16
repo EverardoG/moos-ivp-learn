@@ -63,6 +63,8 @@ RESCUE_OBSERVATION_RADIUS=50
 RESCUE_BEHAVIOR="FollowCOM"
 SCOUT_BEHAVIOR="NotImplemented"
 NEURAL_NETWORK_DIR="./"
+R_SWIMMER_SECTORS=8
+R_VEHICLE_SECTORS=8
 
 # Custom: Logging
 TRIM="no"
@@ -150,6 +152,12 @@ for ARGI; do
     echo "  --neural_network_dir=<dir>                   "
     echo "      Directory containing neural network csv  "
     echo "      files for individual vehicles            "
+    echo "  --r_swimmer_sectors=<N>                      "
+    echo "      Number of swimmer sectors for rescue     "
+    echo "      vehicles (default: 8)                    "
+    echo "  --r_vehicle_sectors=<N>                      "
+    echo "      Number of vehicle sectors for rescue     "
+    echo "      vehicles (default: 8)                    "
     echo "                                               "
     echo "Options (custom: logging):                     "
     echo "  --trim, -t      Trim the alog files to only  "
@@ -246,6 +254,10 @@ for ARGI; do
         RESCUE_OBSERVATION_RADIUS="${ARGI#--rescue_observation_radius=}"
     elif [[ "${ARGI}" == --neural_network_dir=* ]]; then
         NEURAL_NETWORK_DIR="${ARGI#--neural_network_dir=}"
+    elif [[ "${ARGI}" == --r_swimmer_sectors=* ]]; then
+        R_SWIMMER_SECTORS="${ARGI#--r_swimmer_sectors=}"
+    elif [[ "${ARGI}" == --r_vehicle_sectors=* ]]; then
+        R_VEHICLE_SECTORS="${ARGI#--r_vehicle_sectors=}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
     elif [[ "${ARGI}" = --logdir=* ]]; then
@@ -361,6 +373,8 @@ if [ "${VERBOSE}" != "" ]; then
     echo "RESCUE_BEHAVIOR      [${RESCUE_BEHAVIOR}]   "
     echo "RESCUE_OBSERVATION_RADIUS  [${RESCUE_OBSERVATION_RADIUS}]"
     echo "NEURAL_NETWORK_DIR   [${NEURAL_NETWORK_DIR}]"
+    echo "R_SWIMMER_SECTORS    [${R_SWIMMER_SECTORS}] "
+    echo "R_VEHICLE_SECTORS    [${R_VEHICLE_SECTORS}] "
     echo -n "Hit any key to continue launch           "
     read ANSWER
 fi
@@ -392,6 +406,8 @@ do
     # Check if the primary behavior is "rescue" and add observation_radius
     if [ "${VROLES[$IXX]}" = "rescue" ]; then
         IVARGS+=" --observation_radius=${RESCUE_OBSERVATION_RADIUS} "
+        IVARGS+=" --r_swimmer_sectors=${R_SWIMMER_SECTORS} "
+        IVARGS+=" --r_vehicle_sectors=${R_VEHICLE_SECTORS} "
     fi
 
     if [ "${COMPETE}" != "" ]; then

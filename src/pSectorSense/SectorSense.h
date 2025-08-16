@@ -15,6 +15,7 @@
 #include <cmath>
 #include "general_utils.h"
 #include "sector_sensor.h"
+#include "ContactLedger.h"
 #include <unordered_set>
 #include <unordered_map>
 
@@ -38,7 +39,9 @@ class SectorSense : public AppCastingMOOSApp
                              double radius, int arc_points);
   void processSwimmerAlert(CMOOSMsg& msg);
   void processFoundSwimmer(CMOOSMsg& msg);
+  void processVehicleReport(CMOOSMsg& msg);
   std::vector<XYPolygon> generatePolygons(std::vector<double> sensor_readings);
+  std::vector<XYPolygon> generateVehiclePolygons(std::vector<double> sensor_readings);
 
  protected: // Standard MOOSApp functions to overload
    bool OnNewMail(MOOSMSG_LIST &NewMail);
@@ -46,6 +49,7 @@ class SectorSense : public AppCastingMOOSApp
    bool OnConnectToServer();
    bool OnStartUp();
    void updateSwimmers();
+   void updateVehicles();
 
  protected: // Standard AppCastingMOOSApp function to overload
    bool buildReport();
@@ -57,11 +61,15 @@ class SectorSense : public AppCastingMOOSApp
 
  private: // Configuration variables
    double m_sensor_rad;
-   int    m_number_sectors;
+   int    m_num_swimmer_sectors;
+   int    m_num_vehicle_sectors;
    int    m_arc_points;
-   double m_sector_width;
+   double m_swim_sector_width;
+   double m_vehicle_sector_width;
    double m_saturation_rad;
    bool   m_visualize_swim_sectors;
+   bool   m_visualize_vehicle_sectors;
+   bool   m_sense_vehicles;
 
  private: // State variables
    double m_nav_x=0.0;
@@ -77,7 +85,16 @@ class SectorSense : public AppCastingMOOSApp
    std::unordered_map<int, Swimmer> m_swimmer_map;
 
    std::string m_sensor_readings_str;
+   std::string m_swimmer_readings_str;
    SectorSensor m_swimmer_sensor;
+
+   // Vehicle sensing components
+   ContactLedger m_contact_ledger;
+   std::vector<XYPoint> m_vehicles_sense;
+   SectorSensor m_vehicle_sensor;
+   std::string m_vehicle_readings_str;
+
+   std::string m_node_report;
 };
 
 #endif

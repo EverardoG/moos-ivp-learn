@@ -49,10 +49,11 @@ TMATE=""
 VROLE="rescue"
 PRIMARY_BEHAVIOR="FollowCOM"
 OBSERVATION_RADIUS=50
-NETWORK_CSV_DIR="neural_network_config.csv"
 TRIM="no"
 LOGDIR="./"
 NOSTAMP="no"
+R_SWIMMER_SECTORS=8
+R_VEHICLE_SECTORS=8
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -111,6 +112,12 @@ for ARGI; do
     echo "    Directory to the csv file containing neural  "
     echo "    network configuration for NeuralNetwork      "
     echo "    behavior                                     "
+    echo "  --r_swimmer_sectors=<N>                        "
+    echo "    Number of swimmer sectors for rescue vehicles"
+    echo "    (default: 8)                                 "
+    echo "  --r_vehicle_sectors=<N>                        "
+    echo "    Number of vehicle sectors for rescue vehicles"
+    echo "    (default: 8)                                 "
     echo "  --trim, -t           Trim logging for learning "
     echo "  --logdir, -ld        Directory to save log info"
     echo "  --nostamp       Do not include timestamp       "
@@ -167,6 +174,10 @@ for ARGI; do
         PRIMARY_BEHAVIOR="${ARGI#--primarybehavior=*}"
     elif [ "${ARGI:0:23}" = "--neural_network_config" ]; then
         NEURAL_NETWORK_CONFIG="${ARGI#--neural_network_config=*}"
+    elif [ "${ARGI:0:20}" = "--r_swimmer_sectors=" ]; then
+        R_SWIMMER_SECTORS="${ARGI#--r_swimmer_sectors=*}"
+    elif [ "${ARGI:0:20}" = "--r_vehicle_sectors=" ]; then
+        R_VEHICLE_SECTORS="${ARGI#--r_vehicle_sectors=*}"
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
     elif [[ "${ARGI}" = --logdir=* ]]; then
@@ -248,6 +259,8 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "TMATE =         [${TMATE}]        "
     echo "PGR =           [${PGR}]          "
     echo "VUSER =         [${VUSER}]        "
+    echo "R_SWIMMER_SECTORS = [${R_SWIMMER_SECTORS}]"
+    echo "R_VEHICLE_SECTORS = [${R_VEHICLE_SECTORS}]"
     echo "----------------------------------"
     echo "TRIM =          [${TRIM}]         "
     echo "LOGDIR =        [${LOGDIR}]       "
@@ -296,14 +309,18 @@ nsplug meta_vehicle.moos targ_$VNAME.moos $NSFLAGS WARP=$TIME_WARP \
        PGR=$PGR                     VUSER=$VUSER         \
        FSEAT_IP=$FSEAT_IP           TRIM=$TRIM           \
        LOGDIR=$LOGDIR               NOSTAMP=$NOSTAMP     \
-       OBSERVATION_RADIUS=$OBSERVATION_RADIUS
+       OBSERVATION_RADIUS=$OBSERVATION_RADIUS \
+       SWIMMER_SECTORS=$R_SWIMMER_SECTORS \
+       VEHICLE_SECTORS=$R_VEHICLE_SECTORS
 
 nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        START_POS=$START_POS         VNAME=$VNAME         \
        STOCK_SPD=$STOCK_SPD         MMOD=$MMOD           \
        COLOR=$COLOR                 VROLE=$VROLE         \
        TMATE=$TMATE                 PRIMARY_BEHAVIOR=$PRIMARY_BEHAVIOR \
-       NEURAL_NETWORK_CONFIG=$NEURAL_NETWORK_CONFIG
+       NEURAL_NETWORK_CONFIG=$NEURAL_NETWORK_CONFIG \
+       SWIMMER_SECTORS=$R_SWIMMER_SECTORS \
+       VEHICLE_SECTORS=$R_VEHICLE_SECTORS
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."

@@ -51,6 +51,8 @@ Behavior = BHV_FollowCOM
   perpetual  = true
   endflag    = RETURN = true
   speed      = 1
+  swimmer_sectors = $(SWIMMER_SECTORS)
+  vehicle_sectors = $(VEHICLE_SECTORS)
 }
 #elseifdef PRIMARY_BEHAVIOR MaxReading
 Behavior = BHV_MaxReading

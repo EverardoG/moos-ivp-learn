@@ -2,6 +2,9 @@ ServerHost = localhost
 ServerPort = $(MOOS_PORT)
 Community  = $(VNAME)
 
+SWIMMER_SECTORS = 8
+VEHICLE_SECTORS = 8
+
 #include plugs.moos <origin_warp>
 
 //------------------------------------------------------------
@@ -81,8 +84,13 @@ ProcessConfig = pSectorSense
 
    sensor_rad     = $(OBSERVATION_RADIUS)
    saturation_rad = 5
-   number_sectors = 8
-   arc_points      = 3
+   num_swimmer_sectors = $(SWIMMER_SECTORS)
+   num_vehicle_sectors = $(VEHICLE_SECTORS)
+
+   sense_vehicles = true
+   visualize_swim_sectors = true
+   visualize_vehicle_sectors = true
+   arc_points     = 3
 
 }
 

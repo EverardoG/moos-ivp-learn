@@ -59,6 +59,11 @@ bool SectorSense::OnNewMail(MOOSMSG_LIST &NewMail)
       m_nav_y = msg.GetDouble();
     } else if (key == "NAV_HEADING"){
       m_nav_hdg = msg.GetDouble();
+    } else if (key == "NODE_REPORT") {
+      if (m_sense_vehicles) {
+        processVehicleReport(msg);
+      }
+      m_node_report = msg.GetString();
     }
 
 
@@ -89,6 +94,20 @@ void SectorSense::updateSwimmers() {
   }
 }
 
+void SectorSense::updateVehicles() {
+  m_vehicles_sense.clear();
+  if (!m_sense_vehicles) return;
+
+  std::vector<std::string> vnames = m_contact_ledger.getVNames();
+  for (const std::string& vname : vnames) {
+    if (m_contact_ledger.hasVNameValid(vname)) {
+      double vx = m_contact_ledger.getX(vname);
+      double vy = m_contact_ledger.getY(vname);
+      m_vehicles_sense.push_back(XYPoint(vx, vy));
+    }
+  }
+}
+
 //---------------------------------------------------------
 // Procedure: Iterate()
 //            happens AppTick times per second
@@ -96,24 +115,57 @@ void SectorSense::updateSwimmers() {
 bool SectorSense::Iterate()
 {
   AppCastingMOOSApp::Iterate();
-  // Do your thing here!
-  // This is where we need to send outgoing mail
-  // for what SectorSense is generating as readings
 
   // Update which swimmers you should be sensing
   updateSwimmers();
 
-  // Sense those swimmers!
-  std::vector<double> sensor_readings = m_swimmer_sensor.query(
+  // Sense swimmers
+  std::vector<double> swimmer_sensor_readings = m_swimmer_sensor.query(
     m_swimmers_sense, m_nav_x, m_nav_y, m_nav_hdg
   );
+  m_swimmer_readings_str = vectorToStream(swimmer_sensor_readings, ",");
+
+  // Start with swimmer readings for combined sensor readings
+  std::vector<double> sensor_readings = swimmer_sensor_readings;
+
+  // Handle all vehicle sensing in one block
+  if (m_sense_vehicles) {
+    // Update current time for contact ledger
+    m_contact_ledger.setCurrTimeUTC(MOOSTime());
+
+    // Update which vehicles you should be sensing
+    updateVehicles();
+
+    // Sense vehicles
+    std::vector<double> vehicle_sensor_readings = m_vehicle_sensor.query(
+      m_vehicles_sense, m_nav_x, m_nav_y, m_nav_hdg
+    );
+    m_vehicle_readings_str = vectorToStream(vehicle_sensor_readings, ",");
+
+    // Concatenate vehicle readings to sensor readings
+    sensor_readings.insert(sensor_readings.end(), vehicle_sensor_readings.begin(), vehicle_sensor_readings.end());
+  }
+
+  // Publish combined sensor readings
   m_sensor_readings_str = vectorToStream(sensor_readings, ",");
   Notify("SECTOR_SENSOR_READING", m_sensor_readings_str);
 
   // Visualize sector readings only if enabled
   if (m_visualize_swim_sectors) {
-    std::vector<XYPolygon> polygons = generatePolygons(sensor_readings);
+    std::vector<XYPolygon> polygons = generatePolygons(swimmer_sensor_readings);
     for (const XYPolygon& poly : polygons) {
+      std::string spec = poly.get_spec();
+      Notify("VIEW_POLYGON", spec);
+    }
+  }
+
+  // Visualize vehicle sectors if enabled
+  if (m_visualize_vehicle_sectors && m_sense_vehicles) {
+    std::vector<double> vehicle_sensor_readings = m_vehicle_sensor.query(
+      m_vehicles_sense, m_nav_x, m_nav_y, m_nav_hdg
+    );
+    std::vector<XYPolygon> vehicle_polygons = generateVehiclePolygons(vehicle_sensor_readings);
+    for (const XYPolygon& poly : vehicle_polygons) {
       std::string spec = poly.get_spec();
       Notify("VIEW_POLYGON", spec);
     }
@@ -150,8 +202,11 @@ bool SectorSense::OnStartUp()
     else if(param == "saturation_rad") {
       handled = setNonNegDoubleOnString(m_saturation_rad, value);
     }
-    else if(param == "number_sectors") {
-      handled = setIntOnString(m_number_sectors, value);
+    else if(param == "num_swimmer_sectors") {
+      handled = setIntOnString(m_num_swimmer_sectors, value);
+    }
+    else if(param == "num_vehicle_sectors") {
+      handled = setIntOnString(m_num_vehicle_sectors, value);
     }
     else if(param == "arc_points") {
       handled = setIntOnString(m_arc_points, value);
@@ -159,22 +214,38 @@ bool SectorSense::OnStartUp()
     else if(param == "visualize_swim_sectors") {
       handled = setBooleanOnString(m_visualize_swim_sectors, value);
     }
+    else if(param == "visualize_vehicle_sectors") {
+      handled = setBooleanOnString(m_visualize_vehicle_sectors, value);
+    }
+    else if(param == "sense_vehicles") {
+      handled = setBooleanOnString(m_sense_vehicles, value);
+    }
 
     if(!handled)
       reportUnhandledConfigWarning(orig);
 
   }
 
-  // Compute sector width
-  m_sector_width = 360.0/m_number_sectors;
+  // Compute sector widths
+  m_swim_sector_width = 360.0/m_num_swimmer_sectors;
 
-  // Initialize underlying sensor class
+  // Initialize underlying sensor classes
   m_swimmer_sensor.initialize(
     m_sensor_rad,
     m_saturation_rad,
-    m_number_sectors,
+    m_num_swimmer_sectors,
     NormalizationRule::DYNAMIC
   );
+
+  if (m_sense_vehicles) {
+    m_vehicle_sector_width = 360.0/m_num_vehicle_sectors;
+    m_vehicle_sensor.initialize(
+      m_sensor_rad,
+      m_saturation_rad,
+      m_num_vehicle_sectors,
+      NormalizationRule::DYNAMIC
+    );
+  }
 
   registerVariables();
   return(true);
@@ -192,6 +263,10 @@ void SectorSense::registerVariables()
   Register("NAV_Y", 0);
   Register("NAV_HEADING", 0);
 
+  // Only register for NODE_REPORT if we're sensing vehicles
+  if (m_sense_vehicles) {
+    Register("NODE_REPORT", 0);
+  }
 }
 
 
@@ -237,7 +312,13 @@ bool SectorSense::buildReport()
   m_msgs << "============================================" << endl;
 
   m_msgs << "m_sensor_readings_str: " << m_sensor_readings_str << endl;
+  m_msgs << "m_swimmer_readings_str: " << m_swimmer_readings_str << endl;
+  if (m_sense_vehicles) {
+    m_msgs << "m_vehicle_readings_str: " << m_vehicle_readings_str << endl;
+    m_msgs << "num vehicles_tracked: " << m_contact_ledger.size() << std::endl;
+  }
   m_msgs << "num swimmers_logged: " << m_swimmer_map.size() << std::endl;
+  m_msgs << "latest node report: " << m_node_report << std::endl;
   m_msgs << "--------------------------------------------" << endl;
 
   ACTable actab(3);
@@ -324,11 +405,19 @@ void SectorSense::processFoundSwimmer(CMOOSMsg& msg) {
   }
 }
 
+void SectorSense::processVehicleReport(CMOOSMsg& msg) {
+  std::string whynot;
+  std::string vname = m_contact_ledger.processNodeReport(msg.GetString(), whynot);
+  if (vname.empty() && !whynot.empty()) {
+    reportRunWarning("Failed to process vehicle report: " + whynot);
+  }
+}
+
 std::vector<XYPolygon> SectorSense::generatePolygons(std::vector<double> sensor_readings) {
   std::vector<XYPolygon> polygons;
-  for(int i=0; i<m_number_sectors; ++i) {
-    double sector_start = -(i*m_sector_width) + 90.0 - m_sector_width/2.0;
-    double sector_end = -(i*m_sector_width) + 90.0 + m_sector_width/2.0;
+  for(int i=0; i<m_num_swimmer_sectors; ++i) {
+    double sector_start = -(i*m_swim_sector_width) + 90.0 - m_swim_sector_width/2.0;
+    double sector_end = -(i*m_swim_sector_width) + 90.0 + m_swim_sector_width/2.0;
     XYPolygon poly = buildSectorPolygon(
       m_nav_x, m_nav_y, m_nav_hdg, sector_start, sector_end, m_sensor_rad, m_arc_points
     );
@@ -339,6 +428,26 @@ std::vector<XYPolygon> SectorSense::generatePolygons(std::vector<double> sensor_
     poly.set_transparency(sensor_readings[i]*0.5);
     poly.set_label("sector_" + intToString(i));
     poly.set_msg("reading=" + doubleToString(sensor_readings[i], 2));
+    polygons.push_back(poly);
+  }
+  return polygons;
+}
+
+std::vector<XYPolygon> SectorSense::generateVehiclePolygons(std::vector<double> sensor_readings) {
+  std::vector<XYPolygon> polygons;
+  for(int i=0; i<m_num_vehicle_sectors; ++i) {
+    double sector_start = -(i*m_vehicle_sector_width) + 90.0 - m_vehicle_sector_width/2.0;
+    double sector_end = -(i*m_vehicle_sector_width) + 90.0 + m_vehicle_sector_width/2.0;
+    XYPolygon poly = buildSectorPolygon(
+      m_nav_x, m_nav_y, m_nav_hdg, sector_start, sector_end, m_sensor_rad, m_arc_points
+    );
+    // Use different colors for vehicle sectors (blue instead of green)
+    poly.set_color("edge", ColorPack(0,0,1));
+    poly.set_color("fill", ColorPack(0,0,1));
+    poly.set_color("vertex", ColorPack(0,0,1));
+    poly.set_transparency(sensor_readings[i]*0.5);
+    poly.set_label("vehicle_sector_" + intToString(i));
+    poly.set_msg("vehicle_reading=" + doubleToString(sensor_readings[i], 2));
     polygons.push_back(poly);
   }
   return polygons;
