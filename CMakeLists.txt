@@ -31,8 +31,6 @@ SET( RUNTIME_OUTPUT_DIRECTORY "${IVP_EXTEND_BIN_DIR}"  CACHE PATH "" )
 find_package(MOOS 10.0)
 INCLUDE_DIRECTORIES(
   ${MOOS_INCLUDE_DIRS}
-  /Users/ever/moos-ivp/MOOS/MOOSCore/Core/libMOOS/include
-  /Users/ever/moos-ivp/MOOS/MOOSGeodesy/libMOOSGeodesy/include
 )
 
 #=======================================================================
@@ -58,7 +56,11 @@ endif()
 #======================================================================
 
 FILE(GLOB IVP_INCLUDE_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/ivp/src/lib_* )
-INCLUDE_DIRECTORIES(${IVP_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(
+  ${IVP_INCLUDE_DIRS}
+  ${MOOSIVP_SOURCE_TREE_BASE}/MOOS/MOOSCore/Core/libMOOS/include
+  ${MOOSIVP_SOURCE_TREE_BASE}/MOOS/MOOSGeodesy/libMOOSGeodesy/include
+)
 
 FILE(GLOB IVP_LIBRARY_DIRS ${MOOSIVP_SOURCE_TREE_BASE}/lib )
 LINK_DIRECTORIES(${IVP_LIBRARY_DIRS})
