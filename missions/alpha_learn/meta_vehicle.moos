@@ -148,7 +148,7 @@ ProcessConfig = uFldNodeBroker
   bridge = src=VIEW_POLYGON
   bridge = src=VIEW_POINT
   bridge = src=VIEW_SEGLIST
-  bridge = src=VIEW_CIRCLE
+	bridge = src=VIEW_CIRCLE
   bridge = src=APPCAST
   bridge = src=BCM_DETECTION_DIST
   bridge = src=NODE_REPORT_LOCAL,  alias=NODE_REPORT
