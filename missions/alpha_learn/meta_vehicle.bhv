@@ -53,6 +53,11 @@ Behavior = BHV_FollowCOM
   speed      = 1
   swimmer_sectors = $(SWIMMER_SECTORS)
   vehicle_sectors = $(VEHICLE_SECTORS)
+#ifdef R_SENSE_VEHICLES yes
+  sense_vehicles = true
+#else
+  sense_vehicles = false
+#endif
 }
 #elseifdef PRIMARY_BEHAVIOR MaxReading
 Behavior = BHV_MaxReading

@@ -65,6 +65,7 @@ SCOUT_BEHAVIOR="NotImplemented"
 NEURAL_NETWORK_DIR="./"
 R_SWIMMER_SECTORS=8
 R_VEHICLE_SECTORS=8
+R_SENSE_VEHICLES="no"
 
 # Custom: Logging
 TRIM="no"
@@ -155,9 +156,14 @@ for ARGI; do
     echo "  --r_swimmer_sectors=<N>                      "
     echo "      Number of swimmer sectors for rescue     "
     echo "      vehicles (default: 8)                    "
+    echo "  --r_sense_vehicles                           "
+    echo "      Enable vehicle sensing for rescue        "
+    echo "      vehicles. When set, implies              "
+    echo "      --r_vehicle_sectors with default number  "
     echo "  --r_vehicle_sectors=<N>                      "
     echo "      Number of vehicle sectors for rescue     "
-    echo "      vehicles (default: 8)                    "
+    echo "      vehicles (default: 8). When set,         "
+    echo "      implies --r_sense_vehicles               "
     echo "                                               "
     echo "Options (custom: logging):                     "
     echo "  --trim, -t      Trim the alog files to only  "
@@ -256,8 +262,12 @@ for ARGI; do
         NEURAL_NETWORK_DIR="${ARGI#--neural_network_dir=}"
     elif [[ "${ARGI}" == --r_swimmer_sectors=* ]]; then
         R_SWIMMER_SECTORS="${ARGI#--r_swimmer_sectors=}"
+    elif [ "${ARGI}" = "--r_sense_vehicles" ]; then
+        R_SENSE_VEHICLES="yes"
     elif [[ "${ARGI}" == --r_vehicle_sectors=* ]]; then
         R_VEHICLE_SECTORS="${ARGI#--r_vehicle_sectors=}"
+        R_SENSE_VEHICLES="yes"
+
     elif [ "${ARGI}" = "--trim" -o "${ARGI}" = "-t" ]; then
 	    TRIM="yes"
     elif [[ "${ARGI}" = --logdir=* ]]; then
@@ -374,6 +384,7 @@ if [ "${VERBOSE}" != "" ]; then
     echo "RESCUE_OBSERVATION_RADIUS  [${RESCUE_OBSERVATION_RADIUS}]"
     echo "NEURAL_NETWORK_DIR   [${NEURAL_NETWORK_DIR}]"
     echo "R_SWIMMER_SECTORS    [${R_SWIMMER_SECTORS}] "
+    echo "R_SENSE_VEHICLES     [${R_SENSE_VEHICLES}]  "
     echo "R_VEHICLE_SECTORS    [${R_VEHICLE_SECTORS}] "
     echo -n "Hit any key to continue launch           "
     read ANSWER
@@ -408,6 +419,9 @@ do
         IVARGS+=" --observation_radius=${RESCUE_OBSERVATION_RADIUS} "
         IVARGS+=" --r_swimmer_sectors=${R_SWIMMER_SECTORS} "
         IVARGS+=" --r_vehicle_sectors=${R_VEHICLE_SECTORS} "
+        if [ "$R_SENSE_VEHICLES" = "yes" ]; then
+            IVARGS+=" --r_sense_vehicles"
+        fi
     fi
 
     if [ "${COMPETE}" != "" ]; then

@@ -34,6 +34,7 @@ BHV_FollowCOM::BHV_FollowCOM(IvPDomain domain) :
   m_best_speed = 0.2;
   m_swimmer_sectors = 8;
   m_vehicle_sectors = 8;
+  m_sense_vehicles = false;
 
   std::cout << "Successfully constructed BHV_FollowCOM" << std::endl;
 }
@@ -57,6 +58,13 @@ bool BHV_FollowCOM::setParam(string param, string val)
     m_vehicle_sectors = double_val;
     return(true);
   }
+  else if(param == "sense_vehicles") {
+    val = tolower(val);
+    if((val!="true")&&(val!="false"))
+      return(false);
+    m_sense_vehicles = (val == "true");
+    return(true);
+  }
   // unrecognized parameter
   return(false);
 }
@@ -69,8 +77,12 @@ bool BHV_FollowCOM::setParam(string param, string val)
 
 void BHV_FollowCOM::onSetParamComplete()
 {
-  // Calculate expected total sectors once after all parameters are set
-  m_expected_total_sectors = m_swimmer_sectors + m_vehicle_sectors;
+  // Calculate expected total sectors based on sense_vehicles setting
+  if(m_sense_vehicles) {
+    m_expected_total_sectors = m_swimmer_sectors + m_vehicle_sectors;
+  } else {
+    m_expected_total_sectors = m_swimmer_sectors;
+  }
 }
 
 //---------------------------------------------------------------

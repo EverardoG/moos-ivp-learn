@@ -87,7 +87,11 @@ ProcessConfig = pSectorSense
    num_swimmer_sectors = $(SWIMMER_SECTORS)
    num_vehicle_sectors = $(VEHICLE_SECTORS)
 
+#ifdef R_SENSE_VEHICLES yes
+   sense_vehicles = true
+#else
    sense_vehicles = false
+#endif
    visualize_swim_sectors = true
    visualize_vehicle_sectors = false
    arc_points     = 3
