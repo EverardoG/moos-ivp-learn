@@ -352,5 +352,7 @@ ProcessConfig = pMissionMonitor
   CommsTick  = 2
 
   debug      = false
+  termination_condition = all_out_of_bounds   //any_out_of_bounds
+  evaluation_area_offset = 10                 //set to the value of halt_dist on BHV_OpRegionV24
 
 }
