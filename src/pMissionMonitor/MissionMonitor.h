@@ -12,52 +12,57 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "AngleUtils.h"  // for relAngle
+#include "AngleUtils.h" // for relAngle
 #include "MOOS/libMOOS/Thirdparty/AppCasting/AppCastingMOOSApp.h"
 #include "XYFormatUtilsPoint.h"
 #include "XYPoint.h"
+#include "XYPolygon.h"
 #include "general_utils.h"
 
-struct Agent {
+struct Agent
+{
   XYPoint position;
   bool out_of_bounds;
   Agent()
-      : position(0.0, 0.0, 0.0), out_of_bounds(false) {}  // Default constructor
+      : position(0.0, 0.0, 0.0), out_of_bounds(false) {} // Default constructor
   Agent(const XYPoint &pos) : position(pos), out_of_bounds(false) {}
 };
 
-class MissionMonitor : public AppCastingMOOSApp {
- public:
+class MissionMonitor : public AppCastingMOOSApp
+{
+public:
   MissionMonitor();
   ~MissionMonitor();
 
- protected:  // Standard MOOSApp functions to overload
+protected: // Standard MOOSApp functions to overload
   bool OnNewMail(MOOSMSG_LIST &NewMail);
   bool Iterate();
   bool OnConnectToServer();
   bool OnStartUp();
 
- protected:  // Standard AppCastingMOOSApp function to overload
+protected: // Standard AppCastingMOOSApp function to overload
   bool buildReport();
 
- protected:
+protected:
   void registerVariables();
 
- private:  // Configuration variables
+private: // Configuration variables
   bool debug;
+  std::string termination_condition;
+  double evaluation_area_offset;
   void updateAgents(CMOOSMsg &msg);
   void updateMissionArea(CMOOSMsg &msg);
-  bool isPointInMissionArea(const XYPoint &point);
 
- private:  // State variables
+private: // State variables
   double m_nav_x = 0.0;
   double m_nav_y = 0.0;
   double m_nav_hdg = 0.0;
   std::string m_agent_id;
-  std::string m_debug_messages;  // Accumulate debug messages
+  std::string m_debug_messages; // Accumulate debug messages
 
   std::unordered_map<std::string, Agent> m_agent_map;
-  std::vector<XYPoint> m_mission_area;
+  XYPolygon m_original_poly;
+  XYPolygon m_offset_poly;
 };
 
 #endif
