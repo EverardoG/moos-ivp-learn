@@ -179,19 +179,18 @@ bool MissionMonitor::Iterate()
 
       if (termination_condition == "any_out_of_bounds" && agent.out_of_bounds)
       {
-        Notify("MISSION_EVALUATED", true);
+        Notify("MISSION_EVALUATED", "true");
         break;
       }
       else if (!agent.out_of_bounds)
       {
         all_out_of_bounds = false;
-        break;
       }
     }
 
     if (termination_condition == "all_out_of_bounds" && all_out_of_bounds)
     {
-      Notify("MISSION_EVALUATED", true);
+      Notify("MISSION_EVALUATED", "true");
     }
   }
 
