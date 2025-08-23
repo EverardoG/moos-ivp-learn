@@ -418,9 +418,9 @@ do
     if [ "${VROLES[$IXX]}" = "rescue" ]; then
         IVARGS+=" --observation_radius=${RESCUE_OBSERVATION_RADIUS} "
         IVARGS+=" --r_swimmer_sectors=${R_SWIMMER_SECTORS} "
-        IVARGS+=" --r_vehicle_sectors=${R_VEHICLE_SECTORS} "
         if [ "$R_SENSE_VEHICLES" = "yes" ]; then
             IVARGS+=" --r_sense_vehicles"
+            IVARGS+=" --r_vehicle_sectors=${R_VEHICLE_SECTORS} "
         fi
     fi
 

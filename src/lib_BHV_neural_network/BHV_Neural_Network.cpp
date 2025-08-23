@@ -33,6 +33,13 @@ BHV_Neural_Network::BHV_Neural_Network(IvPDomain domain) :
   m_best_delta_heading = 0.0;
   m_best_speed   = 0.0;
 
+  // Initialize new member variables
+  m_swimmer_sectors = 0;
+  m_vehicle_sectors = 0;
+  m_sense_vehicles = false;
+  m_expected_size = 0;
+  m_initialization_failed = false;
+
   std::cout << "Successfully constructed BHV_Neural_Network" << std::endl;
 }
 
@@ -45,12 +52,26 @@ bool BHV_Neural_Network::setParam(string param, string val)
   param = tolower(param);
 
   // Get the numerical value of the param argument for convenience once
-  // double double_val = atof(val.c_str());
+  double double_val = atof(val.c_str());
 
   // Initialize network using csv file
   if (param == "csv_directory") {
     m_csv_directory = val;
     return(true);
+  }
+
+  if (param == "swimmer_sectors") {
+    m_swimmer_sectors = (int)double_val;
+    return(true);
+  }
+
+  if (param == "vehicle_sectors") {
+    m_vehicle_sectors = (int)double_val;
+    return(true);
+  }
+
+  if (param == "sense_vehicles") {
+    return setBooleanOnString(m_sense_vehicles, val);
   }
 
   // We don't know what this parameter is. Return false
@@ -65,93 +86,114 @@ bool BHV_Neural_Network::setParam(string param, string val)
 
 void BHV_Neural_Network::onSetParamComplete()
 {
+  // Calculate expected sensor reading size
+  m_expected_size = m_swimmer_sectors;
+  if (m_sense_vehicles) {
+    m_expected_size += m_vehicle_sectors;
+  }
+
+  std::string vec_str("");
+
+  // use FileBuffer() to read in config file
+  // Assume the config file is in the mission directory
+  //    (not the top level missions directory, but the directory of a particular mission)
+  vector<string> lines = fileBuffer(m_csv_directory);
+  if(lines.size() == 0) {
+    postWMessage("File not found, or empty: " + m_csv_directory);
+    m_initialization_failed = true;
+    return;
+  }
+  postEventMessage("Csv file found.");
+
+  // Use the extension method to populate a vector of doubles
+  // from line 0. These are the weights for the neural network
+  std::vector<double> weights;
+  string warning;
+  bool good_reading;
+  good_reading = setVecDoubleOnString(weights, lines[0], warning);
+  if(!good_reading) {
+    postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + m_csv_directory + ". " + warning);
+    m_initialization_failed = true;
+    return;
+  }
+  vec_str="";
+  for (double val : weights) {
+    vec_str = vec_str + std::to_string(val) + " ";
+  }
+  postEventMessage("Successfully read in weights: "+vec_str);
+
+  // Use the extension method to populate a vector of ints
+  // from line 1. These define the structure of the neural network
+  std::vector<int> structure;
+  warning = "";
+  good_reading = setVecIntOnString(structure, lines[1], warning);
+  if(!good_reading) {
+    postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + m_csv_directory + ". " + warning);
+    m_initialization_failed = true;
+    return;
+  }
+  vec_str="";
+  for (double val : structure) {
+    vec_str = vec_str + std::to_string(val) + " ";
+  }
+  postEventMessage("Successfully read in structure: "+vec_str);
+
+  // Validate that expected sensor size matches network input layer size
+  if (structure.size() > 0 && structure[0] != m_expected_size) {
+    postWMessage("Network input size mismatch. Network expects " + intToString(structure[0]) +
+                 " inputs, but sensor configuration expects " + intToString(m_expected_size) +
+                 " (swimmer_sectors=" + intToString(m_swimmer_sectors) +
+                 ", vehicle_sectors=" + intToString(m_vehicle_sectors) +
+                 ", sense_vehicles=" + (m_sense_vehicles ? "true" : "false") + ")");
+    m_initialization_failed = true;
+    return;
+  }
+
+  // Get the output bounds of the neural network from
+  // line 2. These define the output boundaries of the network
+  std::vector<double> bounds_flat;
+  good_reading = setVecDoubleOnString(bounds_flat, lines[2], warning);
+  warning = "";
+  if(!good_reading) {
+    postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + m_csv_directory + ". " + warning);
+    m_initialization_failed = true;
+    return;
+  }
+  vec_str="";
+  for (double val : bounds_flat) {
+    vec_str = vec_str + std::to_string(val) + " ";
+  }
+  postEventMessage("Successfully read in bounds: "+vec_str);
+
+  vec_str="";
+  for (double val : bounds_flat) {
+    vec_str = vec_str + std::to_string(val) + " ";
+  }
+  postEventMessage("Reshaping vec {"+vec_str+"} into size ("+std::to_string(structure.back())+","+"2)");
+
+  // Turn those output bounds into the correct shape for the network
+  std::vector<std::vector<double>> bounds = reshapeVector2D(bounds_flat, structure.back(), 2);
+
+  // Then load that into the neural network
+  std::string err("");
+  if (!m_network.initialize(weights, structure, bounds, err)) {
+    postEMessage("Neural Network failed to initialize. "+err);
+    m_initialization_failed = true;
+    return;
+  }
+
+  // Mark that we have successfully loaded in our network
+  m_network_loaded = true;
+  postEventMessage("Successfully initialized neural network.");
 }
 
 bool BHV_Neural_Network::initialize()
 {
-  if (m_network_loaded) return true;
-  else{
-    std::string vec_str("");
-
-    // use FileBuffer() to read in config file
-    // Assume the config file is in the mission directory
-    //    (not the top level missions directory, but the directory of a particular mission)
-    vector<string> lines = fileBuffer(m_csv_directory);
-    if(lines.size() == 0) {
-      postWMessage("File not found, or empty: " + m_csv_directory);
-      return(false);
-    }
-    postEventMessage("Csv file found.");
-
-    // Use the extension method to populate a vector of doubles
-    // from line 0. These are the weights for the neural network
-    std::vector<double> weights;
-    string warning;
-    bool good_reading;
-    good_reading = setVecDoubleOnString(weights, lines[0], warning);
-    if(!good_reading) {
-      postWMessage("Failed to read neural network weights. Bad reading for line 0 of file: " + m_csv_directory + ". " + warning);
-      return(false);
-    }
-    vec_str="";
-    for (double val : weights) {
-      vec_str = vec_str + std::to_string(val) + " ";
-    }
-    postEventMessage("Successfully read in weights: "+vec_str);
-
-    // Use the extension method to populate a vector of ints
-    // from line 1. These define the structure of the neural network
-    std::vector<int> structure;
-    warning = "";
-    good_reading = setVecIntOnString(structure, lines[1], warning);
-    if(!good_reading) {
-      postWMessage("Failed to read neural network structure. Bad reading for line 1 of file: " + m_csv_directory + ". " + warning);
-      return(false);
-    }
-    vec_str="";
-    for (double val : structure) {
-      vec_str = vec_str + std::to_string(val) + " ";
-    }
-    postEventMessage("Successfully read in structure: "+vec_str);
-
-    // Get the output bounds of the neural network from
-    // line 2. These define the output boundaries of the network
-    std::vector<double> bounds_flat;
-    good_reading = setVecDoubleOnString(bounds_flat, lines[2], warning);
-    warning = "";
-    if(!good_reading) {
-      postWMessage("Failed to read neural network bounds. Bad reading for line 2 of file: " + m_csv_directory + ". " + warning);
-      return(false);
-    }
-    vec_str="";
-    for (double val : bounds_flat) {
-      vec_str = vec_str + std::to_string(val) + " ";
-    }
-    postEventMessage("Successfully read in bounds: "+vec_str);
-
-    vec_str="";
-    for (double val : bounds_flat) {
-      vec_str = vec_str + std::to_string(val) + " ";
-    }
-    postEventMessage("Reshaping vec {"+vec_str+"} into size ("+std::to_string(structure.back())+","+"2)");
-
-    // Turn those output bounds into the correct shape for the network
-    std::vector<std::vector<double>> bounds = reshapeVector2D(bounds_flat, structure.back(), 2);
-
-    // And then maybe we have a line that just has the fitness/score for that network?
-    // Just ignore anything after the first two lines for now
-    // They won't be relevant to loading in the network
-    // (they will be relevant instead for training)
-
-    // Then load that into the neural network
-    std::string err("");
-    if (!m_network.initialize(weights, structure, bounds, err)) postEMessage("Neural Network failed to initialize. "+err);
-
-    // Mark that we have successfully loaded in our network
-    m_network_loaded = true;
-    postEventMessage("Successfully initialized neural network.");
-    return(true);
+  if (m_initialization_failed) {
+    postWMessage("Cannot initialize - previous initialization failure detected.");
+    return false;
   }
+  return m_network_loaded;
 }
 
 //---------------------------------------------------------------
@@ -275,6 +317,16 @@ bool BHV_Neural_Network::processSensorReadings()
     }
 
     m_sector_sensor_readings.push_back(temp_dbl);
+  }
+
+  // Validate sensor reading size
+  if (m_sector_sensor_readings.size() != m_expected_size) {
+    postWMessage("Sensor reading size mismatch. Expected: " + intToString(m_expected_size) +
+                 " (swimmer_sectors=" + intToString(m_swimmer_sectors) +
+                 ", vehicle_sectors=" + intToString(m_vehicle_sectors) +
+                 ", sense_vehicles=" + (m_sense_vehicles ? "true" : "false") +
+                 "), but received: " + intToString(m_sector_sensor_readings.size()));
+    return(false);
   }
 
   return(true);

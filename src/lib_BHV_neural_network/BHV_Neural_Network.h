@@ -50,11 +50,16 @@ protected: // Local Utility functions
 
 protected: // Configuration parameters
   std::string m_csv_directory;
+  int m_swimmer_sectors;
+  int m_vehicle_sectors;
+  bool m_sense_vehicles;
+  int m_expected_size;
 
 protected: // State variables
   double m_nav_heading;
   NeuralNetwork m_network;
   bool m_network_loaded = false;
+  bool m_initialization_failed = false;
 
   std::vector<double>  m_sector_sensor_readings;
 

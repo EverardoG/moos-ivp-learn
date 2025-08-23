@@ -80,6 +80,13 @@ Behavior = BHV_Neural_Network
   perpetual  = true
   endflag    = RETURN = true
   csv_directory = $(NEURAL_NETWORK_CONFIG)
+  swimmer_sectors = $(SWIMMER_SECTORS)
+  vehicle_sectors = $(VEHICLE_SECTORS)
+#ifdef R_SENSE_VEHICLES yes
+  sense_vehicles = true
+#else
+  sense_vehicles = false
+#endif
 }
 #endif
 #endif
