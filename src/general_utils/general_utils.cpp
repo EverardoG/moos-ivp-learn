@@ -1,4 +1,9 @@
 #include "general_utils.h"
+#include <dirent.h>
+#include <sys/stat.h>
+#include <fstream>
+#include <algorithm>
+#include <cerrno>
 
 //-------------------------------------------------------------
 // Procedure: calcDeltaHeading(double heading1, double heading2)
@@ -302,4 +307,78 @@ bool csvFilterDuplicateRows(const std::string& in_csv, const std::string& out_cs
     }
 
     return true;
+}
+
+// Merge all *_positions.csv in `directory` (excluding team_positions.csv) into team_positions.csv
+bool csvMergeFiles(const std::string& directory) {
+  // Validate directory
+  struct stat st;
+  if (stat(directory.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
+    std::cerr << "csvMergeFiles(): Not a directory: " << directory << std::endl;
+    return false;
+  }
+
+  // Collect matching files
+  std::vector<std::string> files;
+  DIR* d = opendir(directory.c_str());
+  if (!d) {
+    std::cerr << "csvMergeFiles(): Failed to open directory: " << directory
+              << " (errno=" << errno << ")" << std::endl;
+    return false;
+  }
+  dirent* ent;
+  while ((ent = readdir(d)) != nullptr) {
+    std::string name = ent->d_name;
+    if (name == "." || name == "..") continue;
+
+    std::string full = directory + "/" + name;
+    struct stat fst;
+    if (stat(full.c_str(), &fst) != 0 || !S_ISREG(fst.st_mode)) continue;
+
+    if (name != "team_positions.csv" && strEnds(name, "_positions.csv", true))
+      files.push_back(name);
+  }
+  closedir(d);
+
+  if (files.empty()) {
+    std::cerr << "csvMergeFiles(): No files matching *_positions.csv in " << directory << std::endl;
+    return false;
+  }
+
+  std::sort(files.begin(), files.end()); // deterministic order
+
+  // Read and merge rows (skip header if exactly "x,y")
+  std::vector<std::string> merged_rows;
+  for (const std::string& fname : files) {
+    std::ifstream in(directory + "/" + fname);
+    if (!in.is_open()) {
+      std::cerr << "csvMergeFiles(): Failed to open " << (directory + "/" + fname) << std::endl;
+      return false;
+    }
+    std::string line;
+    bool first = true;
+    while (std::getline(in, line)) {
+      std::string s = stripBlankEnds(line);
+      if (s.empty()) continue;
+
+      if (first) {
+        first = false;
+        if (s == "x,y") continue; // skip header
+      }
+      merged_rows.push_back(s);
+    }
+  }
+
+  // Write output
+  const std::string out_path = directory + "/team_positions.csv";
+  std::ofstream out(out_path, std::ios::trunc);
+  if (!out.is_open()) {
+    std::cerr << "csvMergeFiles(): Failed to open output file: " << out_path << std::endl;
+    return false;
+  }
+  out << "x,y\n";
+  for (const auto& row : merged_rows)
+    out << row << "\n";
+
+  return true;
 }

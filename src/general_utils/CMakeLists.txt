@@ -16,11 +16,13 @@ set(CMAKE_BUILD_TYPE Debug)
 add_executable(test_utils test_utils.cpp)
 add_executable(process_node_reports cli_process_node_reports.cpp)
 add_executable(csv_filter_duplicate_rows cli_filter_duplicate_rows.cpp)
+add_executable(csv_merge_files cli_merge_csv_files.cpp)
 
 # Include directories if needed
 target_include_directories(test_utils PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(process_node_reports PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(csv_filter_duplicate_rows PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(csv_merge_files PRIVATE ${CMAKE_SOURCE_DIR})
 
 # Link the MOOS libraries and other dependencies
 target_link_libraries(general_utils PUBLIC
@@ -33,3 +35,4 @@ target_link_libraries(general_utils PUBLIC
 target_link_libraries(test_utils PRIVATE general_utils)
 target_link_libraries(process_node_reports PRIVATE general_utils)
 target_link_libraries(csv_filter_duplicate_rows PRIVATE general_utils)
+target_link_libraries(csv_merge_files PRIVATE general_utils)
