@@ -55,6 +55,7 @@ NOSTAMP="no"
 R_SWIMMER_SECTORS=8
 R_VEHICLE_SECTORS=8
 R_SENSE_VEHICLES="no"
+DIAMOND_PATTERN="14.82,-11.42:-17.51,-59.95:40.52,-65.63:72.85,-17.11"
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -333,7 +334,8 @@ nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        NEURAL_NETWORK_CONFIG=$NEURAL_NETWORK_CONFIG \
        SWIMMER_SECTORS=$R_SWIMMER_SECTORS \
        VEHICLE_SECTORS=$R_VEHICLE_SECTORS \
-       R_SENSE_VEHICLES=$R_SENSE_VEHICLES
+       R_SENSE_VEHICLES=$R_SENSE_VEHICLES \
+       DIAMOND_PATTERN=$DIAMOND_PATTERN
 
 if [ "${JUST_MAKE}" = "yes" ]; then
     echo "$ME: Targ files made; exiting without launch."

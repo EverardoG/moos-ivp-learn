@@ -22,20 +22,44 @@ set MODE = SURVEYING {
   SURVEY = true
 } RETURNING
 #ifdef VROLE scout
-//----------------------------------------------
-Behavior = BHV_Scout
-{
-  name       = scout
-  pwt        = 100
-  updates    = SCOUT_UPDATE
-  condition  = MODE==SURVEYING
-  perpetual  = true
-  endflag    = RETURN = true
 
-	tmate = $(TMATE)
-
-  capture_radius = 10
-}
+  #ifdef PRIMARY_BEHAVIOR Adversary
+  
+	  //----------------------------------------------
+		Behavior = BHV_Waypoint
+		{
+		 name       = waypt_adv
+		 pwt        = 100
+		 updates    = ADV_UPDATE
+		 condition  = MODE==SURVEYING
+		 perpetual  = true
+		 endflag    = RETURN = true
+		 
+              speed = 1.0
+		 capture_radius = 8.0
+        slip_radius = 16.0
+		         points = $(DIAMOND_PATTERN) 
+		          repeat = 10
+		 visual_hints = vertex_size  = 6             // default
+		 visual_hints = vertex_color = red           // default
+		 visual_hints =line_color = red           // default
+		 }
+	#else
+     //----------------------------------------------
+		 Behavior = BHV_Scout
+		 { 
+		  name       = scout
+			pwt        = 100
+			updates    = SCOUT_UPDATE
+			condition  = MODE==SURVEYING
+			perpetual  = true
+			endflag    = RETURN = true
+			
+			tmate = $(TMATE)
+			
+			capture_radius = 10
+		 }
+		 #endif
 #endif
 
 
