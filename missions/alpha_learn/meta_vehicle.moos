@@ -314,7 +314,7 @@ ProcessConfig = pCBF
   AppTick   = 8                                                 
   CommsTick = 8                                                 
                                                                    
-   safety_radius = 18.0
+   safety_radius = 15.0
 
            delta = 1.0  // Multiplication constant              
                         // alpha(x) = -delta * x
