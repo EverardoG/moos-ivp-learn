@@ -65,6 +65,6 @@ bool csvFilesAreEqual(const std::string& file1, const std::string& file2, int ve
 bool csvFilterDuplicateRows(const std::string& in_csv, const std::string& out_csv, int verbose = 0);
 
 // Merge all *_positions.csv files in a directory into team_positions.csv
-bool csvMergeFiles(const std::string& directory);
+bool csvMergeFiles(const std::string& directory, const std::vector<std::string>& exclude_vehicles = {});
 
 #endif // GENERAL_UTILS_H

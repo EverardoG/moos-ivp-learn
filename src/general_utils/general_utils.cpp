@@ -310,7 +310,7 @@ bool csvFilterDuplicateRows(const std::string& in_csv, const std::string& out_cs
 }
 
 // Merge all *_positions.csv in `directory` (excluding team_positions.csv) into team_positions.csv
-bool csvMergeFiles(const std::string& directory) {
+bool csvMergeFiles(const std::string& directory, const std::vector<std::string>& exclude_vehicles) {
   // Validate directory
   struct stat st;
   if (stat(directory.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) {
@@ -335,7 +335,20 @@ bool csvMergeFiles(const std::string& directory) {
     struct stat fst;
     if (stat(full.c_str(), &fst) != 0 || !S_ISREG(fst.st_mode)) continue;
 
-    if (name != "team_positions.csv" && strEnds(name, "_positions.csv", true))
+    // Exclude team_positions.csv
+    if (name == "team_positions.csv") continue;
+
+    // Exclude any <vehicle>_positions.csv where <vehicle> is in exclude_vehicles
+    bool excluded = false;
+    for (const auto& vehicle : exclude_vehicles) {
+      if (name == vehicle + "_positions.csv") {
+        excluded = true;
+        break;
+      }
+    }
+    if (excluded) continue;
+
+    if (strEnds(name, "_positions.csv", true))
       files.push_back(name);
   }
   closedir(d);
@@ -370,7 +383,17 @@ bool csvMergeFiles(const std::string& directory) {
   }
 
   // Write output
-  const std::string out_path = directory + "/team_positions.csv";
+  std::string out_path;
+  if (exclude_vehicles.empty()) {
+    out_path = directory + "/team_positions.csv";
+  } else {
+    out_path = directory + "/team_positions_without";
+    for (const auto& vehicle : exclude_vehicles) {
+      out_path += "_" + vehicle;
+    }
+    out_path += ".csv";
+  }
+
   std::ofstream out(out_path, std::ios::trunc);
   if (!out.is_open()) {
     std::cerr << "csvMergeFiles(): Failed to open output file: " << out_path << std::endl;
