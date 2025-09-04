@@ -23,7 +23,8 @@ GAME_FORMAT="r1"
 SWIMMERS=15
 UNREGERS=0
 SWIM_FILE="mit_rand.txt"
-SWIM_REGION="60,10:-30.36,-32.84:-4.66,-87.05:85.7,-44.22"
+SWIM_REGION="60,0:-30.36,-42.84:-4.66,-97.05:85.7,-54.22"
+ # "60,10:-30.36,-32.84:-4.66,-87.05:85.7,-44.22"
 
 #------------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
