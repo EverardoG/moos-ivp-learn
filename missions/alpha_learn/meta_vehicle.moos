@@ -96,7 +96,7 @@ ProcessConfig = pSectorSense
    sense_vehicles = false
 #endif
    visualize_swim_sectors = true
-   visualize_vehicle_sectors = false
+   visualize_vehicle_sectors = true
    arc_points     = 3
 
 }
@@ -309,68 +309,68 @@ ProcessConfig = pSimpleControl
 
 //-------------------------------------------------
 // pCBF config block
-ProcessConfig = pCBF                                            
-{                                                               
-  AppTick   = 8                                                 
-  CommsTick = 8                                                 
-                                                                   
+ProcessConfig = pCBF
+{
+  AppTick   = 8
+  CommsTick = 8
+
    safety_radius = 10.0
 
-           delta = 1.0  // Multiplication constant              
+           delta = 1.0  // Multiplication constant
                         // alpha(x) = -delta * x
 
             gamma = 3.0 // lin param
-	   
+
      flip_rudder = true // needed for the naval convention
-                                                                
+
     stale_thresh = 2.0  // staleness thresh for state.
-                        // If info for contact  
-                        // meets this criteria, then the cbf is 
+                        // If info for contact
+                        // meets this criteria, then the cbf is
                         // active
 
 own_control_stale_thresh  = 0.5 // If own control input is stale
                                 // all control inputs set to zero
-			
-                                                                
-state_window_size = 1.0 // All own state messages (NAV_X, etc)  
-                        // and node records (NODE_RECORD)       
+
+
+state_window_size = 1.0 // All own state messages (NAV_X, etc)
+                        // and node records (NODE_RECORD)
                         // must be within this window size to be
-                        // considered a complete record and     
+                        // considered a complete record and
                         // uploaded to the cbf.
-                                                                
-input_window_size = 0.5 // All own control messages             
-                        // (DESIRED_RUDDER, etc) must be within 
-                        // this window size to be considered a  
-                        // complete record and uploaded to the  
+
+input_window_size = 0.5 // All own control messages
+                        // (DESIRED_RUDDER, etc) must be within
+                        // this window size to be considered a
+                        // complete record and uploaded to the
                         // cbf.
-                        
-    debug_verbose = false   // true or [false]                   
-                                                                
-  preCBF_varname_postfix = _PRECBF  // the app will listen for  
-                                    // input variables that are 
-                                    // listed in the control    
-                                    // constraints with this    
-                                    // post fix.                
+
+    debug_verbose = false   // true or [false]
+
+  preCBF_varname_postfix = _PRECBF  // the app will listen for
+                                    // input variables that are
+                                    // listed in the control
+                                    // constraints with this
+                                    // post fix.
                                     // Ex. DESIRED_RUDDER_PRECBF
-                                                                
-                                                                
-     control_constraints = DESIRED_RUDDER=-100.0:100.0;100.0,DESIRED_THRUST=0.0:100.0;50 
-                                                                
-              			    // Where the syntax is:                           
-              			    // <ctrl_input_name>=<min_val>:<max_val>;<gain>          
+
+
+     control_constraints = DESIRED_RUDDER=-100.0:100.0;100.0,DESIRED_THRUST=0.0:100.0;50
+
+              			    // Where the syntax is:
+              			    // <ctrl_input_name>=<min_val>:<max_val>;<gain>
               			    // values can be doubles or INF for infinite
 				    // For simple cbf the gain is the value that maps
 				    // control input to velocities when linearizing.
 				    // Ex for DESIRED_THRUST this can be:
 				    // vehicle fwd speed = gain * DESIRED_THRUST
-    
+
 
     // adversarial related
     ignore_adversarial_agents = false
     share_control_inputs      = false
     max_adversary_speed       = 2.0
     max_adversary_yaw_rate    = 1.0
-   
+
     app_logging = log
 }
 
@@ -389,7 +389,7 @@ ProcessConfig = pCollisionDetectLookout
    	     post_rev_thrust = true    // default is false
 
     emergency_rev_thrust_cmd = -70.0
-   
+
    own_state_stale_thresh = 1.0
    stale_node_rec_thresh  = 2.0
 
