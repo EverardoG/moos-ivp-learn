@@ -43,6 +43,10 @@ SWIM_REGION=""
 SWIMMERS=""
 UNREGERS=""
 
+# Custom: shift swim region
+SHIFT_X=0
+SHIFT_Y=0
+
 # Custom: The main input file
 SWIM_FILE=""
 
@@ -231,6 +235,10 @@ for ARGI; do
         SWIMMERS=$ARGI
     elif [ "${ARGI:0:8}" = "--unreg=" ]; then
         UNREGERS=$ARGI
+    elif [ "${ARGI:0:13}" = "--shift_op_x=" ]; then
+        SHIFT_X="${ARGI#--shift_op_x=}"
+    elif [ "${ARGI:0:13}" = "--shift_op_y=" ]; then
+        SHIFT_Y="${ARGI#--shift_op_y=}"
 
     elif [ "${ARGI:0:12}" = "--swim_file=" ]; then
         SWIM_FILE=" ${ARGI}"
@@ -290,6 +298,7 @@ done
 #------------------------------------------------------------
 INIT_VARS=" --amt=$VAMT $RAND_VPOS $VERBOSE $RAND_SWIMMERS"
 INIT_VARS+=" --format=$GAME_FORMAT $SWIM_REGION $SWIMMERS $UNREGERS "
+INIT_VARS+=" --shift_op_x=$SHIFT_X --shift_op_y=$SHIFT_Y"
 ./init_field.sh $INIT_VARS
 
 VEHPOS=(`cat $VPOSITIONS_FILE`)
@@ -363,6 +372,8 @@ if [ "${VERBOSE}" != "" ]; then
     echo "VAPPS =         [${VAPPS[*]}]               "
     echo "--------------------------------(Custom)----"
     echo "SWIM_REGION     [${SWIM_REGION}]            "
+    echo "SHIFT_X         [${SHIFT_X}]                "
+    echo "SHIFT_Y         [${SHIFT_Y}]                "
     echo "SWIM_FILE       [${SWIM_FILE}]              "
     echo "RAND_SWIMMERS   [${RAND_SWIMMERS}]          "
     echo "SWIMMERS        [${SWIMMERS}]               "
