@@ -24,7 +24,7 @@ set MODE = SURVEYING {
 #ifdef VROLE scout
 
   #ifdef PRIMARY_BEHAVIOR Adversary
-  
+
 	  //----------------------------------------------
 		Behavior = BHV_Waypoint
 		{
@@ -34,11 +34,11 @@ set MODE = SURVEYING {
 		 condition  = MODE==SURVEYING
 		 perpetual  = true
 		 endflag    = RETURN = true
-		 
+
               speed = 1.0
 		 capture_radius = 8.0
         slip_radius = 16.0
-		         points = $(DIAMOND_PATTERN) 
+		         points = $(DIAMOND_PATTERN)
 		          repeat = 10
 		 visual_hints = vertex_size  = 6             // default
 		 visual_hints = vertex_color = red           // default
@@ -47,16 +47,16 @@ set MODE = SURVEYING {
 	#else
      //----------------------------------------------
 		 Behavior = BHV_Scout
-		 { 
+		 {
 		  name       = scout
 			pwt        = 100
 			updates    = SCOUT_UPDATE
 			condition  = MODE==SURVEYING
 			perpetual  = true
 			endflag    = RETURN = true
-			
+
 			tmate = $(TMATE)
-			
+
 			capture_radius = 10
 		 }
 		 #endif
@@ -182,9 +182,9 @@ Behavior = BHV_Waypoint
      slip_radius = 12.0
 
 #ifdef VNAME abe
-	point = 52,5
-#elseifdef VNAME ben
 	point = 41.2,-0.3
+#elseifdef VNAME ben
+	point = 52,5
 #elseifdef VNAME cal
 	point = 30.1,-5.5
 #elseifdef VNAME deb
@@ -217,7 +217,7 @@ Behavior = BHV_OpRegionV24
   updates = RECOVER_UPDATES
   condition = MODE==ACTIVE
   condition = RETURN!=true
-  
+
 
 	core_poly = pts={60,10:-75.54,-54.26:-36.99,-135.58:98.55,-71.32}
 
