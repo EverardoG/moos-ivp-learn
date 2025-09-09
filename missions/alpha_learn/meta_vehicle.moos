@@ -29,7 +29,7 @@ Processconfig = ANTLER
   Run = uFldMessageHandler @ NewConsole = false
   Run = uTimerScript       @ NewConsole = false
   Run = pRealm             @ NewConsole = false
-  Run = uTimerScript       @ NewConsole = false
+  Run = uTimerScript       @ NewConsole = false ~uTSLogSetup
 #ifdef VROLE rescue
   Run = pSectorSense       @ NewConsole = false
 #endif
@@ -405,7 +405,7 @@ ProcessConfig = pCollisionDetectLookout
 //------------------------------------------------------------
 // uTimerScript configuration block
   
-ProcessConfig = uTimerScript
+ProcessConfig = uTSLogSetup
 {
     AppTick   = 1
     CommsTick = 1
