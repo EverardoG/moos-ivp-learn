@@ -29,6 +29,7 @@ Processconfig = ANTLER
   Run = uFldMessageHandler @ NewConsole = false
   Run = uTimerScript       @ NewConsole = false
   Run = pRealm             @ NewConsole = false
+  Run = pTimerScript       @ NewConsole = false
 #ifdef VROLE rescue
   Run = pSectorSense       @ NewConsole = false
 #endif
@@ -282,7 +283,6 @@ ProcessConfig = pLogger
   Log = TASK_DEBUG @ 0 nosync
   Log = H_DEBUG @ 0 nosync
 
-  COPY_FILE_REQUEST = $(NEURAL_NETWORK_CONFIG)
 
   // Log it all!!!!!
   LogAuxSrc = true
@@ -399,4 +399,19 @@ ProcessConfig = pCollisionDetectLookout
    nominal_fwd_speed = 2.0
 
 
+}
+
+
+//------------------------------------------------------------
+// uTimerScript configuration block
+  
+ProcessConfig = uTimerScript
+{
+    AppTick   = 1
+    CommsTick = 1
+  
+    paused      = false
+    delay_start = 10
+    script_name = uTS_Logger_command
+    event  = var=PLOGGER_CMD, val="COPY_FILE_REQUEST=$(NEURAL_NETWORK_CONFIG)", time=0
 }
