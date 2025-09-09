@@ -23,8 +23,10 @@ GAME_FORMAT="r1"
 SWIMMERS=15
 UNREGERS=0
 SWIM_FILE="mit_rand.txt"
-SWIM_REGION="60,0:-30.36,-42.84:-4.66,-97.05:85.7,-54.22"
- # "60,10:-30.36,-32.84:-4.66,-87.05:85.7,-44.22"
+SWIM_REGION="60,10:-30.36,-32.84:-4.66,-87.05:85.7,-44.22"
+
+SHIFT_X=0
+SHIFT_Y=0
 
 #------------------------------------------------------------
 #  Part 3: Check for and handle command-line arguments
@@ -73,7 +75,10 @@ for ARGI; do
     elif [ "${ARGI:0:8}" = "--unreg=" ]; then
         UNREGERS="${ARGI#--unreg=*}"
 	RAND_SWIMMERS="true"
-
+    elif [ "${ARGI:0:13}" = "--shift_op_x=" ]; then
+        SHIFT_X="${ARGI#--shift_op_x=}"
+    elif [ "${ARGI:0:13}" = "--shift_op_y=" ]; then
+        SHIFT_Y="${ARGI#--shift_op_y=}"
     else
 	echo "$ME: Bad Arg: $ARGI. Exit Code 1."
 	exit 1
@@ -98,6 +103,33 @@ fi
 if [ "${RAND_VPOS}" = "yes" -o  ! -f "vpositions.txt" ]; then
     pickpos --poly="-2,-8 : 4,-13 : 60,13 : 57,18" --buffer=15 \
             --amt=$VEHICLE_AMT --hdg="170:190" > vpositions.txt
+fi
+
+#------------------------------------------------------------
+#  Shift SWIM_REGION if requested
+#------------------------------------------------------------
+shift_swim_region() {
+    local region="$1"
+    local sx="$2"
+    local sy="$3"
+    local new_region=""
+    local IFS=':'
+    for pt in $region; do
+        x=$(echo $pt | cut -d',' -f1)
+        y=$(echo $pt | cut -d',' -f2)
+        new_x=$(awk "BEGIN {printf \"%.8g\", $x + $sx}")
+        new_y=$(awk "BEGIN {printf \"%.8g\", $y + $sy}")
+        if [ -z "$new_region" ]; then
+            new_region="${new_x},${new_y}"
+        else
+            new_region="${new_region}:${new_x},${new_y}"
+        fi
+    done
+    echo "$new_region"
+}
+
+if [ "$SHIFT_X" != "0" ] || [ "$SHIFT_Y" != "0" ]; then
+    SWIM_REGION=$(shift_swim_region "$SWIM_REGION" "$SHIFT_X" "$SHIFT_Y")
 fi
 
 # generate randomly placed swimmers
@@ -198,6 +230,9 @@ if [ "${VERBOSE}" != "" ]; then
     echo "SWIM_FILE     = $RAND_SWIMMERS"
     echo "SWIMMERS      = $SWIMMERS"
     echo "UNREGERS      = $UNREGERS"
+    echo "SHIFT_X       = $SHIFT_X"
+    echo "SHIFT_Y       = $SHIFT_Y"
+    echo "SWIM_REGION   = $SWIM_REGION"
     echo "--------------------------------------(pos/spd)"
     echo "vpositions.txt:"; cat  vpositions.txt
     echo "vspeeds.txt:";    cat  vspeeds.txt
