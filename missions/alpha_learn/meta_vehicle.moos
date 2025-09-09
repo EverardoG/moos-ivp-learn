@@ -282,6 +282,8 @@ ProcessConfig = pLogger
   Log = TASK_DEBUG @ 0 nosync
   Log = H_DEBUG @ 0 nosync
 
+  COPY_FILE_REQUEST = $(NEURAL_NETWORK_CONFIG)
+
   // Log it all!!!!!
   LogAuxSrc = true
   WildCardLogging = true
