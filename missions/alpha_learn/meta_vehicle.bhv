@@ -213,6 +213,9 @@ Behavior = BHV_OpRegionV24
   name    = opreg
   pwt     = 300
   updates = RECOVER_UPDATES
+  condition = MODE==ACTIVE
+  condition = RETURN!=true
+  
 
 	core_poly = pts={60,10:-75.54,-54.26:-36.99,-135.58:98.55,-71.32}
 
