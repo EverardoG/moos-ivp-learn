@@ -182,25 +182,25 @@ Behavior = BHV_Waypoint
      slip_radius = 12.0
 
 #ifdef VNAME abe
-	point = 20,-11
+	point = 52,5
 #elseifdef VNAME ben
-	point = 30.8,-5,7
+	point = 41.2,-0.3
 #elseifdef VNAME cal
-	point = 41.5,-0.5
+	point = 30.1,-5.5
 #elseifdef VNAME deb
-	point = 52.4,4.8
+	point = 19.6,-10.8
 #elseifdef VNAME eve
-	point = 63.1,10.0
+	point = 8.9,-16.0
 #elseifdef VNAME fin
-	point = 21,-21
+	point = 53,-5
 #elseifdef VNAME max
-	point = 31.8,-15.7
+	point = 42.2,-10.3
 #elseifdef VNAME ned
-	point = 42.6,-10.5
+	point = 31.4,-15.5
 #elseifdef VNAME oak
-	point = 53.4,-5.2
+	point = 20.6,-20.8
 #elseifdef VNAME pip
-	point = 64.1,0.0
+	point = 9.9,-26.0
 #else
 	point = $(START_POS)
 #endif
