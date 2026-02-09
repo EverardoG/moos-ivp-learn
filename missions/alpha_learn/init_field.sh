@@ -23,8 +23,13 @@ GAME_FORMAT="r1"
 SWIMMERS=15
 UNREGERS=0
 SWIM_FILE="mit_rand.txt"
-SWIM_REGION="60,-10:-30.36,-52.84:-4.66,-107.05:85.7,-64.22"
-# SWIM_REGION="60,10:-30.36,-32.84:-4.66,-87.05:85.7,-44.22"
+SWIM_REGION="60,10:-75.5402,-54.2561:-36.9866,-135.58:98.5536,-71.3241"
+
+# Field used in hardware tests (4-vehicle and 8-vehicle):
+# poly = pts={60,-10:-30.36,-52.84:-4.66,-107.05:85.7,-64.22}
+
+# Field used in training and simulation studies (4-vehicle and 8-vehicle):
+# poly = pts={60,10:-75.5402,-54.2561:-36.9866,-135.58:98.5536,-71.3241}
 
 SHIFT_X=0
 SHIFT_Y=0
@@ -221,7 +226,9 @@ pickpos --amt=$VEHICLE_AMT --lfile=rescue_apps.txt > vapps.txt
 #  Part 7: If verbose, show file contents
 #------------------------------------------------------------
 if [ "${VERBOSE}" != "" ]; then
-    echo "--------------------------------------"
+    echo "============================================"
+    echo "     init_field.sh SUMMARY"
+    echo "============================================"
     echo "CMD_ARG       = $CMD_ARGS"
     echo "--------------------------------------"
     echo "VEHICLE_AMT   = $VEHICLE_AMT"
