@@ -69,7 +69,7 @@ set MODE = SURVEYING {
 Behavior = BHV_FollowCOM
 {
   name       = follow_com_bhv1
-  pwt        = 100
+  pwt        = $(PRIMARY_BEHAVIOR_WEIGHT)
   updates    = SURVEY_UPDATE
   condition  = MODE==SURVEYING
   perpetual  = true
@@ -87,7 +87,7 @@ Behavior = BHV_FollowCOM
 Behavior = BHV_MaxReading
 {
   name       = max_reading_bhv1
-  pwt        = 100
+  pwt        = $(PRIMARY_BEHAVIOR_WEIGHT)
   updates    = SURVEY_UPDATE
   condition  = MODE==SURVEYING
   perpetual  = true
@@ -98,7 +98,7 @@ Behavior = BHV_MaxReading
 Behavior = BHV_Neural_Network
 {
   name       = neural_network_bhv1
-  pwt        = 100
+  pwt        = $(PRIMARY_BEHAVIOR_WEIGHT)
   updates    = SURVEY_UPDATE
   condition  = MODE==SURVEYING
   perpetual  = true
