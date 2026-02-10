@@ -239,7 +239,7 @@ if [ "${VROLE}" = "scout" ]; then
 fi
 
 #---------------------------------------------------------------
-#  Part 4: If verbose, show vars and confirm before launching
+#  Part 5: If verbose, show vars and confirm before launching
 #---------------------------------------------------------------
 if [ "${VERBOSE}" = "yes" ]; then
     echo "============================================"
