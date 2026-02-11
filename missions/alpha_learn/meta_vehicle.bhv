@@ -136,7 +136,7 @@ Behavior = BHV_StationKeep
 Behavior = BHV_AvdColregsV22
 {
   name       = avdcol_
-  pwt        = 350
+  pwt        = $(COLREGS_WEIGHT)
   condition  = AVOID = true
   condition  = MODE==ACTIVE
   condition  = MODE!=ACTIVE:STATION-KEEPING

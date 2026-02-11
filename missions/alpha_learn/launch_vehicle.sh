@@ -57,6 +57,7 @@ R_VEHICLE_SECTORS=8
 R_SENSE_VEHICLES="no"
 DIAMOND_PATTERN="14.82,-11.42:-17.51,-59.95:40.52,-65.63:72.85,-17.11"
 PRIMARY_BEHAVIOR_WEIGHT=100
+COLREGS_WEIGHT=350
 
 #-------------------------------------------------------
 #  Part 2: Check for and handle command-line arguments
@@ -118,7 +119,10 @@ for ARGI; do
     echo "          Follow a diamond pattern               "
     echo "  --primary_behavior_weight=<int>                "
     echo "    Weight applied by ivp solver to primary      "
-    echo "    behavior                                     "
+    echo "    behavior (default: 100)                      "
+    echo "  --colregs_weight=<int>                         "
+    echo "    Weight applied by ivp solver to colregs      "
+    echo "    behavior (default: 350)                      "
     echo "  --neural_network_config=<csv_directory>        "
     echo "    Directory to the csv file containing neural  "
     echo "    network configuration for NeuralNetwork      "
@@ -190,6 +194,8 @@ for ARGI; do
         PRIMARY_BEHAVIOR="${ARGI#--primarybehavior=*}"
     elif [ "${ARGI:0:26}" = "--primary_behavior_weight=" ]; then
         PRIMARY_BEHAVIOR_WEIGHT="${ARGI#--primary_behavior_weight=*}"
+    elif [ "${ARGI:0:17}" = "--colregs_weight=" ]; then
+        COLREGS_WEIGHT="${ARGI#--colregs_weight=*}"
     elif [ "${ARGI:0:23}" = "--neural_network_config" ]; then
         NEURAL_NETWORK_CONFIG="${ARGI#--neural_network_config=*}"
     elif [ "${ARGI:0:20}" = "--r_swimmer_sectors=" ]; then
@@ -279,6 +285,7 @@ if [ "${VERBOSE}" = "yes" ]; then
     echo "VROLE =         [${VROLE}]        "
     echo "PRIMARY_BEHAVIOR = [${PRIMARY_BEHAVIOR}] "
     echo "PRIMARY_BEHAVIOR_WEIGHT = [${PRIMARY_BEHAVIOR_WEIGHT}] "
+    echo "COLREGS_WEIGHT = [${COLREGS_WEIGHT}] "
     echo "TMATE =         [${TMATE}]        "
     echo "PGR =           [${PGR}]          "
     echo "VUSER =         [${VUSER}]        "
@@ -345,6 +352,7 @@ nsplug meta_vehicle.bhv targ_$VNAME.bhv $NSFLAGS         \
        COLOR=$COLOR                 VROLE=$VROLE         \
        TMATE=$TMATE                 PRIMARY_BEHAVIOR=$PRIMARY_BEHAVIOR \
        PRIMARY_BEHAVIOR_WEIGHT=$PRIMARY_BEHAVIOR_WEIGHT \
+       COLREGS_WEIGHT=$COLREGS_WEIGHT \
        NEURAL_NETWORK_CONFIG=$NEURAL_NETWORK_CONFIG \
        SWIMMER_SECTORS=$R_SWIMMER_SECTORS \
        VEHICLE_SECTORS=$R_VEHICLE_SECTORS \
