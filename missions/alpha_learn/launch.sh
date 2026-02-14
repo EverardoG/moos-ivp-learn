@@ -70,6 +70,8 @@ NEURAL_NETWORK_DIR="./"
 R_SWIMMER_SECTORS=8
 R_VEHICLE_SECTORS=8
 R_SENSE_VEHICLES="no"
+PRIMARY_BEHAVIOR_WEIGHT=100
+COLREGS_WEIGHT=350
 
 # Custom: Logging
 TRIM="no"
@@ -157,6 +159,12 @@ for ARGI; do
     echo "  --neural_network_dir=<dir>                   "
     echo "      Directory containing neural network csv  "
     echo "      files for individual vehicles            "
+    echo "  --primary_behavior_weight=<int>              "
+    echo "    Weight applied by ivp solver to primary    "
+    echo "    behavior (default: 100)                    "
+    echo "  --colregs_weight=<int>                       "
+    echo "    Weight applied by ivp solver to colregs    "
+    echo "    behavior (default: 350)                    "
     echo "  --r_swimmer_sectors=<N>                      "
     echo "      Number of swimmer sectors for rescue     "
     echo "      vehicles (default: 8)                    "
@@ -266,6 +274,10 @@ for ARGI; do
         RESCUE_BEHAVIOR="${ARGI#--rescuebehavior=}"
     elif [[ "${ARGI:0:28}" == --rescue_observation_radius=* ]]; then
         RESCUE_OBSERVATION_RADIUS="${ARGI#--rescue_observation_radius=}"
+    elif [ "${ARGI:0:26}" = "--primary_behavior_weight=" ]; then
+        PRIMARY_BEHAVIOR_WEIGHT="${ARGI#--primary_behavior_weight=*}"
+    elif [ "${ARGI:0:17}" = "--colregs_weight=" ]; then
+        COLREGS_WEIGHT="${ARGI#--colregs_weight=*}"
     elif [[ "${ARGI}" == --neural_network_dir=* ]]; then
         NEURAL_NETWORK_DIR="${ARGI#--neural_network_dir=}"
     elif [[ "${ARGI}" == --r_swimmer_sectors=* ]]; then
@@ -397,6 +409,8 @@ if [ "${VERBOSE}" != "" ]; then
     echo "R_SWIMMER_SECTORS    [${R_SWIMMER_SECTORS}] "
     echo "R_SENSE_VEHICLES     [${R_SENSE_VEHICLES}]  "
     echo "R_VEHICLE_SECTORS    [${R_VEHICLE_SECTORS}] "
+    echo "PRIMARY_BEHAVIOR_WEIGHT = [${PRIMARY_BEHAVIOR_WEIGHT}] "
+    echo "COLREGS_WEIGHT = [${COLREGS_WEIGHT}] "
     echo -n "Hit any key to continue launch           "
     read ANSWER
 fi
@@ -424,6 +438,10 @@ do
     IVARGS+=" --vrole=${VROLES[$IXX]} "
     IVARGS+=" --tmate=${VMATES[$IXX]} "
     IVARGS+=" --primarybehavior=${VBEHAVIORS[$IXX]} "
+
+    # Add weights for behaviors
+    IVARGS+=" --primary_behavior_weight=${PRIMARY_BEHAVIOR_WEIGHT} "
+    IVARGS+=" --colregs_weight=${COLREGS_WEIGHT} "
 
     # Check if the primary behavior is "rescue" and add observation_radius
     if [ "${VROLES[$IXX]}" = "rescue" ]; then
