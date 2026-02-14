@@ -2,7 +2,6 @@
 
 import argparse
 import subprocess
-import os
 from pathlib import Path
 
 class Sweep():
@@ -58,8 +57,9 @@ class Sweep():
         ]
 
         # Execute command with learnKill first, then launch.sh in the correct directory
-        subprocess.run(['learnKill'], cwd=alpha_learn_logdir)
-        subprocess.run(cmd, cwd=alpha_learn_logdir)
+        with open(logdir / 'output.log', 'w') as logfile:
+            subprocess.run(['learnKill'], cwd=alpha_learn_logdir, stdout=logfile, stderr=logfile)
+            subprocess.run(cmd, cwd=alpha_learn_logdir, stdout=logfile, stderr=logfile)
 
 def main():
     parser = argparse.ArgumentParser(description='Run parameter sweep for MOOS-IvP rescue behavior')
