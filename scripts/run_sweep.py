@@ -4,11 +4,13 @@ import argparse
 import subprocess
 from pathlib import Path
 from tqdm import tqdm
+import shutil
 
 class Sweep():
     def __init__(self, args):
         self.args = args
         self.base_logdir = Path(self.args.log_directory).expanduser()
+        self.timeout = self.args.max_db_uptime
 
     def run_combinations(self):
         total = self.args.total_weight
@@ -36,9 +38,42 @@ class Sweep():
 
                 pbar_combinations.update(1)
 
-    def run_stat_run(self, num, primary_weight, colregs_weight):
-        # Create log directory for this specific trial
+    def run_stat_run(self, num, primary_weight, colregs_weight, retry_count=0):
+        if retry_count >= self.args.max_retries:
+            tqdm.write(f"ERROR: Maximum retries ({self.args.max_retries}) reached for trial {num}. Aborting.")
+            raise Exception(f"Too many timeouts for trial {num}")
+
+        # Figure out log directory
         logdir = self.base_logdir / f"pb_pwt_{primary_weight}_cr_pwt_{colregs_weight}" / f"trial_{num}"
+
+        # Check if directory exists and has COMPLETE marker
+        if logdir.exists():
+            complete_file = logdir / 'COMPLETE'
+            if complete_file.exists():
+                # Trial already completed successfully, skip
+                return
+
+            # Directory exists but no COMPLETE file - need to handle timeout/retry
+            timeout_file = logdir / 'TIMEOUT'
+            if timeout_file.exists():
+                # Move to timeouts folder
+                timeout_base = self.base_logdir / 'timeouts' / f"pb_pwt_{primary_weight}_cr_pwt_{colregs_weight}"
+                timeout_base.mkdir(parents=True, exist_ok=True)
+
+                # Count existing timeout folders to determine next timeout number
+                existing_timeouts = list(timeout_base.glob(f"trial_{num}_timeout_*"))
+                next_timeout_num = len(existing_timeouts)
+
+                timeout_dir = timeout_base / f"trial_{num}_timeout_{next_timeout_num}"
+                logdir.rename(timeout_dir)
+            else:
+                # No TIMEOUT file, just remove the incomplete directory
+                shutil.rmtree(logdir)
+
+            # Retry
+            return self.run_stat_run(num, primary_weight, colregs_weight, retry_count + 1)
+
+        # Create log directory for this specific trial
         logdir.mkdir(parents=True, exist_ok=True)
 
         alpha_learn_logdir = Path('~/moos-ivp-learn/missions/alpha_learn').expanduser()
@@ -62,9 +97,23 @@ class Sweep():
         ]
 
         # Execute command with learnKill first, then launch.sh in the correct directory
-        with open(logdir / 'output.log', 'w') as logfile:
-            subprocess.run(['learnKill'], cwd=alpha_learn_logdir, stdout=logfile, stderr=logfile)
-            subprocess.run(cmd, cwd=alpha_learn_logdir, stdout=logfile, stderr=logfile)
+        try:
+            with open(logdir / 'output.log', 'w') as logfile:
+                subprocess.run(['learnKill'], cwd=alpha_learn_logdir, stdout=logfile, stderr=logfile)
+                result = subprocess.run(cmd, cwd=alpha_learn_logdir, stdout=logfile, stderr=logfile,
+                                      timeout=self.timeout)
+
+            # If we got here without timeout, mark as complete
+            complete_file = logdir / 'COMPLETE'
+            complete_file.touch()
+
+        except subprocess.TimeoutExpired:
+            # Timeout occurred, create TIMEOUT file
+            timeout_file = logdir / 'TIMEOUT'
+            timeout_file.touch()
+
+            # Retry by calling recursively
+            return self.run_stat_run(num, primary_weight, colregs_weight, retry_count + 1)
 
 def main():
     parser = argparse.ArgumentParser(description='Run parameter sweep for MOOS-IvP rescue behavior')
@@ -85,6 +134,8 @@ def main():
                         help='Rescue observation radius (default: 100)')
     parser.add_argument('--max_db_uptime', type=int, default=600,
                         help='Moos timeout for mission evaluation in seconds (default: 600)')
+    parser.add_argument('--max_retries', type=int, default=10,
+                        help='Maximum number of retries for any particular trial (default: 10)')
 
     args = parser.parse_args()
 
