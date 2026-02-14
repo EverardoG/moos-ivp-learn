@@ -1,0 +1,19 @@
+#!/bin/bash
+# filepath: /Users/ever/moos-ivp-learn/scripts/run_sweep
+
+# Outer loop: sweep through weight combinations
+for primary_weight in $(seq 450 -25 0); do
+    colregs_weight=$((450 - primary_weight))
+
+    echo "Running with primary_behavior_weight=${primary_weight}, colregs_weight=${colregs_weight}"
+
+    # Inner loop: 50 statistical runs
+    for run in $(seq 1 50); do
+        # Create log directory for this specific trial
+        logdir=~/logs/2026_02_12/pb_pwt_${primary_weight}_cr_pwt_${colregs_weight}/trial_${run}/
+        mkdir -p ${logdir}
+
+        echo "  Run ${run}/50 - Saving to ${logdir}"
+        runa --r8 --swimmers=40 --uMayFinish --autodeploy --rescuebehavior=NeuralNetwork --neural_network_dir=/Users/ever/moos-ivp-learn/missions/alpha_learn/net-bv/2025_09_09/ --r_sense_vehicles --rescue_observation_radius=100 --primary_behavior_weight=${primary_weight} --colregs_weight=${colregs_weight} --logdir=${logdir} --nogui
+    done
+done
