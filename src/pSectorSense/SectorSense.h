@@ -48,8 +48,11 @@ class SectorSense : public AppCastingMOOSApp
    bool Iterate();
    bool OnConnectToServer();
    bool OnStartUp();
+   bool handleTeammates();
+   
    void updateSwimmers();
    void updateVehicles();
+   
 
  protected: // Standard AppCastingMOOSApp function to overload
    bool buildReport();
@@ -95,6 +98,8 @@ class SectorSense : public AppCastingMOOSApp
    std::string m_vehicle_readings_str;
 
    std::string m_node_report;
+
+   std::set<std::string> m_teammates; 
 };
 
 #endif

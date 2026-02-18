@@ -100,6 +100,11 @@ void SectorSense::updateVehicles() {
 
   std::vector<std::string> vnames = m_contact_ledger.getVNames();
   for (const std::string& vname : vnames) {
+    // skip if we have named teammates and this vehicle is not in
+    // that list. 
+    if ((m_teammates.size() > 0) &&(m_teammates.count(vname) == 0))
+      continue;
+    
     if (m_contact_ledger.hasVNameValid(vname)) {
       double vx = m_contact_ledger.getX(vname);
       double vy = m_contact_ledger.getY(vname);
@@ -220,8 +225,11 @@ bool SectorSense::OnStartUp()
     else if(param == "sense_vehicles") {
       handled = setBooleanOnString(m_sense_vehicles, value);
     }
+    else if(param == "teammates") {
+      handled = handleTeammates(value);
+    }
 
-    if(!handled)
+    If(!handled)
       reportUnhandledConfigWarning(orig);
 
   }
@@ -301,6 +309,25 @@ double SectorSense::calcDeltaHeading(double heading1, double heading2)
 
   return(delta_theta);
 }
+
+
+//------------------------------------------------------------
+// Procedure:handleTeammates(std:string value)
+// Ex.  abe,ben,cal
+bool SectorSense::handleTeammates(std::string value))
+{
+
+  std::vector<std::string> vec = parseString(value, ',');
+  if (vec.size() == 0)
+    return(false);
+
+  for (int i=0; i<vec.size(); i++){
+    m_teammates.insert(vec[i]); 
+  }
+  
+  return(true);
+}
+
 
 //------------------------------------------------------------
 // Procedure: buildReport()
